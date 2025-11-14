@@ -14,7 +14,7 @@ source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${SOURCES})
 target_link_libraries(Demo PRIVATE BlueMagma)
 
 # Include
-target_include_directories(Demo PRIVATE Source)
+target_include_directories(Demo PRIVATE "Source")
 
 # Working directory for VS Debug
 set_target_properties(Demo PROPERTIES

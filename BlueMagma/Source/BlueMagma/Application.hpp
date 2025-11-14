@@ -1,14 +1,13 @@
 #pragma once
-#include <string>
-#include <cstdint>
-#include <SFML/Graphics/RenderWindow.hpp>
+#include "Window.hpp"
 
 namespace BM
 {
 	struct ApplicationContext
 	{
-		std::string _WindowTitle = "BlueMagma Application";
-		uint32_t _WindowWidth = 800, _WindowHeight = 800;
+		WindowContext _WindowContext;
+
+		bool _WindowDefaultEventHandler = true;
 	};
 
 	class Application
@@ -21,9 +20,13 @@ namespace BM
 
 		void Run();
 		void Stop();
+
+		const Window& GetWindow() const noexcept {
+			return m_Window;
+		}
 	private:
 		ApplicationContext m_Context;
-		sf::RenderWindow m_Window;
+		Window m_Window;
 
 		bool m_Running = false;
 	private:

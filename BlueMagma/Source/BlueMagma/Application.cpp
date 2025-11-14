@@ -1,12 +1,13 @@
+#include "bmpch.hpp"
 #include "Application.hpp"
-#include <SFML/Window/VideoMode.hpp>
-#include <cassert>
 
 namespace BM
 {
 	Application::Application(const ApplicationContext& context) noexcept
-		: m_Context(context), m_Window(sf::VideoMode({ context._WindowWidth, context._WindowHeight }), context._WindowTitle)
+		: m_Context(context), m_Window(context._WindowContext)
 	{
+		m_Window.Create();
+
 		s_Instance = this;
 	}
 
@@ -28,7 +29,17 @@ namespace BM
 
 		while (m_Running)
 		{
+			while (auto event = m_Window.PollEvent())
+			{
+				if (m_Context._WindowDefaultEventHandler)
+					m_Window.OnEvent(event.value());
+			}
 
+			if (!m_Window.IsOpen())
+				Stop();
+
+			m_Window.ClearScreen();
+			m_Window.DisplayScreen();
 		}
 	}
 
