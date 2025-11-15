@@ -1,4 +1,5 @@
 #include <BlueMagma.hpp>
+#include "DemoLayer.hpp"
 
 int main(int argc, char* argv[])
 {
@@ -7,6 +8,8 @@ int main(int argc, char* argv[])
 	appContext._WindowContext._Height = 540;
 
 	BM::Application application(appContext);
+
+	application.PushLayer<DemoLayer>();
 	application.Run();
 
 	return 0;

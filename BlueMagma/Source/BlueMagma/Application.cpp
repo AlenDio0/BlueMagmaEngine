@@ -1,5 +1,6 @@
 #include "bmpch.hpp"
 #include "Application.hpp"
+#include <SFML/System/Clock.hpp>
 
 namespace BM
 {
@@ -23,22 +24,51 @@ namespace BM
 		return *s_Instance;
 	}
 
+	const Window& Application::GetWindow() const noexcept
+	{
+		return m_Window;
+	}
+
 	void Application::Run()
 	{
 		m_Running = true;
 
+		sf::Clock deltaClock;
 		while (m_Running)
 		{
+			float deltaTime = deltaClock.restart().asSeconds();
+
+			if (!m_Machine.ProcessLayerChanges())
+			{
+				Stop();
+				break;
+			}
+
+			const auto& layers = m_Machine.GetLayers();
+
 			while (auto event = m_Window.PollEvent())
 			{
 				if (m_Context._WindowDefaultEventHandler)
-					m_Window.OnEvent(event.value());
+					m_Window.OnEvent(*event);
+
+				for (const auto& layer : layers)
+					layer->OnEvent(*event);
 			}
 
 			if (!m_Window.IsOpen())
+			{
 				Stop();
+				break;
+			}
+
+			for (const auto& layer : layers)
+				layer->OnUpdate(deltaTime);
 
 			m_Window.ClearScreen();
+
+			for (const auto& layer : layers)
+				layer->OnRender(m_Window.GetHandle());
+
 			m_Window.DisplayScreen();
 		}
 	}
@@ -46,5 +76,15 @@ namespace BM
 	void Application::Stop()
 	{
 		m_Running = false;
+	}
+
+	void Application::TransitionLayer(Layer* fromLayer, std::unique_ptr<Layer> toLayer) noexcept
+	{
+		m_Machine.TransitionLayer(fromLayer, std::move(toLayer));
+	}
+
+	void Application::RemoveLayer(Layer* layer) noexcept
+	{
+		m_Machine.RemoveLayer(layer);
 	}
 }

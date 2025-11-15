@@ -1,5 +1,6 @@
 #pragma once
 #include "Window.hpp"
+#include "LayerMachine.hpp"
 
 namespace BM
 {
@@ -18,15 +19,25 @@ namespace BM
 
 		static Application& Get() noexcept;
 
+		const Window& GetWindow() const noexcept;
+
 		void Run();
 		void Stop();
 
-		const Window& GetWindow() const noexcept {
-			return m_Window;
+		template<std::derived_from<Layer> TLayer>
+		inline TLayer* GetLayer() const noexcept {
+			return m_Machine.GetLayer<TLayer>();
 		}
+		template<std::derived_from<Layer> T, typename... Args>
+		inline void PushLayer(Args&&... args) noexcept {
+			m_Machine.PushLayer(std::move(std::make_unique<T>(std::forward<Args>(args)...)));
+		}
+		void TransitionLayer(Layer* fromLayer, std::unique_ptr<Layer> toLayer) noexcept;
+		void RemoveLayer(Layer* layer) noexcept;
 	private:
 		ApplicationContext m_Context;
 		Window m_Window;
+		LayerMachine m_Machine;
 
 		bool m_Running = false;
 	private:

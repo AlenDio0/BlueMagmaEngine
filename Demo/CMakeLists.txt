@@ -2,6 +2,10 @@
 
 set(SOURCES
     Source/Main.cpp
+    Source/DemoLayer.hpp
+    Source/DemoLayer.cpp
+    Source/GameLayer.hpp
+    Source/GameLayer.cpp
 )
 
 add_executable(Demo ${SOURCES})

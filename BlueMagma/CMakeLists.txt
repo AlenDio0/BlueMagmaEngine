@@ -8,6 +8,10 @@ set(SOURCES
     Source/BlueMagma/Application.cpp
     Source/BlueMagma/Window.hpp
     Source/BlueMagma/Window.cpp
+    Source/BlueMagma/Layer.hpp
+    Source/BlueMagma/Layer.cpp
+    Source/BlueMagma/LayerMachine.hpp
+    Source/BlueMagma/LayerMachine.cpp
 )
 
 add_library(BlueMagma STATIC)
