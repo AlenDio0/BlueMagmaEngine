@@ -34,11 +34,10 @@ void GameLayer::OnEvent(const sf::Event& event) noexcept
 			TransitionTo<DemoLayer>();
 			break;
 		case Key::B:
-			RemoveLayer();
+			GetApp().PushLayer<DemoLayer>();
 			break;
 		case Key::C:
-			if (auto game = GetApp().GetLayer<GameLayer>())
-				GetApp().RemoveLayer(game);
+			RemoveLayer();
 			break;
 		default:
 			break;

@@ -1,17 +1,19 @@
 #pragma once
 #include "Layer.hpp"
 #include <vector>
+#include <stack>
 #include <memory>
-#include <utility>
+#include <concepts>
+#include <variant>
 
 namespace BM
 {
 	class LayerMachine
 	{
 	public:
-		void PushLayer(std::unique_ptr<Layer> layer) noexcept;
-		void TransitionLayer(Layer* fromLayer, std::unique_ptr<Layer> toLayer) noexcept;
 		void RemoveLayer(Layer* layer) noexcept;
+		void TransitionLayer(Layer* fromLayer, std::unique_ptr<Layer> toLayer) noexcept;
+		void PushLayer(std::unique_ptr<Layer> layer) noexcept;
 
 		template<std::derived_from<Layer> TLayer>
 		inline TLayer* GetLayer() const noexcept {
@@ -26,20 +28,27 @@ namespace BM
 
 		bool ProcessLayerChanges() noexcept;
 	private:
-		void OnRemove() noexcept;
-		void OnTransition() noexcept;
-	private:
-		std::vector<std::unique_ptr<Layer>> m_Layers;
-
-		Layer* m_RemoveLayer = nullptr;
-		struct Transition
+		struct RemoveOperation
+		{
+			Layer* _Layer;
+		};
+		struct TransitionOperation
 		{
 			Layer* _FromLayer = nullptr;
 			std::unique_ptr<Layer> _ToLayer;
+		};
+		struct PushOperation
+		{
+			std::unique_ptr<Layer> _Layer;
+		};
+	private:
+		void HandleOperation(const RemoveOperation& remove) noexcept;
+		void HandleOperation(TransitionOperation& transition) noexcept;
+		void HandleOperation(PushOperation& push) noexcept;
+	private:
+		std::vector<std::unique_ptr<Layer>> m_Layers;
 
-			operator bool() const noexcept {
-				return _FromLayer && _ToLayer;
-			}
-		} m_Transition;
+		using Operation = std::variant<RemoveOperation, TransitionOperation, PushOperation>;
+		std::vector<Operation> m_OperationBuffer;
 	};
 }

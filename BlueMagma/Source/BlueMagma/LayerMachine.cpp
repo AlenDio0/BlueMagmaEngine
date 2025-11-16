@@ -3,13 +3,12 @@
 
 namespace BM
 {
-	void LayerMachine::PushLayer(std::unique_ptr<Layer> layer) noexcept
+	void LayerMachine::RemoveLayer(Layer* layer) noexcept
 	{
 		if (!layer)
 			return;
 
-		m_Layers.push_back(std::move(layer));
-		m_Layers.back()->OnAttach();
+		m_OperationBuffer.push_back(RemoveOperation{ layer });
 	}
 
 	void LayerMachine::TransitionLayer(Layer* fromLayer, std::unique_ptr<Layer> toLayer) noexcept
@@ -17,16 +16,15 @@ namespace BM
 		if (!fromLayer || !toLayer)
 			return;
 
-		m_Transition._FromLayer = fromLayer;
-		m_Transition._ToLayer = std::move(toLayer);
+		m_OperationBuffer.push_back(TransitionOperation{ fromLayer, std::move(toLayer) });
 	}
 
-	void LayerMachine::RemoveLayer(Layer* layer) noexcept
+	void LayerMachine::PushLayer(std::unique_ptr<Layer> layer) noexcept
 	{
 		if (!layer)
 			return;
 
-		m_RemoveLayer = layer;
+		m_OperationBuffer.push_back(PushOperation{ std::move(layer) });
 	}
 
 	const std::vector<std::unique_ptr<Layer>>& LayerMachine::GetLayers() noexcept
@@ -36,45 +34,45 @@ namespace BM
 
 	bool LayerMachine::ProcessLayerChanges() noexcept
 	{
-		if (m_RemoveLayer)
-			OnRemove();
-
-		if (m_Transition)
-			OnTransition();
+		for (auto& operation : m_OperationBuffer)
+			std::visit([&](auto& op) { HandleOperation(op); }, operation);
+		m_OperationBuffer.clear();
 
 		return !m_Layers.empty();
 	}
 
 	static inline auto FindLayer(auto& layers, Layer* find) noexcept {
-		return std::ranges::find_if(layers, [&](const std::unique_ptr<Layer>& layer) noexcept { return layer.get() == find; });
+		return std::ranges::find(layers, find, &std::unique_ptr<Layer>::get);
 	}
 
-	void LayerMachine::OnRemove() noexcept
+	void LayerMachine::HandleOperation(const RemoveOperation& remove) noexcept
 	{
-		if (auto find = FindLayer(m_Layers, m_RemoveLayer); find != m_Layers.end())
+		if (auto find = FindLayer(m_Layers, remove._Layer); find != m_Layers.end())
 		{
 			std::unique_ptr<Layer>& layer = *find;
 
 			layer->OnDetach();
 			m_Layers.erase(find);
 		}
-
-		m_RemoveLayer = nullptr;
 	}
 
-	void LayerMachine::OnTransition() noexcept
+	void LayerMachine::HandleOperation(TransitionOperation& transition) noexcept
 	{
-		if (auto find = FindLayer(m_Layers, m_Transition._FromLayer); find != m_Layers.end())
+		if (auto find = FindLayer(m_Layers, transition._FromLayer); find != m_Layers.end())
 		{
 			std::unique_ptr<Layer>& layer = *find;
 
 			layer->OnTransition();
 			layer->OnDetach();
 
-			layer = std::move(m_Transition._ToLayer);
+			layer = std::move(transition._ToLayer);
 			layer->OnAttach();
 		}
+	}
 
-		m_Transition = {};
+	void LayerMachine::HandleOperation(PushOperation& push) noexcept
+	{
+		m_Layers.push_back(std::move(push._Layer));
+		m_Layers.back()->OnAttach();
 	}
 }
