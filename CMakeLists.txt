@@ -10,9 +10,18 @@ if (MSVC)
     add_compile_options(/MP)
 endif()
 
+# Options
+option(BLUEMAGMAENGINE_BUILD_EXAMPLE "Build examples and demos." ON)
+
 # Dependencies
 include(Dependencies.cmake)
 
 # Projects
 add_subdirectory(BlueMagma)
+
+if (BLUEMAGMAENGINE_BUILD_EXAMPLE)
 add_subdirectory(Demo)
+endif()
+
+# Alias
+add_library(BlueMagmaEngine ALIAS BlueMagma)
