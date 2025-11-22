@@ -8,10 +8,12 @@ set(SOURCES
     Source/GameLayer.cpp
 )
 
+# Executable
 add_executable(Demo ${SOURCES})
-
 target_sources(Demo PRIVATE ${SOURCES})
 
+# IDE Structure
+set_target_properties(Demo PROPERTIES FOLDER "BlueMagma")
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${SOURCES})
 
 # Dependencies

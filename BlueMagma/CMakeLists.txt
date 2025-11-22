@@ -14,16 +14,19 @@ set(SOURCES
     Source/BlueMagma/LayerMachine.cpp
 )
 
+# Library
 add_library(BlueMagma STATIC)
 
 target_sources(BlueMagma PRIVATE ${SOURCES})
 
+# IDE Structure
+set_target_properties(BlueMagma PROPERTIES FOLDER "BlueMagma/Core")
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${SOURCES})
 
 # Dependencies
 # SFML
-target_link_libraries(BlueMagma SFML::Graphics)
-target_link_libraries(BlueMagma SFML::Audio)
+target_link_libraries(BlueMagma PUBLIC SFML::Graphics)
+target_link_libraries(BlueMagma PUBLIC SFML::Audio)
 
 # Include
 target_include_directories(BlueMagma PUBLIC "Source")

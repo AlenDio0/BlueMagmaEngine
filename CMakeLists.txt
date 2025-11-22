@@ -20,7 +20,7 @@ include(Dependencies.cmake)
 add_subdirectory(BlueMagma)
 
 if (BLUEMAGMAENGINE_BUILD_EXAMPLE)
-add_subdirectory(Demo)
+    add_subdirectory(Demo)
 endif()
 
 # Alias
