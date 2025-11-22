@@ -1,11 +1,22 @@
 #include "GameLayer.hpp"
 #include "DemoLayer.hpp"
 #include <BlueMagma/Application.hpp>
-#include <SFML/Window/Event.hpp>
-#include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Graphics/Color.hpp>
+#include <SFML/Window/Event.hpp>
+#include <SFML/Window/Keyboard.hpp>
 #include <print>
+#include <format>
+#include <cmath>
+
+GameLayer::GameLayer() noexcept
+	: m_Background((sf::Vector2f)GetApp().GetWindow().GetHandle().getSize()),
+	m_Text(*GetApp().GetAssets().Get<BM::Font>("minecraft")),
+	m_Sound(*GetApp().GetAssets().Get<BM::SoundBuffer>("transition"))
+{
+	m_Background.setFillColor(sf::Color(0x0000FF80));
+	m_Sound.setVolume(10.f);
+}
 
 void GameLayer::OnAttach() noexcept
 {
@@ -39,16 +50,30 @@ void GameLayer::OnEvent(const sf::Event& event) noexcept
 		case Key::C:
 			RemoveLayer();
 			break;
+		case Key::D:
+			m_Sound.play();
+			break;
 		default:
 			break;
 		}
 	}
 }
 
+void GameLayer::OnUpdate(float deltaTime) noexcept
+{
+	if (m_UpdateText.getElapsedTime().asSeconds() >= 1.f)
+	{
+		m_UpdateText.restart();
+
+		const double cMicro = std::round(deltaTime * std::pow(10, 6));
+		const double cFPS = std::round(1.f / deltaTime);
+
+		m_Text.setString(std::format("{}ms\n{}us\n{} FPS", deltaTime, cMicro, cFPS));
+	}
+}
+
 void GameLayer::OnRender(sf::RenderTarget& target) noexcept
 {
-	sf::RectangleShape shape((sf::Vector2f)target.getSize());
-	shape.setFillColor(sf::Color(0x0000FF80));
-
-	target.draw(shape);
+	target.draw(m_Background);
+	target.draw(m_Text);
 }

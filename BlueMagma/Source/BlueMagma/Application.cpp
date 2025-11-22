@@ -24,11 +24,6 @@ namespace BM
 		return *s_Instance;
 	}
 
-	const Window& Application::GetWindow() const noexcept
-	{
-		return m_Window;
-	}
-
 	void Application::Run()
 	{
 		m_Running = true;
@@ -56,10 +51,7 @@ namespace BM
 			}
 
 			if (!m_Window.IsOpen())
-			{
 				Stop();
-				break;
-			}
 
 			for (const auto& layer : layers)
 				layer->OnUpdate(deltaTime);
@@ -76,6 +68,16 @@ namespace BM
 	void Application::Stop()
 	{
 		m_Running = false;
+	}
+
+	Window& Application::GetWindow() noexcept
+	{
+		return m_Window;
+	}
+
+	AssetManager& Application::GetAssets() noexcept
+	{
+		return m_Assets;
 	}
 
 	void Application::TransitionLayer(Layer* fromLayer, std::unique_ptr<Layer> toLayer) noexcept

@@ -12,11 +12,13 @@ set(SOURCES
     Source/BlueMagma/Layer.cpp
     Source/BlueMagma/LayerMachine.hpp
     Source/BlueMagma/LayerMachine.cpp
+    Source/BlueMagma/Asset.hpp
+    Source/BlueMagma/AssetManager.hpp
+    Source/BlueMagma/AssetManager.cpp
 )
 
 # Library
 add_library(BlueMagma STATIC)
-
 target_sources(BlueMagma PRIVATE ${SOURCES})
 
 # IDE Structure

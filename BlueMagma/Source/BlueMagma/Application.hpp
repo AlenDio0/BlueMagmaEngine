@@ -1,6 +1,11 @@
 #pragma once
 #include "Window.hpp"
 #include "LayerMachine.hpp"
+#include "AssetManager.hpp"
+#include "Asset.hpp"
+#include <memory>
+#include <concepts>
+#include <string>
 
 namespace BM
 {
@@ -19,10 +24,11 @@ namespace BM
 
 		static Application& Get() noexcept;
 
-		const Window& GetWindow() const noexcept;
-
 		void Run();
 		void Stop();
+
+		Window& GetWindow() noexcept;
+		AssetManager& GetAssets() noexcept;
 
 		template<std::derived_from<Layer> TLayer>
 		inline TLayer* GetLayer() const noexcept {
@@ -38,6 +44,7 @@ namespace BM
 		ApplicationContext m_Context;
 		Window m_Window;
 		LayerMachine m_Machine;
+		AssetManager m_Assets;
 
 		bool m_Running = false;
 	private:
