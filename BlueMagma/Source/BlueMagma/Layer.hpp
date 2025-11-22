@@ -1,5 +1,5 @@
 #pragma once
-#include <SFML/Window/Event.hpp>
+#include "EventDispatcher.hpp"
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <concepts>
 #include <memory>
@@ -11,16 +11,16 @@ namespace BM
 	class Layer
 	{
 	public:
-		Layer() noexcept = default;
-		virtual ~Layer() noexcept = default;
+		inline Layer() noexcept = default;
+		inline virtual ~Layer() noexcept = default;
 
-		virtual void OnAttach() noexcept {}
-		virtual void OnDetach() noexcept {}
-		virtual void OnTransition() noexcept {}
+		inline virtual void OnAttach() noexcept {}
+		inline virtual void OnDetach() noexcept {}
+		inline virtual void OnTransition() noexcept {}
 
-		virtual void OnEvent(const sf::Event& event) noexcept {}
-		virtual void OnUpdate(float deltaTime)	noexcept {}
-		virtual void OnRender(sf::RenderTarget& target) noexcept {}
+		inline virtual void OnEvent(Event& event) noexcept {}
+		inline virtual void OnUpdate(float deltaTime) noexcept {}
+		inline virtual void OnRender(sf::RenderTarget& target) noexcept {}
 	protected:
 		Application& GetApp() const noexcept;
 

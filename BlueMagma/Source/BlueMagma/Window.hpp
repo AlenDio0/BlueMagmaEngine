@@ -1,11 +1,11 @@
 #pragma once
+#include "EventDispatcher.hpp"
 #include <string>
 #include <cstdint>
+#include <functional>
 #include <memory>
-#include <optional>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Window/WindowEnums.hpp>
-#include <SFML/Window/Event.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Drawable.hpp>
 
@@ -16,6 +16,12 @@ namespace BM
 		std::string _Title = "BlueMagma Application";
 		uint32_t _Width = 800, _Height = 800;
 		uint32_t _Style = sf::Style::Default;
+
+		uint32_t _FPSLimit = 0;
+		bool _VSync = true;
+
+		using EventCallbackFn = std::function<void(Event&)>;
+		EventCallbackFn _EventCallback;
 	};
 
 	class Window
@@ -29,8 +35,7 @@ namespace BM
 
 		void Close() noexcept;
 
-		std::optional<sf::Event> PollEvent() const noexcept;
-		void OnEvent(const sf::Event& event) noexcept;
+		void PollEvent() noexcept;
 
 		void ClearScreen(sf::Color newColor = {}) noexcept;
 		void Draw(const sf::Drawable& drawable) noexcept;

@@ -1,4 +1,5 @@
 #include "BlueMagma/Application.hpp"
 #include "BlueMagma/Window.hpp"
+#include "BlueMagma/EventDispatcher.hpp"
 #include "BlueMagma/Layer.hpp"
 #include "BlueMagma/AssetManager.hpp"

@@ -5,11 +5,15 @@
 namespace BM
 {
 	Application::Application(const ApplicationContext& context) noexcept
-		: m_Context(context), m_Window(context._WindowContext)
+		: m_Context(context)
 	{
-		m_Window.Create();
-
 		s_Instance = this;
+
+		if (!m_Context._WindowContext._EventCallback)
+			m_Context._WindowContext._EventCallback = [&](Event& event) { EventCallback(event); };
+
+		m_Window = std::make_unique<Window>(m_Context._WindowContext);
+		m_Window->Create();
 	}
 
 	Application::~Application() noexcept
@@ -39,29 +43,22 @@ namespace BM
 				break;
 			}
 
-			const auto& layers = m_Machine.GetLayers();
+			m_Window->PollEvent();
 
-			while (auto event = m_Window.PollEvent())
-			{
-				if (m_Context._WindowDefaultEventHandler)
-					m_Window.OnEvent(*event);
-
-				for (const auto& layer : layers)
-					layer->OnEvent(*event);
-			}
-
-			if (!m_Window.IsOpen())
+			if (!m_Window->IsOpen())
 				Stop();
+
+			const auto& layers = m_Machine.GetLayers();
 
 			for (const auto& layer : layers)
 				layer->OnUpdate(deltaTime);
 
-			m_Window.ClearScreen();
+			m_Window->ClearScreen();
 
 			for (const auto& layer : layers)
-				layer->OnRender(m_Window.GetHandle());
+				layer->OnRender(m_Window->GetHandle());
 
-			m_Window.DisplayScreen();
+			m_Window->DisplayScreen();
 		}
 	}
 
@@ -72,7 +69,7 @@ namespace BM
 
 	Window& Application::GetWindow() noexcept
 	{
-		return m_Window;
+		return *m_Window;
 	}
 
 	AssetManager& Application::GetAssets() noexcept
@@ -88,5 +85,44 @@ namespace BM
 	void Application::RemoveLayer(Layer* layer) noexcept
 	{
 		m_Machine.RemoveLayer(layer);
+	}
+
+	void Application::EventCallback(Event& event) noexcept
+	{
+		{
+			EventDispatcher dispatcher(event);
+
+			if (m_Context._DefaultWindowCloseEvent)
+				dispatcher.Dispatch<EventHandle::Closed>([&](const EventHandle::Closed& closed) { return OnCloseEvent(closed); });
+			if (m_Context._DefaultWindowResizeEvent)
+				dispatcher.Dispatch<EventHandle::Resized>([&](const EventHandle::Resized& resize) { return OnResizeEvent(resize); });
+		}
+
+		for (const auto& layer : m_Machine.GetLayers() | std::views::reverse)
+		{
+			layer->OnEvent(event);
+
+			if (event._Done)
+				break;
+		}
+	}
+
+	bool Application::OnCloseEvent(const EventHandle::Closed& event) noexcept
+	{
+		m_Window->Close();
+
+		return false;
+	}
+
+	bool Application::OnResizeEvent(const EventHandle::Resized& event) noexcept
+	{
+		sf::View view = m_Window->GetHandle().getView();
+
+		sf::Vector2f size = static_cast<sf::Vector2f>(event.size);
+		view.setSize(size);
+
+		m_Window->GetHandle().setView(view);
+
+		return false;
 	}
 }

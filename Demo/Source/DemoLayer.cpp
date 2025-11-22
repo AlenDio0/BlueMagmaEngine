@@ -1,7 +1,7 @@
 #include "DemoLayer.hpp"
 #include "GameLayer.hpp"
 #include <BlueMagma/Application.hpp>
-#include <SFML/Window/Event.hpp>
+#include <BlueMagma/EventDispatcher.hpp>
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Audio/SoundSource.hpp>
@@ -23,30 +23,43 @@ void DemoLayer::OnTransition() noexcept
 	while (m_Sound.getStatus() == sf::SoundSource::Status::Playing);
 }
 
-void DemoLayer::OnEvent(const sf::Event& event) noexcept
+void DemoLayer::OnEvent(BM::Event& event) noexcept
 {
-	if (auto keyPressedEvent = event.getIf<sf::Event::KeyPressed>())
-	{
-		switch (keyPressedEvent->code)
-		{
-			using Key = sf::Keyboard::Key;
-
-		case Key::A:
-			TransitionTo<GameLayer>();
-			break;
-		case Key::B:
-			GetApp().PushLayer<GameLayer>();
-			break;
-		case Key::C:
-			RemoveLayer();
-			break;
-		default:
-			break;
-		}
-	}
+	BM::EventDispatcher dispatcher(event);
+	dispatcher.Dispatch<BM::EventHandle::KeyPressed>([&](const auto& event) { return OnKeyPressed(event); });
+	dispatcher.Dispatch<BM::EventHandle::MouseButtonPressed>([&](const auto& event) { return OnMousePressed(event); });
 }
 
 void DemoLayer::OnRender(sf::RenderTarget& target) noexcept
 {
 	target.draw(m_Sprite);
+}
+
+bool DemoLayer::OnKeyPressed(const BM::EventHandle::KeyPressed& keyPressed) noexcept
+{
+	switch (keyPressed.code)
+	{
+		using Key = sf::Keyboard::Key;
+
+	case Key::A:
+		TransitionTo<GameLayer>();
+		break;
+	case Key::B:
+		GetApp().PushLayer<GameLayer>();
+		break;
+	case Key::C:
+		RemoveLayer();
+		break;
+	default:
+		return false;
+	}
+
+	return true;
+}
+
+bool DemoLayer::OnMousePressed(const BM::EventHandle::MouseButtonPressed& mousePressed) noexcept
+{
+	m_Sprite.setPosition((sf::Vector2f)mousePressed.position);
+
+	return true;
 }

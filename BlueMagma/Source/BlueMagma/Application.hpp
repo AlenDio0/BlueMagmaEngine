@@ -2,10 +2,10 @@
 #include "Window.hpp"
 #include "LayerMachine.hpp"
 #include "AssetManager.hpp"
-#include "Asset.hpp"
 #include <memory>
 #include <concepts>
-#include <string>
+#include "EventDispatcher.hpp"
+#include <SFML/Window/Event.hpp>
 
 namespace BM
 {
@@ -13,7 +13,8 @@ namespace BM
 	{
 		WindowContext _WindowContext;
 
-		bool _WindowDefaultEventHandler = true;
+		bool _DefaultWindowCloseEvent = true;
+		bool _DefaultWindowResizeEvent = true;
 	};
 
 	class Application
@@ -41,8 +42,13 @@ namespace BM
 		void TransitionLayer(Layer* fromLayer, std::unique_ptr<Layer> toLayer) noexcept;
 		void RemoveLayer(Layer* layer) noexcept;
 	private:
+		void EventCallback(Event& event) noexcept;
+
+		bool OnCloseEvent(const EventHandle::Closed& event) noexcept;
+		bool OnResizeEvent(const EventHandle::Resized& event) noexcept;
+	private:
 		ApplicationContext m_Context;
-		Window m_Window;
+		std::unique_ptr<Window> m_Window;
 		LayerMachine m_Machine;
 		AssetManager m_Assets;
 

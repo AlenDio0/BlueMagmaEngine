@@ -3,7 +3,6 @@
 #include <BlueMagma/Application.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Graphics/Color.hpp>
-#include <SFML/Window/Event.hpp>
 #include <SFML/Window/Keyboard.hpp>
 #include <print>
 #include <format>
@@ -33,30 +32,10 @@ void GameLayer::OnTransition() noexcept
 	std::println("GameLayer::OnTransition");
 }
 
-void GameLayer::OnEvent(const sf::Event& event) noexcept
+void GameLayer::OnEvent(BM::Event& event) noexcept
 {
-	if (auto keyPressedEvent = event.getIf<sf::Event::KeyPressed>())
-	{
-		switch (keyPressedEvent->code)
-		{
-			using Key = sf::Keyboard::Key;
-
-		case Key::A:
-			TransitionTo<DemoLayer>();
-			break;
-		case Key::B:
-			GetApp().PushLayer<DemoLayer>();
-			break;
-		case Key::C:
-			RemoveLayer();
-			break;
-		case Key::D:
-			m_Sound.play();
-			break;
-		default:
-			break;
-		}
-	}
+	BM::EventDispatcher dispatcher(event);
+	dispatcher.Dispatch<BM::EventHandle::KeyPressed>([&](const auto& event) { return OnKeyPressed(event); });
 }
 
 void GameLayer::OnUpdate(float deltaTime) noexcept
@@ -76,4 +55,29 @@ void GameLayer::OnRender(sf::RenderTarget& target) noexcept
 {
 	target.draw(m_Background);
 	target.draw(m_Text);
+}
+
+bool GameLayer::OnKeyPressed(const BM::EventHandle::KeyPressed& keyPressed) noexcept
+{
+	switch (keyPressed.code)
+	{
+		using Key = sf::Keyboard::Key;
+
+	case Key::A:
+		TransitionTo<DemoLayer>();
+		break;
+	case Key::B:
+		GetApp().PushLayer<DemoLayer>();
+		break;
+	case Key::C:
+		RemoveLayer();
+		break;
+	case Key::D:
+		m_Sound.play();
+		break;
+	default:
+		return false;
+	}
+
+	return true;
 }

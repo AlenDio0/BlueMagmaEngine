@@ -14,9 +14,11 @@ public:
 	virtual void OnDetach() noexcept override;
 	virtual void OnTransition() noexcept override;
 
-	virtual void OnEvent(const sf::Event& event) noexcept override;
+	virtual void OnEvent(BM::Event& event) noexcept override;
 	virtual void OnUpdate(float deltaTime) noexcept override;
 	virtual void OnRender(sf::RenderTarget& target) noexcept override;
+private:
+	bool OnKeyPressed(const BM::EventHandle::KeyPressed& keyPressed) noexcept;
 private:
 	sf::RectangleShape m_Background;
 

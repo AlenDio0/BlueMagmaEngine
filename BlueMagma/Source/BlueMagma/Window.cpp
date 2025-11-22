@@ -19,9 +19,10 @@ namespace BM
 		{
 			m_Handle = std::make_unique<sf::RenderWindow>();
 
-			m_Handle->create(sf::VideoMode({ m_Context._Width, m_Context._Height }),
-				m_Context._Title, m_Context._Style
-			);
+			m_Handle->create(sf::VideoMode({ m_Context._Width, m_Context._Height }), m_Context._Title, m_Context._Style);
+
+			m_Handle->setFramerateLimit(m_Context._FPSLimit);
+			m_Handle->setVerticalSyncEnabled(m_Context._VSync);
 		}
 		catch (...) {}
 	}
@@ -41,24 +42,15 @@ namespace BM
 		catch (...) {}
 	}
 
-	std::optional<sf::Event> Window::PollEvent() const noexcept
+	void Window::PollEvent() noexcept
 	{
-		return m_Handle->pollEvent();
-	}
+		if (!m_Context._EventCallback)
+			return;
 
-	void Window::OnEvent(const sf::Event& event) noexcept
-	{
-		if (event.is<sf::Event::Closed>())
-			Close();
-
-		else if (auto resizedEvent = event.getIf<sf::Event::Resized>())
+		while (auto ev = m_Handle->pollEvent())
 		{
-			sf::View view = m_Handle->getView();
-
-			sf::Vector2f size = static_cast<sf::Vector2f>(resizedEvent->size);
-			view.setSize(size);
-
-			m_Handle->setView(view);
+			Event event(static_cast<EventHandle>(ev.value()));
+			m_Context._EventCallback(event);
 		}
 	}
 
