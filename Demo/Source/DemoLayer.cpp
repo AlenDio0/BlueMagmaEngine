@@ -6,13 +6,13 @@
 #include <SFML/System/Vector2.hpp>
 
 DemoLayer::DemoLayer() noexcept
-	: m_Sprite(*GetApp().GetAssets().Get<BM::Texture>("cat"))
+	: m_Sprite(*GetAsset<BM::Texture>("cat"))
 {
 	m_Sprite.setOrigin((sf::Vector2f)m_Sprite.getTexture().getSize() / 2.f);
-	m_Sprite.setPosition((sf::Vector2f)(GetApp().GetWindow().GetHandle().getSize() / 2u));
+	m_Sprite.setPosition((sf::Vector2f)(GetWindow().GetSize() / 2u));
 	m_Sprite.setScale({ 0.4f, 0.4f });
 
-	m_SoundManager.Add("transition", *GetApp().GetAssets().Get<BM::SoundBuffer>("transition"));
+	m_SoundManager.Add("transition", *GetAsset<BM::SoundBuffer>("transition"));
 }
 
 void DemoLayer::OnTransition() noexcept

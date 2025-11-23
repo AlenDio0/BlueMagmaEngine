@@ -8,6 +8,7 @@
 #include <SFML/Window/WindowEnums.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Drawable.hpp>
+#include <SFML/System/Vector2.hpp>
 
 namespace BM
 {
@@ -42,6 +43,8 @@ namespace BM
 		void DisplayScreen() noexcept;
 
 		bool IsOpen() const noexcept;
+
+		sf::Vector2u GetSize() const noexcept;
 
 		sf::RenderWindow& GetHandle() const noexcept;
 	private:

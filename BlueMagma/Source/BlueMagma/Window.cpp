@@ -93,6 +93,11 @@ namespace BM
 		}
 	}
 
+	sf::Vector2u Window::GetSize() const noexcept
+	{
+		return m_Handle->getSize();
+	}
+
 	sf::RenderWindow& Window::GetHandle() const noexcept
 	{
 		return *m_Handle;

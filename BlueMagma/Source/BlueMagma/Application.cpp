@@ -72,19 +72,14 @@ namespace BM
 		return *m_Window;
 	}
 
+	LayerMachine& Application::GetMachine() noexcept
+	{
+		return m_Machine;
+	}
+
 	AssetManager& Application::GetAssets() noexcept
 	{
 		return m_Assets;
-	}
-
-	void Application::TransitionLayer(Layer* fromLayer, std::unique_ptr<Layer> toLayer) noexcept
-	{
-		m_Machine.TransitionLayer(fromLayer, std::move(toLayer));
-	}
-
-	void Application::RemoveLayer(Layer* layer) noexcept
-	{
-		m_Machine.RemoveLayer(layer);
 	}
 
 	void Application::EventCallback(Event& event) noexcept

@@ -9,12 +9,12 @@
 #include <cmath>
 
 GameLayer::GameLayer() noexcept
-	: m_Background((sf::Vector2f)GetApp().GetWindow().GetHandle().getSize()),
-	m_Text(*GetApp().GetAssets().Get<BM::Font>("minecraft"))
+	: m_Background((sf::Vector2f)GetWindow().GetSize()),
+	m_Text(*GetAsset<BM::Font>("minecraft"))
 {
 	m_Background.setFillColor(sf::Color(0x0000FF80));
 
-	m_SoundManager.Add("sound", *GetApp().GetAssets().Get<BM::SoundBuffer>("transition"));
+	m_SoundManager.Add("sound", *GetAsset<BM::SoundBuffer>("transition"));
 }
 
 void GameLayer::OnAttach() noexcept

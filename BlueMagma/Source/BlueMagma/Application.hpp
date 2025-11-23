@@ -29,18 +29,13 @@ namespace BM
 		void Stop();
 
 		Window& GetWindow() noexcept;
+		LayerMachine& GetMachine() noexcept;
 		AssetManager& GetAssets() noexcept;
 
-		template<std::derived_from<Layer> TLayer>
-		inline TLayer* GetLayer() const noexcept {
-			return m_Machine.GetLayer<TLayer>();
-		}
 		template<std::derived_from<Layer> T, typename... Args>
 		inline void PushLayer(Args&&... args) noexcept {
 			m_Machine.PushLayer(std::move(std::make_unique<T>(std::forward<Args>(args)...)));
 		}
-		void TransitionLayer(Layer* fromLayer, std::unique_ptr<Layer> toLayer) noexcept;
-		void RemoveLayer(Layer* layer) noexcept;
 	private:
 		void EventCallback(Event& event) noexcept;
 
