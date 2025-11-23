@@ -1,6 +1,7 @@
 # BlueMagmaEngine
 
-[![](https://github.com/AlenDio0/BlueMagmaEngine/workflows/CMake%20Test/badge.svg)](https://github.com/AlenDio0/BlueMagmaEngine/actions)
+[![](https://github.com/AlenDio0/BlueMagmaEngine/workflows/CI-Core/badge.svg)](https://github.com/AlenDio0/BlueMagmaEngine/actions)
+[![](https://github.com/AlenDio0/BlueMagmaEngine/workflows/CI-Example/badge.svg)](https://github.com/AlenDio0/BlueMagmaEngine/actions)
 
 C++23 cross-platform Engine based on SFML.
 

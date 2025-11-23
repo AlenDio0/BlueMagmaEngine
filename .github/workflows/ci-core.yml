@@ -1,4 +1,4 @@
-name: CMake Test
+name: CI-Core
 
 on: [push, pull_request]
 
@@ -31,7 +31,7 @@ jobs:
       uses: actions/checkout@v4
 
     - name: Configure
-      run: cmake -B build ${{matrix.platform.flags}} ${{matrix.config.flags}}
+      run: cmake -B build ${{matrix.platform.flags}} ${{matrix.config.flags}} -DBLUEMAGMAENGINE_BUILD_EXAMPLE=OFF
 
     - name: Build
       run: cmake --build build --config Release
