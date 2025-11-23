@@ -9,6 +9,7 @@
 #include <exception>
 #include <algorithm>
 #include <ranges>
+#include <thread>
 
 #include <vector>
 #include <map>

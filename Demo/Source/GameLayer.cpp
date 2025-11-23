@@ -10,11 +10,11 @@
 
 GameLayer::GameLayer() noexcept
 	: m_Background((sf::Vector2f)GetApp().GetWindow().GetHandle().getSize()),
-	m_Text(*GetApp().GetAssets().Get<BM::Font>("minecraft")),
-	m_Sound(*GetApp().GetAssets().Get<BM::SoundBuffer>("transition"))
+	m_Text(*GetApp().GetAssets().Get<BM::Font>("minecraft"))
 {
 	m_Background.setFillColor(sf::Color(0x0000FF80));
-	m_Sound.setVolume(10.f);
+
+	m_SoundManager.Add("sound", *GetApp().GetAssets().Get<BM::SoundBuffer>("transition"));
 }
 
 void GameLayer::OnAttach() noexcept
@@ -73,7 +73,16 @@ bool GameLayer::OnKeyPressed(const BM::EventHandle::KeyPressed& keyPressed) noex
 		RemoveLayer();
 		break;
 	case Key::D:
-		m_Sound.play();
+		m_SoundManager.Play("sound");
+		break;
+	case Key::E:
+		m_SoundManager.Play("sound", true);
+		break;
+	case Key::F:
+		m_SoundManager.PlayThread("sound");
+		break;
+	case Key::S:
+		m_SoundManager.Stop("sound");
 		break;
 	default:
 		return false;

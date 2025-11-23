@@ -1,9 +1,9 @@
 #pragma once
 #include <BlueMagma/Layer.hpp>
+#include <BlueMagma/SoundManager.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/Text.hpp>
 #include <SFML/System/Clock.hpp>
-#include <SFML/Audio/Sound.hpp>
 
 class GameLayer : public BM::Layer
 {
@@ -25,5 +25,5 @@ private:
 	sf::Text m_Text;
 	sf::Clock m_UpdateText;
 
-	sf::Sound m_Sound;
+	BM::SoundManager m_SoundManager;
 };
