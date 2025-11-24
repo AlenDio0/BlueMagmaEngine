@@ -1,7 +1,6 @@
 #include "GameLayer.hpp"
 #include "DemoLayer.hpp"
 #include <BlueMagma/Application.hpp>
-#include <SFML/System/Vector2.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Window/Keyboard.hpp>
 #include <print>
@@ -9,10 +8,10 @@
 #include <cmath>
 
 GameLayer::GameLayer() noexcept
-	: m_Background((sf::Vector2f)GetWindow().GetSize()),
+	: m_Background(GetWindow().GetSize()),
 	m_Text(*GetAsset<BM::Font>("minecraft"))
 {
-	m_Background.setFillColor(sf::Color(0x0000FF80));
+	m_Background.setFillColor(sf::Color(0x0000FF70));
 
 	m_SoundManager.Add("sound", *GetAsset<BM::SoundBuffer>("transition"));
 }

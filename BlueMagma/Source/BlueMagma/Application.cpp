@@ -112,10 +112,7 @@ namespace BM
 	bool Application::OnResizeEvent(const EventHandle::Resized& event) noexcept
 	{
 		sf::View view = m_Window->GetHandle().getView();
-
-		sf::Vector2f size = static_cast<sf::Vector2f>(event.size);
-		view.setSize(size);
-
+		view.setSize((Vec2f)event.size);
 		m_Window->GetHandle().setView(view);
 
 		return false;

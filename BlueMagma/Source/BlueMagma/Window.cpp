@@ -19,7 +19,7 @@ namespace BM
 		{
 			m_Handle = std::make_unique<sf::RenderWindow>();
 
-			m_Handle->create(sf::VideoMode({ m_Context._Width, m_Context._Height }), m_Context._Title, m_Context._Style);
+			m_Handle->create(sf::VideoMode(m_Context._Size), m_Context._Title, m_Context._Style);
 
 			m_Handle->setFramerateLimit(m_Context._FPSLimit);
 			m_Handle->setVerticalSyncEnabled(m_Context._VSync);
@@ -93,7 +93,7 @@ namespace BM
 		}
 	}
 
-	sf::Vector2u Window::GetSize() const noexcept
+	Vec2u Window::GetSize() const noexcept
 	{
 		return m_Handle->getSize();
 	}

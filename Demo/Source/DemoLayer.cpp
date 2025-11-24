@@ -3,13 +3,12 @@
 #include <BlueMagma/Application.hpp>
 #include <BlueMagma/EventDispatcher.hpp>
 #include <SFML/Graphics/RenderTarget.hpp>
-#include <SFML/System/Vector2.hpp>
 
 DemoLayer::DemoLayer() noexcept
 	: m_Sprite(*GetAsset<BM::Texture>("cat"))
 {
-	m_Sprite.setOrigin((sf::Vector2f)m_Sprite.getTexture().getSize() / 2.f);
-	m_Sprite.setPosition((sf::Vector2f)(GetWindow().GetSize() / 2u));
+	m_Sprite.setOrigin(BM::Vec2f(m_Sprite.getTexture().getSize()).Center());
+	m_Sprite.setPosition(GetWindow().GetSize().Center());
 	m_Sprite.setScale({ 0.4f, 0.4f });
 
 	m_SoundManager.Add("transition", *GetAsset<BM::SoundBuffer>("transition"));
@@ -56,7 +55,7 @@ bool DemoLayer::OnKeyPressed(const BM::EventHandle::KeyPressed& keyPressed) noex
 
 bool DemoLayer::OnMousePressed(const BM::EventHandle::MouseButtonPressed& mousePressed) noexcept
 {
-	m_Sprite.setPosition((sf::Vector2f)mousePressed.position);
+	m_Sprite.setPosition((BM::Vec2f)mousePressed.position);
 
 	return true;
 }

@@ -16,3 +16,4 @@
 #include <unordered_map>
 
 #include <SFML/Graphics.hpp>
+#include "BlueMagma/Vec2.hpp"

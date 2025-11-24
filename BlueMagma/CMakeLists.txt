@@ -18,6 +18,7 @@ set(SOURCES
     Source/BlueMagma/AssetManager.cpp
     Source/BlueMagma/SoundManager.hpp
     Source/BlueMagma/SoundManager.cpp
+    Source/BlueMagma/Vec2.hpp
 )
 
 # Library

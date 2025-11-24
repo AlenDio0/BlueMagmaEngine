@@ -1,4 +1,5 @@
 #pragma once
+#include "Vec2.hpp"
 #include "EventDispatcher.hpp"
 #include <string>
 #include <cstdint>
@@ -8,14 +9,13 @@
 #include <SFML/Window/WindowEnums.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Drawable.hpp>
-#include <SFML/System/Vector2.hpp>
 
 namespace BM
 {
 	struct WindowContext
 	{
 		std::string _Title = "BlueMagma Application";
-		uint32_t _Width = 800, _Height = 800;
+		Vec2u _Size = 800;
 		uint32_t _Style = sf::Style::Default;
 
 		uint32_t _FPSLimit = 0;
@@ -44,7 +44,7 @@ namespace BM
 
 		bool IsOpen() const noexcept;
 
-		sf::Vector2u GetSize() const noexcept;
+		Vec2u GetSize() const noexcept;
 
 		sf::RenderWindow& GetHandle() const noexcept;
 	private:

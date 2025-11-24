@@ -1,11 +1,10 @@
 #pragma once
 #include "Window.hpp"
 #include "LayerMachine.hpp"
-#include "AssetManager.hpp"
-#include <memory>
-#include <concepts>
 #include "EventDispatcher.hpp"
-#include <SFML/Window/Event.hpp>
+#include "AssetManager.hpp"
+#include <concepts>
+#include <memory>
 
 namespace BM
 {

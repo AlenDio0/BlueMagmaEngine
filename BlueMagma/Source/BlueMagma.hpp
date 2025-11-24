@@ -3,3 +3,5 @@
 #include "BlueMagma/EventDispatcher.hpp"
 #include "BlueMagma/Layer.hpp"
 #include "BlueMagma/AssetManager.hpp"
+
+#include "BlueMagma/Vec2.hpp"

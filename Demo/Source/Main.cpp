@@ -4,8 +4,8 @@
 int main(int argc, char* argv[])
 {
 	BM::ApplicationContext appContext;
-	appContext._WindowContext._Width = 960;
-	appContext._WindowContext._Height = 540;
+	appContext._WindowContext._Size = { 960, 540 };
+	appContext._WindowContext._VSync = false;
 
 	BM::Application application(appContext);
 
