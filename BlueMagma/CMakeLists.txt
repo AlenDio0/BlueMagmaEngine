@@ -33,6 +33,8 @@ source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${SOURCES})
 # SFML
 target_link_libraries(BlueMagma PUBLIC SFML::Graphics)
 target_link_libraries(BlueMagma PUBLIC SFML::Audio)
+# yaml-cpp
+target_link_libraries(BlueMagma PUBLIC yaml-cpp)
 
 # Include
 target_include_directories(BlueMagma PUBLIC "Source")
