@@ -1,0 +1,9 @@
+Texture:
+  - Key: Cat
+    Path: Asset/cat.png
+Font:
+  - Key: Minecraft
+    Path: Asset/MinecraftRegular.otf
+SoundBuffer:
+  - Key: Generic
+    Path: Asset/puh.mp3

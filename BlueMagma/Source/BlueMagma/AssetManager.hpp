@@ -11,11 +11,17 @@ namespace BM
 	class AssetManager
 	{
 	public:
-		template<std::derived_from<AssetHandle> TAsset, typename... Args>
-		inline bool Load(const std::string& key, Args&&... args) noexcept {
+		using AssetKey = std::string;
+		using AssetPath = std::filesystem::path;
+		using YamlPath = std::string;
+	public:
+		bool LoadYaml(const YamlPath& yamlPath) noexcept;
+
+		template<std::derived_from<AssetHandle> TAsset>
+		inline bool Load(const AssetKey& key, const AssetPath& path) noexcept {
 			try
 			{
-				LoadAsset(key, std::move(std::make_unique<TAsset>(std::forward<Args>(args)...)));
+				LoadAsset(key, std::move(std::make_unique<TAsset>(path)));
 				return true;
 			}
 			catch (const std::exception&)
@@ -24,14 +30,14 @@ namespace BM
 				return false;
 			}
 		}
-		void LoadAsset(const std::string& key, std::unique_ptr<AssetHandle> asset) noexcept;
+		void LoadAsset(const AssetKey& key, std::unique_ptr<AssetHandle> asset) noexcept;
 
 		template<std::derived_from<AssetHandle> TAsset>
-		inline const TAsset* Get(const std::string& key) const noexcept {
+		inline const TAsset* Get(const AssetKey& key) const noexcept {
 			return dynamic_cast<const TAsset*>(GetAsset(key));
 		}
-		const AssetHandle* GetAsset(const std::string& key) const noexcept;
+		const AssetHandle* GetAsset(const AssetKey& key) const noexcept;
 	private:
-		std::unordered_map<std::string, std::unique_ptr<AssetHandle>> m_Assets;
+		std::unordered_map<AssetKey, std::unique_ptr<AssetHandle>> m_Assets;
 	};
 }
