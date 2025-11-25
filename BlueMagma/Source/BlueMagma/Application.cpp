@@ -95,10 +95,10 @@ namespace BM
 
 		for (const auto& layer : m_Machine.GetLayers() | std::views::reverse)
 		{
-			layer->OnEvent(event);
-
 			if (event._Done)
 				break;
+
+			layer->OnEvent(event);
 		}
 	}
 
