@@ -19,6 +19,8 @@ set(SOURCES
     Source/BlueMagma/SoundManager.hpp
     Source/BlueMagma/SoundManager.cpp
     Source/BlueMagma/Vec2.hpp
+    Source/BlueMagma/Random.hpp
+    Source/BlueMagma/Random.cpp
 )
 
 # Library
