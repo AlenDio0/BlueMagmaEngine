@@ -10,4 +10,9 @@
 #define BM_CORE_ASSERT(x) if (!(x)) { std::println("<BlueMagma> Assertion failed: '{}' [{} - {}:{}]", #x, __FUNCTION__, __FILE__, __LINE__); __debugbreak(); }
 #define BM_ASSERT(x) if (!(x)) { std::println("<App> Assertion failed: '{}' [{} - {}:{}]", #x, __FUNCTION__, __FILE__, __LINE__); __debugbreak(); }
 
+#else
+
+#define BM_CORE_ASSERT(...)
+#define BM_ASSERT(...)
+
 #endif
