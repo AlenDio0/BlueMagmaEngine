@@ -1,7 +1,7 @@
 #pragma once
+#include "Assert.hpp"
 #include <SFML/System/Vector2.hpp>
 #include <cstdint>
-#include <cassert>
 #include <format>
 
 namespace BM
@@ -47,7 +47,7 @@ namespace BM
 			return sqrt(SquaredLength());
 		}
 		constexpr Vec2 Normalized() const noexcept {
-			assert(*this != Zero());
+			BM_CORE_ASSERT(*this != Zero());
 			return *this / Length();
 		}
 

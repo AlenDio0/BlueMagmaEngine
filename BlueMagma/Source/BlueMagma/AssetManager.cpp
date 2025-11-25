@@ -55,6 +55,8 @@ namespace BM
 
 	void AssetManager::LoadAsset(const AssetKey& key, std::unique_ptr<AssetHandle> asset) noexcept
 	{
+		BM_CORE_ASSERT(!m_Assets.contains(key));
+
 		m_Assets[key] = std::move(asset);
 	}
 

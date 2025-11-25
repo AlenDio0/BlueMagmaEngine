@@ -1,3 +1,5 @@
+#include "BlueMagma/Assert.hpp"
+
 #include "BlueMagma/Application.hpp"
 #include "BlueMagma/Window.hpp"
 #include "BlueMagma/EventDispatcher.hpp"

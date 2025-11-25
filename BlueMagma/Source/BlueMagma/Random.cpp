@@ -1,9 +1,8 @@
+#include "bmpch.hpp"
 #include "Random.hpp"
 #include <random>
-#include <cstdint>
 #include <ctime>
 #include <limits>
-#include <cassert>
 
 namespace BM
 {
@@ -26,7 +25,7 @@ namespace BM
 
 		size_t Get(size_t min, size_t max) noexcept
 		{
-			assert(min <= max);
+			BM_CORE_ASSERT(min <= max);
 			return min + (Get() % (max - min + 1ull));
 		}
 

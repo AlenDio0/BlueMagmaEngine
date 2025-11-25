@@ -100,6 +100,8 @@ namespace BM
 
 	sf::RenderWindow& Window::GetHandle() const noexcept
 	{
+		BM_CORE_ASSERT(m_Handle != nullptr);
+
 		return *m_Handle;
 	}
 }

@@ -23,7 +23,7 @@ namespace BM
 
 	Application& Application::Get() noexcept
 	{
-		assert(s_Instance != nullptr);
+		BM_CORE_ASSERT(s_Instance != nullptr);
 
 		return *s_Instance;
 	}
@@ -69,6 +69,8 @@ namespace BM
 
 	Window& Application::GetWindow() noexcept
 	{
+		BM_CORE_ASSERT(m_Window != nullptr);
+
 		return *m_Window;
 	}
 

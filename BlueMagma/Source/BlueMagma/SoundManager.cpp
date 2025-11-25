@@ -36,6 +36,8 @@ namespace BM
 
 	void SoundManager::Add(const std::string& key, const BM::SoundBuffer& buffer, const SoundContext& context) noexcept
 	{
+		BM_CORE_ASSERT(!m_Sounds.contains(key));
+
 		try
 		{
 			m_Sounds.emplace(key, buffer);

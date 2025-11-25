@@ -1,7 +1,10 @@
 #pragma once
 
+#include "BlueMagma/Assert.hpp"
+
+#include "BlueMagma/Vec2.hpp"
+
 #include <cstdint>
-#include <cassert>
 #include <string>
 #include <string_view>
 #include <memory>
@@ -16,4 +19,3 @@
 #include <unordered_map>
 
 #include <SFML/Graphics.hpp>
-#include "BlueMagma/Vec2.hpp"
