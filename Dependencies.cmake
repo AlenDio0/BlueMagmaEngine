@@ -29,5 +29,18 @@ set(CMAKE_FOLDER "yaml-cpp" CACHE INTERNAL "IDE Folder for yaml-cpp")
 
 FetchContent_MakeAvailable(yaml-cpp)
 
+# spdlog
+FetchContent_Declare(
+    spdlog
+    GIT_REPOSITORY https://github.com/gabime/spdlog.git
+    GIT_TAG v1.16.0
+    GIT_SHALLOW ON
+    EXCLUDE_FROM_ALL
+)
+
+set(CMAKE_FOLDER "spdlog" CACHE INTERNAL "IDE Folder for spdlog")
+
+FetchContent_MakeAvailable(spdlog)
+
 # Unload Custom IDE Folder
 unset(CMAKE_FOLDER CACHE)

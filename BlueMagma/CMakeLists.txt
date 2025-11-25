@@ -38,6 +38,8 @@ target_link_libraries(BlueMagma PUBLIC SFML::Graphics)
 target_link_libraries(BlueMagma PUBLIC SFML::Audio)
 # yaml-cpp
 target_link_libraries(BlueMagma PUBLIC yaml-cpp)
+# spdlog
+target_link_libraries(BlueMagma PRIVATE spdlog)
 
 # Include
 target_include_directories(BlueMagma PUBLIC "Source")
