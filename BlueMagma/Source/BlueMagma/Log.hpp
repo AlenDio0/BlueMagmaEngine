@@ -17,7 +17,7 @@ namespace BM
 			Info = 2,
 			Warn = 3,
 			Error = 4,
-			Critica = 5,
+			Critical = 5,
 			Off = 6,
 		};
 
