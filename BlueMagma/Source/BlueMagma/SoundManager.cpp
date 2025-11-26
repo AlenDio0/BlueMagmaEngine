@@ -36,6 +36,8 @@ namespace BM
 
 	void SoundManager::Add(const std::string& key, const BM::SoundBuffer& buffer, const SoundContext& context) noexcept
 	{
+		BM_CORE_FUNC("key: {}", key);
+
 		BM_CORE_ASSERT(!m_Sounds.contains(key));
 
 		try
@@ -48,6 +50,8 @@ namespace BM
 
 	void SoundManager::Play(const std::string& key, bool loop, bool wait) noexcept
 	{
+		BM_CORE_FUNC("key: {}, loop: {}, wait: {}", key, loop, wait);
+
 		try
 		{
 			sf::Sound& sound = m_Sounds.at(key);
@@ -75,12 +79,16 @@ namespace BM
 
 	void SoundManager::PlayThread(const std::string& key) noexcept
 	{
+		BM_CORE_FUNC("key: {}", key);
+
 		std::thread thread(&PlayCopy, m_Sounds.at(key));
 		thread.detach();
 	}
 
 	void SoundManager::Stop(const std::string& key) noexcept
 	{
+		BM_CORE_FUNC("key: {}", key);
+
 		try
 		{
 			m_Sounds.at(key).stop();
@@ -90,6 +98,8 @@ namespace BM
 
 	void SoundManager::Pause(const std::string& key) noexcept
 	{
+		BM_CORE_FUNC("key: {}", key);
+
 		try
 		{
 			m_Sounds.at(key).pause();

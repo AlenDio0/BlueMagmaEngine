@@ -38,13 +38,13 @@ bool DemoLayer::OnKeyPressed(const BM::EventHandle::KeyPressed& keyPressed) noex
 		using Key = sf::Keyboard::Key;
 
 	case Key::A:
-		TransitionTo<GameLayer>();
+		QueueTransitionTo<GameLayer>();
 		break;
 	case Key::B:
-		GetApp().PushLayer<GameLayer>();
+		GetApp().QueuePushLayer<GameLayer>();
 		break;
 	case Key::C:
-		RemoveLayer();
+		QueueRemoveLayer();
 		break;
 	default:
 		return false;

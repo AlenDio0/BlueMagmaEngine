@@ -31,9 +31,10 @@ namespace BM
 		LayerMachine& GetMachine() noexcept;
 		AssetManager& GetAssets() noexcept;
 
-		template<std::derived_from<Layer> T, typename... Args>
-		inline void PushLayer(Args&&... args) noexcept {
-			m_Machine.PushLayer(std::move(std::make_unique<T>(std::forward<Args>(args)...)));
+		template<std::derived_from<Layer> TLayer, typename... Args>
+		inline void QueuePushLayer(Args&&... args) noexcept {
+			BM_CORE_FUNC();
+			m_Machine.QueuePush(std::move(std::make_unique<TLayer>(std::forward<Args>(args)...)));
 		}
 	private:
 		void EventCallback(Event& event) noexcept;

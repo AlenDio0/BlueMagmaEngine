@@ -3,6 +3,8 @@
 
 int main(int argc, char* argv[])
 {
+	BM_FUNC("argc: {}", argc);
+
 	BM::ApplicationContext appContext;
 	appContext._WindowContext._Size = { 960, 540 };
 	appContext._WindowContext._VSync = false;
@@ -10,9 +12,9 @@ int main(int argc, char* argv[])
 	BM::Application application(appContext);
 
 	if (!application.GetAssets().LoadYaml("Config/LoadAsset.yml"))
-		; // TODO: Log error
+		BM_ERROR("Couldn't load Asset Yaml");
 
-	application.PushLayer<DemoLayer>();
+	application.QueuePushLayer<DemoLayer>();
 	application.Run();
 
 	return 0;

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "BlueMagma/Log.hpp"
 #include "BlueMagma/Assert.hpp"
 
 #include "BlueMagma/Vec2.hpp"

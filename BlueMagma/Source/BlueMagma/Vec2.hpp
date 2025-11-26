@@ -47,7 +47,9 @@ namespace BM
 			return sqrt(SquaredLength());
 		}
 		constexpr Vec2 Normalized() const noexcept {
-			BM_CORE_ASSERT(*this != Zero());
+			if (*this == Zero())
+				return Zero();
+
 			return *this / Length();
 		}
 
@@ -151,30 +153,14 @@ namespace BM
 namespace std
 {
 	template<typename TValue>
-	class formatter<BM::Vec2<TValue>>
+	struct formatter<BM::Vec2<TValue>>
 	{
-	public:
 		constexpr auto parse(auto& context) {
-			auto it = context.begin();
-			if (it == context.end())
-				return it;
-
-			if (*it == '#')
-			{
-				++it;
-				m_Curly = true;
-			}
-
-			if (it != context.end() && *it != '}')
-				throw std::format_error("Invalid format args for BM::Vec2<TValue>");
-
-			return it;
+			return context.begin();
 		}
 
 		inline auto format(const BM::Vec2<TValue>& vec, auto& context) const noexcept {
-			return std::format_to(context.out(), "{}{}, {}{}", m_Curly ? "{" : "", vec._X, vec._Y, m_Curly ? "}" : "");
+			return std::format_to(context.out(), "[{}, {}]", vec._X, vec._Y);
 		}
-	private:
-		bool m_Curly = false;
 	};
 }

@@ -24,13 +24,13 @@ namespace BM
 		return GetApp().GetAssets();
 	}
 
-	void Layer::RemoveLayer() noexcept
+	void Layer::QueueRemoveLayer() noexcept
 	{
-		GetMachine().RemoveLayer(this);
+		GetMachine().QueueRemove(this);
 	}
 
 	void Layer::QueueTransition(std::unique_ptr<Layer> toLayer) noexcept
 	{
-		GetMachine().TransitionLayer(this, std::move(toLayer));
+		GetMachine().QueueTransition(this, std::move(toLayer));
 	}
 }

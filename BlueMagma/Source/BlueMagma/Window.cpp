@@ -15,29 +15,41 @@ namespace BM
 
 	void BM::Window::Create() noexcept
 	{
+		BM_CORE_FUNC("[size: {}, title: {}, style: {}, fpslimit: {}, vsync: {}]",
+			m_Context._Size, m_Context._Title, m_Context._Style, m_Context._FPSLimit, m_Context._VSync);
+
 		try
 		{
 			m_Handle = std::make_unique<sf::RenderWindow>();
-
 			m_Handle->create(sf::VideoMode(m_Context._Size), m_Context._Title, m_Context._Style);
 
 			m_Handle->setFramerateLimit(m_Context._FPSLimit);
 			m_Handle->setVerticalSyncEnabled(m_Context._VSync);
+
+			BM_CORE_INFO("Window created");
 		}
 		catch (...) {}
 	}
 
 	void BM::Window::Destroy() noexcept
 	{
+		BM_CORE_FUNC();
+
 		m_Handle->close();
 		m_Handle.reset();
+
+		BM_CORE_INFO("Window destroyed");
 	}
 
 	void BM::Window::Close() noexcept
 	{
+		BM_CORE_FUNC();
+
 		try
 		{
 			m_Handle->close();
+
+			BM_CORE_INFO("Window closed");
 		}
 		catch (...) {}
 	}

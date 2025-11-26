@@ -1,3 +1,4 @@
+#include "BlueMagma/Log.hpp"
 #include "BlueMagma/Assert.hpp"
 
 #include "BlueMagma/Application.hpp"

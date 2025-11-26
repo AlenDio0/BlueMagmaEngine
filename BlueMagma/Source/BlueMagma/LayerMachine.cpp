@@ -3,24 +3,30 @@
 
 namespace BM
 {
-	void LayerMachine::RemoveLayer(Layer* layer) noexcept
+	void LayerMachine::QueueRemove(Layer* layer) noexcept
 	{
+		BM_CORE_FUNC("layer: {}", (void*)layer);
+
 		if (!layer)
 			return;
 
 		m_OperationBuffer.push_back(RemoveOperation{ layer });
 	}
 
-	void LayerMachine::TransitionLayer(Layer* fromLayer, std::unique_ptr<Layer> toLayer) noexcept
+	void LayerMachine::QueueTransition(Layer* fromLayer, std::unique_ptr<Layer> toLayer) noexcept
 	{
+		BM_CORE_FUNC("fromLayer: {}, toLayer: {}", (void*)fromLayer, (void*)toLayer.get());
+
 		if (!fromLayer || !toLayer)
 			return;
 
 		m_OperationBuffer.push_back(TransitionOperation{ fromLayer, std::move(toLayer) });
 	}
 
-	void LayerMachine::PushLayer(std::unique_ptr<Layer> layer) noexcept
+	void LayerMachine::QueuePush(std::unique_ptr<Layer> layer) noexcept
 	{
+		BM_CORE_FUNC("layer: {}", (void*)layer.get());
+
 		if (!layer)
 			return;
 
@@ -47,6 +53,8 @@ namespace BM
 
 	void LayerMachine::HandleOperation(const RemoveOperation& remove) noexcept
 	{
+		BM_CORE_INFO("{} Remove(layer: {})", __FUNCTION__, (void*)remove._Layer);
+
 		if (auto find = FindLayer(m_Layers, remove._Layer); find != m_Layers.end())
 		{
 			std::unique_ptr<Layer>& layer = *find;
@@ -58,6 +66,9 @@ namespace BM
 
 	void LayerMachine::HandleOperation(TransitionOperation& transition) noexcept
 	{
+		BM_CORE_INFO("{} Transition(fromLayer: {}, toLayer: {})", __FUNCTION__,
+			(void*)transition._FromLayer, (void*)transition._ToLayer.get());
+
 		if (auto find = FindLayer(m_Layers, transition._FromLayer); find != m_Layers.end())
 		{
 			std::unique_ptr<Layer>& layer = *find;
@@ -72,6 +83,8 @@ namespace BM
 
 	void LayerMachine::HandleOperation(PushOperation& push) noexcept
 	{
+		BM_CORE_INFO("{} Push(layer: {})", __FUNCTION__, (void*)push._Layer.get());
+
 		m_Layers.push_back(std::move(push._Layer));
 		m_Layers.back()->OnAttach();
 	}

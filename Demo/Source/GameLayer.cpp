@@ -1,9 +1,9 @@
 #include "GameLayer.hpp"
 #include "DemoLayer.hpp"
 #include <BlueMagma/Application.hpp>
+#include <BlueMagma/Log.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Window/Keyboard.hpp>
-#include <print>
 #include <format>
 #include <cmath>
 
@@ -18,17 +18,17 @@ GameLayer::GameLayer() noexcept
 
 void GameLayer::OnAttach() noexcept
 {
-	std::println("GameLayer::OnAttach");
+	BM_FUNC();
 }
 
 void GameLayer::OnDetach() noexcept
 {
-	std::println("GameLayer::OnDetach");
+	BM_FUNC();
 }
 
 void GameLayer::OnTransition() noexcept
 {
-	std::println("GameLayer::OnTransition");
+	BM_FUNC();
 }
 
 void GameLayer::OnEvent(BM::Event& event) noexcept
@@ -58,18 +58,24 @@ void GameLayer::OnRender(sf::RenderTarget& target) noexcept
 
 bool GameLayer::OnKeyPressed(const BM::EventHandle::KeyPressed& keyPressed) noexcept
 {
+	{
+		using namespace sf::Keyboard;
+		std::string key = getDescription(delocalize(keyPressed.code)).toAnsiString();
+		BM_FUNC("keyPressed: {}", key);
+	}
+
 	switch (keyPressed.code)
 	{
 		using Key = sf::Keyboard::Key;
 
 	case Key::A:
-		TransitionTo<DemoLayer>();
+		QueueTransitionTo<DemoLayer>();
 		break;
 	case Key::B:
-		GetApp().PushLayer<DemoLayer>();
+		GetApp().QueuePushLayer<DemoLayer>();
 		break;
 	case Key::C:
-		RemoveLayer();
+		QueueRemoveLayer();
 		break;
 	case Key::D:
 		m_SoundManager.Play("sound");

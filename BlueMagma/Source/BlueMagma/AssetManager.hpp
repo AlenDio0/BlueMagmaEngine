@@ -1,4 +1,5 @@
 #pragma once
+#include "Log.hpp"
 #include "Asset.hpp"
 #include <unordered_map>
 #include <string>
@@ -19,16 +20,21 @@ namespace BM
 
 		template<std::derived_from<AssetHandle> TAsset>
 		inline bool Load(const AssetKey& key, const AssetPath& path) noexcept {
+			BM_CORE_FUNC("key: {}, path: {}", key, path.string());
+			std::unique_ptr<AssetHandle> asset;
+
 			try
 			{
-				LoadAsset(key, std::move(std::make_unique<TAsset>(path)));
-				return true;
+				asset = std::make_unique<TAsset>(path);
 			}
-			catch (const std::exception&)
+			catch (const std::exception& e)
 			{
-				// TODO: Log loading asset error
+				BM_CORE_ERROR("Exception caught (key: {}, path: {}): {}", key, path.string(), e.what());
 				return false;
 			}
+
+			LoadAsset(key, std::move(asset));
+			return true;
 		}
 		void LoadAsset(const AssetKey& key, std::unique_ptr<AssetHandle> asset) noexcept;
 

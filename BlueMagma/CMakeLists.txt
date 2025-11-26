@@ -4,6 +4,8 @@ set(SOURCES
     Source/BlueMagma.hpp
     Source/bmpch.hpp
     Source/bmpch.cpp
+    Source/BlueMagma/Log.hpp
+    Source/BlueMagma/Log.cpp
     Source/BlueMagma/Assert.hpp
     Source/BlueMagma/Application.hpp
     Source/BlueMagma/Application.cpp

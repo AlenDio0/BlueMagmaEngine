@@ -56,8 +56,9 @@ namespace BM
 	void AssetManager::LoadAsset(const AssetKey& key, std::unique_ptr<AssetHandle> asset) noexcept
 	{
 		BM_CORE_ASSERT(!m_Assets.contains(key));
-
 		m_Assets[key] = std::move(asset);
+
+		BM_CORE_INFO("Loaded Asset with key '{}'", key);
 	}
 
 	const AssetHandle* AssetManager::GetAsset(const AssetKey& key) const noexcept
@@ -66,9 +67,9 @@ namespace BM
 		{
 			return m_Assets.at(key).get();
 		}
-		catch (const std::exception&)
+		catch (const std::exception& e)
 		{
-			// TODO: Log get asset error
+			BM_CORE_ERROR("Exception caught (key: '{}'): {}", key, e.what());
 			return nullptr;
 		}
 	}

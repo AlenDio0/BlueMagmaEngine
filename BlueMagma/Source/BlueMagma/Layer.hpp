@@ -32,10 +32,11 @@ namespace BM
 		AssetManager& GetAssets() const noexcept;
 
 		template<std::derived_from<Layer> TLayer, typename... Args>
-		inline void TransitionTo(Args&&... args) noexcept {
+		inline void QueueTransitionTo(Args&&... args) noexcept {
+			BM_CORE_FUNC();
 			QueueTransition(std::move(std::make_unique<TLayer>(std::forward<Args>(args)...)));
 		}
-		void RemoveLayer() noexcept;
+		void QueueRemoveLayer() noexcept;
 
 		template<std::derived_from<AssetHandle> TAsset>
 		inline const TAsset* GetAsset(const std::string& key) const noexcept {

@@ -10,9 +10,9 @@ namespace BM
 	class LayerMachine
 	{
 	public:
-		void RemoveLayer(Layer* layer) noexcept;
-		void TransitionLayer(Layer* fromLayer, std::unique_ptr<Layer> toLayer) noexcept;
-		void PushLayer(std::unique_ptr<Layer> layer) noexcept;
+		void QueueRemove(Layer* layer) noexcept;
+		void QueueTransition(Layer* fromLayer, std::unique_ptr<Layer> toLayer) noexcept;
+		void QueuePush(std::unique_ptr<Layer> layer) noexcept;
 
 		template<std::derived_from<Layer> TLayer>
 		inline TLayer* GetLayer() const noexcept {

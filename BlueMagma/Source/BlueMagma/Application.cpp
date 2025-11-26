@@ -30,6 +30,8 @@ namespace BM
 
 	void Application::Run()
 	{
+		BM_CORE_FUNC();
+
 		m_Running = true;
 
 		sf::Clock deltaClock;
@@ -64,6 +66,8 @@ namespace BM
 
 	void Application::Stop()
 	{
+		BM_CORE_FUNC();
+
 		m_Running = false;
 	}
 
