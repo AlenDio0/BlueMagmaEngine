@@ -3,6 +3,14 @@
 
 int main(int argc, char* argv[])
 {
+	BM_LOG_FILE("Log/trace.log", BM::Log::Trace, true, true);
+	BM_LOG_FILE("Log/error.log", BM::Log::Error);
+
+	BM_LOG_FILE("Log/core.log", BM::Log::Trace, true, false);
+	BM_LOG_FILE("Log/app.log", BM::Log::Trace, false, true);
+
+	BM_LOG_INIT("Demo", BM::Log::Warn, BM::Log::Trace);
+
 	BM_FUNC("argc: {}", argc);
 
 	BM::ApplicationContext appContext;

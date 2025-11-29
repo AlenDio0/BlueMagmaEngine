@@ -20,7 +20,7 @@ namespace BM
 
 		template<std::derived_from<AssetHandle> TAsset>
 		inline bool Load(const AssetKey& key, const AssetPath& path) noexcept {
-			BM_CORE_FUNC("key: {}, path: {}", key, path.string());
+			BM_CORE_FN("key: {}, path: {}", key, path.string());
 			std::unique_ptr<AssetHandle> asset;
 
 			try
@@ -29,7 +29,7 @@ namespace BM
 			}
 			catch (const std::exception& e)
 			{
-				BM_CORE_ERROR("Exception caught (key: {}, path: {}): {}", key, path.string(), e.what());
+				BM_CORE_ERROR("Exception caught (key: {}, path: {})\n\t{}", key, path.string(), e.what());
 				return false;
 			}
 

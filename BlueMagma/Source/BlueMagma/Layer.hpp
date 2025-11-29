@@ -33,7 +33,7 @@ namespace BM
 
 		template<std::derived_from<Layer> TLayer, typename... Args>
 		inline void QueueTransitionTo(Args&&... args) noexcept {
-			BM_CORE_FUNC();
+			BM_CORE_FN();
 			QueueTransition(std::move(std::make_unique<TLayer>(std::forward<Args>(args)...)));
 		}
 		void QueueRemoveLayer() noexcept;

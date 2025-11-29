@@ -7,8 +7,8 @@
 
 #ifdef BM_ENABLE_ASSERT
 
-#define BM_CORE_ASSERT(x) if (!(x)) { BM_CORE_CRITICAL("Assertion failed: '{}' [{} - {}:{}]", #x, __FUNCTION__, __FILE__, __LINE__); __debugbreak(); }
-#define BM_ASSERT(x) if (!(x)) { BM_CRITICAL("Assertion failed: '{}' [{} - {}:{}]", #x, __FUNCTION__, __FILE__, __LINE__); __debugbreak(); }
+#define BM_CORE_ASSERT(x) if (!(x)) { BM_CORE_CRITICAL("Assert failed: '{}' [{} - {}:{}]", #x, __FUNCTION__, __FILE__, __LINE__); __debugbreak(); }
+#define BM_ASSERT(x) if (!(x)) { BM_CRITICAL("Assert failed: '{}' [{} - {}:{}]", #x, __FUNCTION__, __FILE__, __LINE__); __debugbreak(); }
 
 #else
 

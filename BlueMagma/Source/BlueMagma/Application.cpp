@@ -7,6 +7,9 @@ namespace BM
 	Application::Application(const ApplicationContext& context) noexcept
 		: m_Context(context)
 	{
+		BM_CORE_DEBUG("{}()\n\tDefaultWindowCloseEvent: {}\n\tDefaultWindowResizeEvent: {}", __FUNCTION__,
+			context._DefaultWindowCloseEvent, context._DefaultWindowResizeEvent);
+
 		s_Instance = this;
 
 		if (!m_Context._WindowContext._EventCallback)
@@ -30,7 +33,7 @@ namespace BM
 
 	void Application::Run()
 	{
-		BM_CORE_FUNC();
+		BM_CORE_FN();
 
 		m_Running = true;
 
@@ -66,7 +69,7 @@ namespace BM
 
 	void Application::Stop()
 	{
-		BM_CORE_FUNC();
+		BM_CORE_FN();
 
 		m_Running = false;
 	}

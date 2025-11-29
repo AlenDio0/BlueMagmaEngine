@@ -69,7 +69,7 @@ namespace BM
 		}
 		catch (const std::exception& e)
 		{
-			BM_CORE_ERROR("Exception caught (key: '{}'): {}", key, e.what());
+			BM_CORE_ERROR("Exception caught (key: {})\n\t{}", key, e.what());
 			return nullptr;
 		}
 	}

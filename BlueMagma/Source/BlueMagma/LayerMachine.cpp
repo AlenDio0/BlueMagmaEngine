@@ -5,7 +5,7 @@ namespace BM
 {
 	void LayerMachine::QueueRemove(Layer* layer) noexcept
 	{
-		BM_CORE_FUNC("layer: {}", (void*)layer);
+		BM_CORE_FN("layer: {}", (void*)layer);
 
 		if (!layer)
 			return;
@@ -15,7 +15,7 @@ namespace BM
 
 	void LayerMachine::QueueTransition(Layer* fromLayer, std::unique_ptr<Layer> toLayer) noexcept
 	{
-		BM_CORE_FUNC("fromLayer: {}, toLayer: {}", (void*)fromLayer, (void*)toLayer.get());
+		BM_CORE_FN("fromLayer: {}, toLayer: {}", (void*)fromLayer, (void*)toLayer.get());
 
 		if (!fromLayer || !toLayer)
 			return;
@@ -25,7 +25,7 @@ namespace BM
 
 	void LayerMachine::QueuePush(std::unique_ptr<Layer> layer) noexcept
 	{
-		BM_CORE_FUNC("layer: {}", (void*)layer.get());
+		BM_CORE_FN("layer: {}", (void*)layer.get());
 
 		if (!layer)
 			return;
@@ -53,7 +53,7 @@ namespace BM
 
 	void LayerMachine::HandleOperation(const RemoveOperation& remove) noexcept
 	{
-		BM_CORE_INFO("{} Remove(layer: {})", __FUNCTION__, (void*)remove._Layer);
+		BM_CORE_INFO("Removing Layer [Layer: {}]", (void*)remove._Layer);
 
 		if (auto find = FindLayer(m_Layers, remove._Layer); find != m_Layers.end())
 		{
@@ -66,7 +66,7 @@ namespace BM
 
 	void LayerMachine::HandleOperation(TransitionOperation& transition) noexcept
 	{
-		BM_CORE_INFO("{} Transition(fromLayer: {}, toLayer: {})", __FUNCTION__,
+		BM_CORE_INFO("Transitioning Layer [FromLayer: {}, ToLayer: {}]",
 			(void*)transition._FromLayer, (void*)transition._ToLayer.get());
 
 		if (auto find = FindLayer(m_Layers, transition._FromLayer); find != m_Layers.end())
@@ -83,7 +83,7 @@ namespace BM
 
 	void LayerMachine::HandleOperation(PushOperation& push) noexcept
 	{
-		BM_CORE_INFO("{} Push(layer: {})", __FUNCTION__, (void*)push._Layer.get());
+		BM_CORE_INFO("Pushing Layer [Layer: {}]", (void*)push._Layer.get());
 
 		m_Layers.push_back(std::move(push._Layer));
 		m_Layers.back()->OnAttach();

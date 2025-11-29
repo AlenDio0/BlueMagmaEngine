@@ -5,3 +5,7 @@ out
 .idea
 .vs
 .vscode
+
+# Log
+Log
+*.log
