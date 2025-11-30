@@ -51,10 +51,13 @@ namespace BM
 			auto transform = std::views::transform(&Sink::_Handle);
 
 			coreLogger = std::make_shared<spdlog::logger>("BlueMagma");
-			coreLogger->sinks().assign_range(sinks | std::views::filter(&Sink::_Core) | transform);
-
 			appLogger = std::make_shared<spdlog::logger>(loggerName);
-			appLogger->sinks().assign_range(sinks | std::views::filter(&Sink::_App) | transform);
+
+			auto coreSinks = sinks | std::views::filter(&Sink::_Core) | transform;
+			coreLogger->sinks().assign(coreSinks.begin(), coreSinks.end());
+
+			auto appSinks = sinks | std::views::filter(&Sink::_App) | transform;
+			appLogger->sinks().assign(appSinks.begin(), appSinks.end());
 
 			spdlog::register_logger(coreLogger);
 			spdlog::register_logger(appLogger);
