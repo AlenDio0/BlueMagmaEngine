@@ -12,8 +12,8 @@
 		BM##type##CRITICAL("Assert '{}' failed [{} - {}:{}]{}", #x, __FUNCTION__, BM_FILENAME, __LINE__, __VA_ARGS__); \
 		__debugbreak(); }
 
-#define BM_ASSERT_IMPL_MSG(type, x, ...)    BM_ASSERT_IMPL(type, x, "\n    " __VA_ARGS__)
-#define BM_ASSERT_IMPL_NOMSG(type, x, ...) BM_ASSERT_IMPL(type, x, "")
+#define BM_ASSERT_IMPL_MSG(type, x, ...)	BM_ASSERT_IMPL(type, x, "\n - " __VA_ARGS__)
+#define BM_ASSERT_IMPL_NOMSG(type, x, ...)	BM_ASSERT_IMPL(type, x, "")
 
 #define BM_ASSERT_IMPL_EXPAND(macro)	macro
 
