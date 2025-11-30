@@ -9,7 +9,7 @@ DemoLayer::DemoLayer() noexcept
 {
 	m_Sprite.setOrigin(BM::Vec2f(m_Sprite.getTexture().getSize()).Center());
 	m_Sprite.setPosition(GetWindow().GetSize().Center());
-	m_Sprite.setScale({ 0.4f, 0.4f });
+	m_Sprite.setScale(BM::Vec2f(300.f) / m_Sprite.getTexture().getSize());
 
 	m_SoundManager.Add("transition", *GetAsset<BM::SoundBuffer>("Generic"));
 }

@@ -81,8 +81,12 @@ namespace BM
 	{
 		BM_CORE_FN("key: {}", key);
 
-		std::thread thread(&PlayCopy, m_Sounds.at(key));
-		thread.detach();
+		try
+		{
+			std::thread thread(&PlayCopy, m_Sounds.at(key));
+			thread.detach();
+		}
+		catch (...) {}
 	}
 
 	void SoundManager::Stop(const std::string& key) noexcept

@@ -1,15 +1,19 @@
 #include <BlueMagma.hpp>
 #include "DemoLayer.hpp"
 
-int main(int argc, char* argv[])
-{
+static inline void InitLog(BM::Log::Level level, BM::Log::Level flushOn) noexcept {
 	BM_LOG_FILE("Log/trace.log", BM::Log::Trace);
 	BM_LOG_FILE("Log/error.log", BM::Log::Error);
 
 	BM_LOG_FILE("Log/core.log", BM::Log::Trace);
 	BM_LOG_FILE("Log/app.log", BM::Log::Trace);
 
-	BM_LOG_INIT("Demo", BM::Log::Warn, BM::Log::Trace);
+	BM_LOG_INIT("Demo", flushOn, level);
+}
+
+int main(int argc, char* argv[])
+{
+	InitLog(BM::Log::Trace, BM::Log::Warn);
 
 	BM_FN("argc: {}", argc);
 

@@ -2,9 +2,21 @@
 #include "AssetManager.hpp"
 #include <functional>
 #include <yaml-cpp/yaml.h>
+#include <SFML/Graphics/Image.hpp>
 
 namespace BM
 {
+	static inline constexpr uint8_t s_TextureBytes[] = {
+		0xFF, 0x00, 0xFF, 0xFF,
+		0x00, 0x00, 0x00, 0xFF,
+		0x00, 0x00, 0x00, 0xFF,
+		0xFF, 0x00, 0xFF, 0xFF,
+	};
+
+	Texture AssetManager::s_DefaultTexture = { sf::Image{Vec2u(2), s_TextureBytes} };
+	Font AssetManager::s_DefaultFont = {};
+	SoundBuffer AssetManager::s_DefaultSoundBuffer = {};
+
 	using LoadAssetFn = std::function<void(const AssetManager::AssetKey&, const AssetManager::AssetPath&)>;
 	static inline void LoadType(std::string_view type, const YAML::Node& node, const LoadAssetFn& onLoad) noexcept {
 		if (!onLoad)
@@ -51,6 +63,8 @@ namespace BM
 			LOAD_ASSET_TYPE(SoundBuffer);
 #undef LOAD_ASSET_TYPE
 		}
+
+		return true;
 	}
 
 	void AssetManager::LoadAsset(const AssetKey& key, std::unique_ptr<AssetHandle> asset) noexcept
@@ -69,7 +83,7 @@ namespace BM
 		}
 		catch (const std::exception& e)
 		{
-			BM_CORE_ERROR("Exception caught (key: {})\n\t{}", key, e.what());
+			BM_CORE_ERROR("Exception caught (key: {})\n - {}", key, e.what());
 			return nullptr;
 		}
 	}
