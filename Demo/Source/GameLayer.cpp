@@ -18,17 +18,17 @@ GameLayer::GameLayer() noexcept
 
 void GameLayer::OnAttach() noexcept
 {
-	BM_FUNC();
+	BM_FN();
 }
 
 void GameLayer::OnDetach() noexcept
 {
-	BM_FUNC();
+	BM_FN();
 }
 
 void GameLayer::OnTransition() noexcept
 {
-	BM_FUNC();
+	BM_FN();
 }
 
 void GameLayer::OnEvent(BM::Event& event) noexcept
@@ -61,7 +61,7 @@ bool GameLayer::OnKeyPressed(const BM::EventHandle::KeyPressed& keyPressed) noex
 	{
 		using namespace sf::Keyboard;
 		std::string key = getDescription(delocalize(keyPressed.code)).toAnsiString();
-		BM_FUNC("keyPressed: {}", key);
+		BM_FN("keyPressed: {}", key);
 	}
 
 	switch (keyPressed.code)

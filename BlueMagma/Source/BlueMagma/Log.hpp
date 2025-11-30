@@ -1,13 +1,17 @@
 #pragma once
+#include <filesystem>
 #include <string>
 #include <format>
+
+// Converts Megabyte in Bytes
+#define BM_MB(x) x * 1024 * 1024
+
+// Gets the current file name
+#define BM_FILENAME std::filesystem::path(__FILE__).filename().string()
 
 #if _DEBUG || true
 #define BM_ENABLE_LOG
 #endif
-
-// Converts Megabyte in Bytes
-#define BM_MB(x) x * 1024 * 1024
 
 namespace BM
 {
@@ -53,7 +57,7 @@ namespace BM
 		static void CoreLog(Level level, const std::string& message) noexcept;
 		static void AppLog(Level level, const std::string& message) noexcept;
 	private:
-		static inline const char* s_Pattern = "[%Y-%m-%d][%T] %^[%L] <%n> %v.%$";
+		static inline const char* s_Pattern = "[%Y-%m-%d][%T] %^[%-5l] <%n> %v.%$";
 	};
 }
 
@@ -63,22 +67,8 @@ namespace BM
 #define BM_LOG_FILE(name, level, ...)	BM::Log::AddFileSink({ name, level }, __VA_ARGS__)
 #define BM_LOG_INIT(...)				BM::Log::Init(__VA_ARGS__)
 
-#define BM_CORE_TRACE(...)				BM::Log::CoreLog(BM::Log::Trace, std::format(__VA_ARGS__))
-#define BM_CORE_DEBUG(...)				BM::Log::CoreLog(BM::Log::Debug, std::format(__VA_ARGS__))
-#define BM_CORE_INFO(...)				BM::Log::CoreLog(BM::Log::Info, std::format(__VA_ARGS__))
-#define BM_CORE_WARN(...)				BM::Log::CoreLog(BM::Log::Warn, std::format(__VA_ARGS__))
-#define BM_CORE_ERROR(...)				BM::Log::CoreLog(BM::Log::Error, std::format(__VA_ARGS__))
-#define BM_CORE_CRITICAL(...)			BM::Log::CoreLog(BM::Log::Critical, std::format(__VA_ARGS__))
-
-#define BM_TRACE(...)					BM::Log::AppLog(BM::Log::Trace, std::format(__VA_ARGS__))
-#define BM_DEBUG(...)					BM::Log::AppLog(BM::Log::Debug, std::format(__VA_ARGS__))
-#define BM_INFO(...)					BM::Log::AppLog(BM::Log::Info, std::format(__VA_ARGS__))
-#define BM_WARN(...)					BM::Log::AppLog(BM::Log::Warn, std::format(__VA_ARGS__))
-#define BM_ERROR(...)					BM::Log::AppLog(BM::Log::Error, std::format(__VA_ARGS__))
-#define BM_CRITICAL(...)				BM::Log::AppLog(BM::Log::Critical, std::format(__VA_ARGS__))
-
-#define BM_CORE_FN(...)				BM_CORE_DEBUG("{}({})", __FUNCTION__, std::format(""##__VA_ARGS__))
-#define BM_FUNC(...)					BM_DEBUG("{}({})", __FUNCTION__, std::format(""##__VA_ARGS__))
+#define BM_LOG(type, level, ...)		BM::Log::##type##Log(BM::Log::##level, std::format(__VA_ARGS__))
+#define BM_LOG_FN(type, ...)			BM##type##DEBUG("{}({}) [{}:{}]", __FUNCTION__, std::format(""##__VA_ARGS__), BM_FILENAME, __LINE__)
 
 #else
 
@@ -86,21 +76,24 @@ namespace BM
 #define BM_LOG_FILE(...)
 #define BM_LOG_INIT(...)
 
-#define BM_CORE_TRACE(...)
-#define BM_CORE_DEBUG(...)
-#define BM_CORE_INFO(...)
-#define BM_CORE_WARN(...)
-#define BM_CORE_ERROR(...)
-#define BM_CORE_CRITICAL(...)
-
-#define BM_TRACE(...)
-#define BM_DEBUG(...)
-#define BM_INFO(...)
-#define BM_WARN(...)
-#define BM_ERROR(...)
-#define BM_CRITICAL(...)
-
-#define BM_CORE_FN(...)
-#define BM_FUNC(...)
+#define BM_LOG(...)
+#define BM_LOG_FN(...)
 
 #endif
+
+#define BM_CORE_TRACE(...)		BM_LOG(Core, Trace, __VA_ARGS__)
+#define BM_CORE_DEBUG(...)		BM_LOG(Core, Debug, __VA_ARGS__)
+#define BM_CORE_INFO(...)		BM_LOG(Core, Info, __VA_ARGS__)
+#define BM_CORE_WARN(...)		BM_LOG(Core, Warn, __VA_ARGS__)
+#define BM_CORE_ERROR(...)		BM_LOG(Core, Error, __VA_ARGS__)
+#define BM_CORE_CRITICAL(...)	BM_LOG(Core, Critical, __VA_ARGS__)
+
+#define BM_TRACE(...)			BM_LOG(App, Trace, __VA_ARGS__)
+#define BM_DEBUG(...)			BM_LOG(App, Debug, __VA_ARGS__)
+#define BM_INFO(...)			BM_LOG(App, Info, __VA_ARGS__)
+#define BM_WARN(...)			BM_LOG(App, Warn, __VA_ARGS__)
+#define BM_ERROR(...)			BM_LOG(App, Error, __VA_ARGS__)
+#define BM_CRITICAL(...)		BM_LOG(App, Critical, __VA_ARGS__)
+
+#define BM_CORE_FN(...)			BM_LOG_FN(_CORE_, __VA_ARGS__)
+#define BM_FN(...)				BM_LOG_FN(_, __VA_ARGS__)

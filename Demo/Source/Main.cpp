@@ -11,7 +11,7 @@ int main(int argc, char* argv[])
 
 	BM_LOG_INIT("Demo", BM::Log::Warn, BM::Log::Trace);
 
-	BM_FUNC("argc: {}", argc);
+	BM_FN("argc: {}", argc);
 
 	BM::ApplicationContext appContext;
 	appContext._WindowContext._Size = { 960, 540 };
