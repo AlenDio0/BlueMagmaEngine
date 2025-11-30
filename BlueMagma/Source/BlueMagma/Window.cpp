@@ -112,7 +112,7 @@ namespace BM
 
 	sf::RenderWindow& Window::GetHandle() const noexcept
 	{
-		BM_CORE_ASSERT(m_Handle != nullptr);
+		BM_CORE_ASSERT(m_Handle != nullptr, "Window Handle not contructed yet");
 
 		return *m_Handle;
 	}

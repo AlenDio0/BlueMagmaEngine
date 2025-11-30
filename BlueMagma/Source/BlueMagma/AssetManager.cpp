@@ -55,7 +55,7 @@ namespace BM
 
 	void AssetManager::LoadAsset(const AssetKey& key, std::unique_ptr<AssetHandle> asset) noexcept
 	{
-		BM_CORE_ASSERT(!m_Assets.contains(key));
+		BM_CORE_ASSERT(!m_Assets.contains(key), "Key has already been used");
 		m_Assets[key] = std::move(asset);
 
 		BM_CORE_INFO("Loaded Asset with key '{}'", key);

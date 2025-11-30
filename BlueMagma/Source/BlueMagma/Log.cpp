@@ -39,7 +39,7 @@ namespace BM
 	void Log::Init(const std::string& loggerName, Level flushOn, Level consoleLevel) noexcept
 	{
 		static bool alreadyInit = false;
-		BM_CORE_ASSERT(!alreadyInit);
+		BM_CORE_ASSERT(!alreadyInit, "Log has already been initialized");
 
 		if (consoleLevel != Off)
 			AddConsoleSink(consoleLevel);

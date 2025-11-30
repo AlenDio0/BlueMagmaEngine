@@ -38,7 +38,7 @@ namespace BM
 	{
 		BM_CORE_FN("key: {}", key);
 
-		BM_CORE_ASSERT(!m_Sounds.contains(key));
+		BM_CORE_ASSERT(!m_Sounds.contains(key), "Key has already been used");
 
 		try
 		{

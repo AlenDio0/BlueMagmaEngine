@@ -26,7 +26,7 @@ namespace BM
 
 	Application& Application::Get() noexcept
 	{
-		BM_CORE_ASSERT(s_Instance != nullptr);
+		BM_CORE_ASSERT(s_Instance != nullptr, "Application not constructed yet");
 
 		return *s_Instance;
 	}
@@ -76,7 +76,7 @@ namespace BM
 
 	Window& Application::GetWindow() noexcept
 	{
-		BM_CORE_ASSERT(m_Window != nullptr);
+		BM_CORE_ASSERT(m_Window != nullptr, "Window not contructed yet");
 
 		return *m_Window;
 	}
