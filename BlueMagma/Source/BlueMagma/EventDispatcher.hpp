@@ -2,6 +2,8 @@
 #include <SFML/Window/Event.hpp>
 #include <functional>
 
+#define BM_EVENT_FN(fn)	[&](const auto& e) -> decltype(auto) { return fn(e); }
+
 namespace BM
 {
 	class EventHandle : public sf::Event {};

@@ -34,7 +34,7 @@ void GameLayer::OnTransition() noexcept
 void GameLayer::OnEvent(BM::Event& event) noexcept
 {
 	BM::EventDispatcher dispatcher(event);
-	dispatcher.Dispatch<BM::EventHandle::KeyPressed>([&](const auto& event) { return OnKeyPressed(event); });
+	dispatcher.Dispatch<BM::EventHandle::KeyPressed>(BM_EVENT_FN(OnKeyPressed));
 }
 
 void GameLayer::OnUpdate(float deltaTime) noexcept

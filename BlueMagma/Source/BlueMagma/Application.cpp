@@ -97,9 +97,9 @@ namespace BM
 			EventDispatcher dispatcher(event);
 
 			if (m_Context._DefaultWindowCloseEvent)
-				dispatcher.Dispatch<EventHandle::Closed>([&](const EventHandle::Closed& closed) { return OnCloseEvent(closed); });
+				dispatcher.Dispatch<EventHandle::Closed>(BM_EVENT_FN(OnCloseEvent));
 			if (m_Context._DefaultWindowResizeEvent)
-				dispatcher.Dispatch<EventHandle::Resized>([&](const EventHandle::Resized& resize) { return OnResizeEvent(resize); });
+				dispatcher.Dispatch<EventHandle::Resized>(BM_EVENT_FN(OnResizeEvent));
 		}
 
 		for (const auto& layer : m_Machine.GetLayers() | std::views::reverse)

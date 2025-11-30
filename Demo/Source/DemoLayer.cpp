@@ -22,8 +22,8 @@ void DemoLayer::OnTransition() noexcept
 void DemoLayer::OnEvent(BM::Event& event) noexcept
 {
 	BM::EventDispatcher dispatcher(event);
-	dispatcher.Dispatch<BM::EventHandle::KeyPressed>([&](const auto& event) { return OnKeyPressed(event); });
-	dispatcher.Dispatch<BM::EventHandle::MouseButtonPressed>([&](const auto& event) { return OnMousePressed(event); });
+	dispatcher.Dispatch<BM::EventHandle::KeyPressed>(BM_EVENT_FN(OnKeyPressed));
+	dispatcher.Dispatch<BM::EventHandle::MouseButtonPressed>(BM_EVENT_FN(OnMousePressed));
 }
 
 void DemoLayer::OnRender(sf::RenderTarget& target) noexcept
