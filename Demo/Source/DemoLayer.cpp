@@ -5,13 +5,13 @@
 #include <SFML/Graphics/RenderTarget.hpp>
 
 DemoLayer::DemoLayer() noexcept
-	: m_Sprite(*GetAsset<BM::Texture>("Cat"))
+	: m_Sprite(GetAsset<BM::Texture>("Cat"))
 {
 	m_Sprite.setOrigin(BM::Vec2f(m_Sprite.getTexture().getSize()).Center());
 	m_Sprite.setPosition(GetWindow().GetSize().Center());
 	m_Sprite.setScale(BM::Vec2f(300.f) / m_Sprite.getTexture().getSize());
 
-	m_SoundManager.Add("transition", *GetAsset<BM::SoundBuffer>("Generic"));
+	m_SoundManager.Add("transition", GetAsset<BM::SoundBuffer>("Generic"));
 }
 
 void DemoLayer::OnTransition() noexcept

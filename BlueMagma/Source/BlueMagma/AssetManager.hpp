@@ -13,7 +13,7 @@ namespace BM
 	{
 	public:
 		using AssetKey = std::string;
-		using AssetPath = std::filesystem::path;
+		using AssetPath = AssetHandle::AssetPath;
 		using YamlPath = std::string;
 	public:
 		bool LoadYaml(const YamlPath& yamlPath) noexcept;
@@ -29,7 +29,7 @@ namespace BM
 			}
 			catch (const std::exception& e)
 			{
-				BM_CORE_ERROR("Exception caught (key: {}, path: {})\n - {}", key, path.string(), e.what());
+				BM_CORE_ERROR("{}(key: {}, path: {}) Exception caught\n - {}", __FUNCTION__, key, path.string(), e.what());
 				return false;
 			}
 
@@ -39,32 +39,15 @@ namespace BM
 		void LoadAsset(const AssetKey& key, std::unique_ptr<AssetHandle> asset) noexcept;
 
 		template<std::derived_from<AssetHandle> TAsset>
-		inline const TAsset* Get(const AssetKey& key) const noexcept {
+		inline const TAsset& Get(const AssetKey& key) const noexcept {
 			if (auto asset = dynamic_cast<const TAsset*>(GetAsset(key)))
-				return asset;
+				return *asset;
 
-			BM_CORE_WARN("No Asset attached to key '{}'\n - Possibly return a default asset", key);
-
-			if (std::is_base_of<Texture, TAsset>())
-			{
-				return dynamic_cast<const TAsset*>(&s_DefaultTexture);
-			}
-
-			if (std::is_base_of<Font, TAsset>())
-				return dynamic_cast<const TAsset*>(&s_DefaultFont);
-
-			if (std::is_base_of<SoundBuffer, TAsset>())
-				return dynamic_cast<const TAsset*>(&s_DefaultSoundBuffer);
-
-			BM_CORE_ERROR("No default asset for the key '{}'\n - Returned nullptr", key);
-			return nullptr;
+			BM_CORE_WARN("{}(key: {}) Invalid Asset conversion\n - Returned a default asset", __FUNCTION__, key);
+			return TAsset::GetDefault();
 		}
 		const AssetHandle* GetAsset(const AssetKey& key) const noexcept;
 	private:
 		std::unordered_map<AssetKey, std::unique_ptr<AssetHandle>> m_Assets;
-	private:
-		static Texture s_DefaultTexture;
-		static Font s_DefaultFont;
-		static SoundBuffer s_DefaultSoundBuffer;
 	};
 }

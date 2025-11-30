@@ -7,7 +7,7 @@ namespace BM
 	Application::Application(const ApplicationContext& context) noexcept
 		: m_Context(context)
 	{
-		BM_CORE_DEBUG("{}()\n\tDefaultWindowCloseEvent: {}\n\tDefaultWindowResizeEvent: {}", __FUNCTION__,
+		BM_CORE_DEBUG("{}()\n - DefaultWindowCloseEvent: {}\n - DefaultWindowResizeEvent: {}", __FUNCTION__,
 			context._DefaultWindowCloseEvent, context._DefaultWindowResizeEvent);
 
 		s_Instance = this;

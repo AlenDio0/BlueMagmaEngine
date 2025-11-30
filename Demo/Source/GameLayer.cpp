@@ -9,11 +9,11 @@
 
 GameLayer::GameLayer() noexcept
 	: m_Background(GetWindow().GetSize()),
-	m_Text(*GetAsset<BM::Font>("Minecraft"))
+	m_Text(GetAsset<BM::Font>("Minecraft"))
 {
 	m_Background.setFillColor(sf::Color(0x0000FF70));
 
-	m_SoundManager.Add("sound", *GetAsset<BM::SoundBuffer>("Generic"));
+	m_SoundManager.Add("sound", GetAsset<BM::SoundBuffer>("Generic"));
 }
 
 void GameLayer::OnAttach() noexcept

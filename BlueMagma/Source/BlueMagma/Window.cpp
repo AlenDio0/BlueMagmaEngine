@@ -15,7 +15,7 @@ namespace BM
 
 	void BM::Window::Create() noexcept
 	{
-		BM_CORE_DEBUG("{}()\n\tSize: {}\n\tTitle: {}\n\tStyle: {}\n\tFPSLimit: {}\n\tVSync: {}", __FUNCTION__,
+		BM_CORE_DEBUG("{}()\n - Size: {}\n - Title: {}\n - Style: {}\n - FPSLimit: {}\n - VSync: {}", __FUNCTION__,
 			m_Context._Size, m_Context._Title, m_Context._Style, m_Context._FPSLimit, m_Context._VSync);
 
 		try

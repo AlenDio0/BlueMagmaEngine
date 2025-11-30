@@ -39,7 +39,7 @@ namespace BM
 		void QueueRemoveLayer() noexcept;
 
 		template<std::derived_from<AssetHandle> TAsset>
-		inline const TAsset* GetAsset(const std::string& key) const noexcept {
+		inline const TAsset& GetAsset(const std::string& key) const noexcept {
 			return GetAssets().Get<TAsset>(key);
 		}
 	private:
