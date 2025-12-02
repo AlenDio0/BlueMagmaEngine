@@ -18,9 +18,7 @@ FetchContent_MakeAvailable(SFML)
 FetchContent_Declare(
     yaml-cpp
     GIT_REPOSITORY https://github.com/jbeder/yaml-cpp.git
-    GIT_TAG a83cd31
-    GIT_SHALLOW ON
-    EXCLUDE_FROM_ALL
+    GIT_TAG bbf8bdb
 )
 set(YAML_CPP_BUILD_TOOLS    OFF)
 set(YAML_CPP_BUILD_CONTRIB  OFF)

@@ -1,5 +1,6 @@
 #include <BlueMagma.hpp>
 #include "DemoLayer.hpp"
+#include <chrono>
 
 static inline void InitLog(BM::Log::Level level, BM::Log::Level flushOn) noexcept {
 
