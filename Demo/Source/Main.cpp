@@ -2,11 +2,14 @@
 #include "DemoLayer.hpp"
 
 static inline void InitLog(BM::Log::Level level, BM::Log::Level flushOn) noexcept {
-	BM_LOG_FILE("Log/trace.log", BM::Log::Trace);
-	BM_LOG_FILE("Log/error.log", BM::Log::Error);
 
-	BM_LOG_FILE("Log/core.log", BM::Log::Trace);
-	BM_LOG_FILE("Log/app.log", BM::Log::Trace);
+	std::chrono::year_month_day ymd{ std::chrono::floor<std::chrono::days>(std::chrono::system_clock::now()) };
+
+	BM::Log::AddFileSink({ std::format("Log/Trace/{}.log", ymd), BM::Log::Trace, 8192 });
+	BM::Log::AddFileSink({ "Log/error.log", BM::Log::Error });
+
+	BM::Log::AddFileSink({ "Log/core.log", BM::Log::Trace });
+	BM::Log::AddFileSink({ "Log/app.log", BM::Log::Trace });
 
 	BM_LOG_INIT("Demo", flushOn, level);
 }

@@ -53,6 +53,13 @@ namespace BM
 			return *this / Length();
 		}
 
+		constexpr TValue SquaredDistance(const Vec2& vec) const noexcept {
+			return ((_X - vec._X) * (_X - vec._X)) + ((_Y - vec._Y) * (_Y - vec._Y));
+		}
+		constexpr TValue Distance(const Vec2& vec) const noexcept {
+			return sqrt(SquaredDistance(vec));
+		}
+
 		constexpr bool operator==(const Vec2& vec) const noexcept {
 			return _X == vec._X && _Y == vec._Y;
 		}

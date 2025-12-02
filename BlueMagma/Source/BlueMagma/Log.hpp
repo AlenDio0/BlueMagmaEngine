@@ -63,8 +63,6 @@ namespace BM
 
 #ifdef BM_ENABLE_LOG
 
-#define BM_LOG_CONSOLE(...)				BM::Log::AddConsoleSink(__VA_ARGS__)
-#define BM_LOG_FILE(name, level)		BM::Log::AddFileSink({ name, level })
 #define BM_LOG_INIT(...)				BM::Log::Init(__VA_ARGS__)
 
 #define BM_LOG(type, level, ...)		BM::Log::type##Log(BM::Log::level, std::format(__VA_ARGS__))
