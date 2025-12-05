@@ -1,7 +1,7 @@
 #include "DemoLayer.hpp"
 #include "GameLayer.hpp"
-#include <BlueMagma/Application.hpp>
-#include <BlueMagma/EventDispatcher.hpp>
+#include <BlueMagma/Base/Application.hpp>
+#include <BlueMagma/Base/EventDispatcher.hpp>
 #include <SFML/Graphics/RenderTarget.hpp>
 
 DemoLayer::DemoLayer() noexcept

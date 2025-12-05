@@ -4,26 +4,26 @@ set(SOURCES
     Source/BlueMagma.hpp
     Source/bmpch.hpp
     Source/bmpch.cpp
-    Source/BlueMagma/Log.hpp
-    Source/BlueMagma/Log.cpp
-    Source/BlueMagma/Assert.hpp
-    Source/BlueMagma/Application.hpp
-    Source/BlueMagma/Application.cpp
-    Source/BlueMagma/Window.hpp
-    Source/BlueMagma/Window.cpp
-    Source/BlueMagma/EventDispatcher.hpp
-    Source/BlueMagma/Layer.hpp
-    Source/BlueMagma/Layer.cpp
-    Source/BlueMagma/LayerMachine.hpp
-    Source/BlueMagma/LayerMachine.cpp
-    Source/BlueMagma/Asset.hpp
-    Source/BlueMagma/AssetManager.hpp
-    Source/BlueMagma/AssetManager.cpp
-    Source/BlueMagma/SoundManager.hpp
-    Source/BlueMagma/SoundManager.cpp
-    Source/BlueMagma/Vec2.hpp
-    Source/BlueMagma/Random.hpp
-    Source/BlueMagma/Random.cpp
+    Source/BlueMagma/Core/Log.hpp
+    Source/BlueMagma/Core/Log.cpp
+    Source/BlueMagma/Core/Assert.hpp
+    Source/BlueMagma/Base/Application.hpp
+    Source/BlueMagma/Base/Application.cpp
+    Source/BlueMagma/Base/Window.hpp
+    Source/BlueMagma/Base/Window.cpp
+    Source/BlueMagma/Base/EventDispatcher.hpp
+    Source/BlueMagma/Layer/Layer.hpp
+    Source/BlueMagma/Layer/Layer.cpp
+    Source/BlueMagma/Layer/LayerMachine.hpp
+    Source/BlueMagma/Layer/LayerMachine.cpp
+    Source/BlueMagma/Asset/Asset.hpp
+    Source/BlueMagma/Asset/AssetManager.hpp
+    Source/BlueMagma/Asset/AssetManager.cpp
+    Source/BlueMagma/Asset/SoundManager.hpp
+    Source/BlueMagma/Asset/SoundManager.cpp
+    Source/BlueMagma/System/Vec2.hpp
+    Source/BlueMagma/System/Random.hpp
+    Source/BlueMagma/System/Random.cpp
 )
 
 # Library
@@ -45,6 +45,7 @@ target_link_libraries(BlueMagma PRIVATE spdlog)
 
 # Include
 target_include_directories(BlueMagma PUBLIC "Source")
+target_include_directories(BlueMagma PUBLIC "Source/BlueMagma")
 
 # Pre-Compiled Headers
 target_precompile_headers(BlueMagma PRIVATE "Source/bmpch.hpp")

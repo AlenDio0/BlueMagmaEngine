@@ -1,10 +1,10 @@
-#include "BlueMagma/Log.hpp"
-#include "BlueMagma/Assert.hpp"
+#include "BlueMagma/Core/Log.hpp"
+#include "BlueMagma/Core/Assert.hpp"
 
-#include "BlueMagma/Application.hpp"
-#include "BlueMagma/Window.hpp"
-#include "BlueMagma/EventDispatcher.hpp"
-#include "BlueMagma/Layer.hpp"
-#include "BlueMagma/AssetManager.hpp"
+#include "BlueMagma/Base/Application.hpp"
+#include "BlueMagma/Base/Window.hpp"
+#include "BlueMagma/Base/EventDispatcher.hpp"
+#include "BlueMagma/Layer/Layer.hpp"
+#include "BlueMagma/Asset/Asset.hpp"
 
-#include "BlueMagma/Vec2.hpp"
+#include "BlueMagma/System/Vec2.hpp"

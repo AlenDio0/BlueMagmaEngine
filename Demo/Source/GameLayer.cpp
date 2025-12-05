@@ -1,7 +1,7 @@
 #include "GameLayer.hpp"
 #include "DemoLayer.hpp"
-#include <BlueMagma/Application.hpp>
-#include <BlueMagma/Log.hpp>
+#include <BlueMagma/Base/Application.hpp>
+#include <BlueMagma/Core/Log.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Window/Keyboard.hpp>
 #include <format>

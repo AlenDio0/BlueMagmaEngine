@@ -1,7 +1,7 @@
 #pragma once
-#include "EventDispatcher.hpp"
-#include "Window.hpp"
-#include "AssetManager.hpp"
+#include "Base/Window.hpp"
+#include "Base/EventDispatcher.hpp"
+#include "Asset/AssetManager.hpp"
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <concepts>
 #include <memory>

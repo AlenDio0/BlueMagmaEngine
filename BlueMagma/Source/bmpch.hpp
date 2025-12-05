@@ -1,9 +1,9 @@
 #pragma once
 
-#include "BlueMagma/Log.hpp"
-#include "BlueMagma/Assert.hpp"
+#include "BlueMagma/Core/Log.hpp"
+#include "BlueMagma/Core/Assert.hpp"
 
-#include "BlueMagma/Vec2.hpp"
+#include "BlueMagma/System/Vec2.hpp"
 
 #include <cstdint>
 #include <string>

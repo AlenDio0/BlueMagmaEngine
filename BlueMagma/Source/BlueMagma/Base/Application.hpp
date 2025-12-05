@@ -1,8 +1,8 @@
 #pragma once
 #include "Window.hpp"
-#include "LayerMachine.hpp"
 #include "EventDispatcher.hpp"
-#include "AssetManager.hpp"
+#include "Layer/LayerMachine.hpp"
+#include "Asset/AssetManager.hpp"
 #include <concepts>
 #include <memory>
 

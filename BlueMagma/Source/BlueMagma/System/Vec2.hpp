@@ -1,5 +1,4 @@
 #pragma once
-#include "Assert.hpp"
 #include <SFML/System/Vector2.hpp>
 #include <cstdint>
 #include <format>

@@ -1,5 +1,5 @@
 #pragma once
-#include "Vec2.hpp"
+#include "System/Vec2.hpp"
 #include <cstdint>
 #include <filesystem>
 #include <SFML/Graphics/Texture.hpp>
