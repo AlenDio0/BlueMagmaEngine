@@ -1,8 +1,10 @@
 #include <BlueMagma.hpp>
+#include <BlueMagma/System/Timer.hpp>
 #include "DemoLayer.hpp"
 #include <chrono>
 
 static inline void InitLog(BM::Log::Level level, BM::Log::Level flushOn) noexcept {
+	BM::ScopeTimer timer("InitLog");
 
 	std::chrono::year_month_day ymd{ std::chrono::floor<std::chrono::days>(std::chrono::system_clock::now()) };
 

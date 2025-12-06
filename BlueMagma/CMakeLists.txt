@@ -24,6 +24,8 @@ set(SOURCES
     Source/BlueMagma/System/Vec2.hpp
     Source/BlueMagma/System/Random.hpp
     Source/BlueMagma/System/Random.cpp
+    Source/BlueMagma/System/Timer.hpp
+    Source/BlueMagma/System/Timer.cpp
 )
 
 # Library
