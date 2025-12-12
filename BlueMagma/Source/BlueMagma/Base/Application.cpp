@@ -1,6 +1,6 @@
 #include "bmpch.hpp"
 #include "Application.hpp"
-#include <SFML/System/Clock.hpp>
+#include "System/Timer.hpp"
 
 namespace BM
 {
@@ -37,11 +37,9 @@ namespace BM
 
 		m_Running = true;
 
-		sf::Clock deltaClock;
+		Timer timer;
 		while (m_Running)
 		{
-			float deltaTime = deltaClock.restart().asSeconds();
-
 			if (!m_Machine.ProcessLayerChanges())
 			{
 				Stop();
@@ -55,6 +53,7 @@ namespace BM
 
 			const auto& layers = m_Machine.GetLayers();
 
+			float deltaTime = timer.Restart().AsSeconds();
 			for (const auto& layer : layers)
 				layer->OnUpdate(deltaTime);
 
