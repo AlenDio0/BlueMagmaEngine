@@ -8,11 +8,11 @@ static inline void InitLog(BM::Log::Level level, BM::Log::Level flushOn) noexcep
 
 	std::chrono::year_month_day ymd{ std::chrono::floor<std::chrono::days>(std::chrono::system_clock::now()) };
 
-	BM::Log::AddFileSink({ std::format("Log/Trace/{}.log", ymd), BM::Log::Trace, 8192 });
-	BM::Log::AddFileSink({ "Log/error.log", BM::Log::Error });
+	BM::Log::AddFileSink({ std::format("Log/Trace/{}.log", ymd), 8192 });
+	BM::Log::AddFileSink({ "Log/error.log" }, BM::Log::Error, BM::Log::Error);
 
-	BM::Log::AddFileSink({ "Log/core.log", BM::Log::Trace });
-	BM::Log::AddFileSink({ "Log/app.log", BM::Log::Trace });
+	BM::Log::AddFileSink({ "Log/core.log" }, BM::Log::Trace, BM::Log::Off);
+	BM::Log::AddFileSink({ "Log/app.log" }, BM::Log::Error, BM::Log::Trace);
 
 	BM_LOG_INIT("Demo", flushOn, level);
 }

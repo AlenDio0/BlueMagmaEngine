@@ -12,15 +12,9 @@ namespace BM
 	{
 		struct Sink
 		{
-			spdlog::sink_ptr _Handle;
-			bool _Core = true, _App = true;
-
-			inline Sink() noexcept = default;
-			inline Sink(const spdlog::sink_ptr& handle, bool core, bool app) noexcept
-				: _Handle(handle), _Core(core), _App(app) {
-			}
+			spdlog::sink_ptr _CoreHandle;
+			spdlog::sink_ptr _AppHandle;
 		};
-
 		std::vector<Sink> _Sinks;
 
 		std::shared_ptr<spdlog::logger> _CoreLogger;
@@ -31,38 +25,55 @@ namespace BM
 		return static_cast<spdlog::level::level_enum>(level);
 	}
 
-	static inline void AddSink(const spdlog::sink_ptr& sink, bool core, bool app, const std::string& pattern) noexcept {
+	template<typename TSink, typename... Args>
+	static inline spdlog::sink_ptr CreateSink(Log::Level level, const std::string& pattern, Args&&... args) noexcept {
+		if (level == Log::Off)
+			return nullptr;
+
+		spdlog::sink_ptr sink = std::make_shared<TSink>(std::forward<Args>(args)...);
+		sink->set_level(ConvertLevel(level));
 		sink->set_pattern(pattern);
-		s_Log._Sinks.emplace_back(sink, core, app);
+
+		return sink;
+	}
+
+	template<typename TSink, typename... Args>
+	static inline void AddSink(Log::Level core, Log::Level app, const std::string& pattern, Args&&... args) noexcept {
+		s_Log._Sinks.emplace_back(
+			CreateSink<TSink>(core, pattern, std::forward<Args>(args)...),
+			CreateSink<TSink>(app, pattern, std::forward<Args>(args)...)
+		);
 	}
 
 	void Log::Init(const std::string& loggerName, Level flushOn, Level consoleLevel) noexcept
 	{
-		static bool alreadyInit = false;
-		BM_CORE_ASSERT(!alreadyInit, "Log has already been initialized");
+		static bool init = false;
+		BM_CORE_ASSERT(!init, "Log has already been initialized");
 
 		if (consoleLevel != Off)
 			AddConsoleSink(consoleLevel);
 
 		auto& [sinks, coreLogger, appLogger] = s_Log;
-		if (!alreadyInit)
+		if (!init)
 		{
 			using Sink = LogData::Sink;
-			auto transform = std::views::transform(&Sink::_Handle);
 
 			coreLogger = std::make_shared<spdlog::logger>("BlueMagma");
 			appLogger = std::make_shared<spdlog::logger>(loggerName);
 
-			auto coreSinks = sinks | std::views::filter(&Sink::_Core) | transform;
+			auto coreSinks = sinks | std::views::filter([](const Sink& x) { return x._CoreHandle != nullptr; }) |
+				std::views::transform(&Sink::_CoreHandle);
 			coreLogger->sinks().assign(coreSinks.begin(), coreSinks.end());
 
-			auto appSinks = sinks | std::views::filter(&Sink::_App) | transform;
+			auto appSinks = sinks | std::views::filter([](const Sink& x) { return x._AppHandle != nullptr; }) |
+				std::views::transform(&Sink::_AppHandle);
 			appLogger->sinks().assign(appSinks.begin(), appSinks.end());
 
 			spdlog::register_logger(coreLogger);
 			spdlog::register_logger(appLogger);
+
+			init = true;
 		}
-		alreadyInit = true;
 
 		coreLogger->set_level(spdlog::level::trace);
 		appLogger->set_level(spdlog::level::trace);
@@ -72,27 +83,20 @@ namespace BM
 
 		BM_CORE_FN("loggerName: {}, flushOn: {}, consoleLevel: {}", loggerName, (int)flushOn, (int)consoleLevel);
 		BM_CORE_TRACE("CoreLogger Sinks: {}, AppLogger Sinks: {}", coreLogger->sinks().size(), appLogger->sinks().size());
+
+		coreLogger->flush();
+		appLogger->flush();
 	}
 
-	void Log::AddConsoleSink(Level level, bool core, bool app, const std::string& pattern) noexcept
+	void Log::AddConsoleSink(Level core, Level app, const std::string& pattern) noexcept
 	{
-		BM_CORE_ASSERT(core || app);
-
-		auto consoleSink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
-		consoleSink->set_level(ConvertLevel(level));
-
-		AddSink(consoleSink, core, app, (pattern.empty() ? s_Pattern : pattern));
+		AddSink<spdlog::sinks::stdout_color_sink_mt>(core, app, (pattern.empty() ? s_Pattern : pattern));
 	}
 
-	void Log::AddFileSink(const FileContext& context, bool core, bool app, const std::string& pattern) noexcept
+	void Log::AddFileSink(const FileContext& context, Level core, Level app, const std::string& pattern) noexcept
 	{
-		BM_CORE_ASSERT(core || app);
-
-		const auto& [name, level, rotateOnOpen, maxFiles, maxSize] = context;
-		auto fileSink = std::make_shared<spdlog::sinks::rotating_file_sink_mt>(name, maxSize, maxFiles, rotateOnOpen);
-		fileSink->set_level(ConvertLevel(level));
-
-		AddSink(fileSink, core, app, (pattern.empty() ? s_Pattern : pattern));
+		const auto& [name, maxFiles, maxSize, rotateOnOpen] = context;
+		AddSink<spdlog::sinks::rotating_file_sink_mt>(core, app, (pattern.empty() ? s_Pattern : pattern), name, maxSize, maxFiles, rotateOnOpen);
 	}
 
 	void Log::CoreLog(Level level, const std::string& message) noexcept

@@ -32,16 +32,19 @@ namespace BM
 		struct FileContext
 		{
 			std::string _Name = "app.log";
-			Level _Level = Trace;
-
-			bool _RotateOnOpen = true;
 			size_t _MaxFiles = 0;
 			size_t _MaxSize = BM_MB(5);
+			bool _RotateOnOpen = true;
 
 			inline FileContext() noexcept = default;
-			inline FileContext(std::string_view name, Level level = Trace,
-				size_t maxFiles = 0, size_t maxSize = BM_MB(5), bool rotateOnOpen = true) noexcept
-				: _Name(name), _Level(level), _MaxFiles(maxFiles), _MaxSize(maxSize), _RotateOnOpen(rotateOnOpen) {
+			inline FileContext(std::string_view name) noexcept
+				: _Name(name) {
+			}
+			inline FileContext(std::string_view name, size_t maxFiles) noexcept
+				: _Name(name), _MaxFiles(maxFiles) {
+			}
+			inline FileContext(std::string_view name, size_t maxFiles, size_t maxSize, bool rotateOnOpen = true) noexcept
+				: _Name(name), _MaxFiles(maxFiles), _MaxSize(maxSize), _RotateOnOpen(rotateOnOpen) {
 			}
 		};
 	public:
@@ -49,8 +52,8 @@ namespace BM
 		inline Log(const Log&) noexcept = delete;
 		inline Log(Log&&) noexcept = delete;
 
-		static void AddConsoleSink(Level level = Trace, bool core = true, bool app = true, const std::string& pattern = "") noexcept;
-		static void AddFileSink(const FileContext& context, bool core = true, bool app = true, const std::string& pattern = "") noexcept;
+		static void AddConsoleSink(Level core = Trace, Level app = Trace, const std::string& pattern = "") noexcept;
+		static void AddFileSink(const FileContext& context, Level core = Trace, Level app = Trace, const std::string& pattern = "") noexcept;
 
 		static void Init(const std::string& loggerName = "App", Level flushOn = Warn, Level consoleLevel = Off) noexcept;
 
