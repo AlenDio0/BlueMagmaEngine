@@ -4,6 +4,7 @@
 #include "BlueMagma/Core/Assert.hpp"
 
 #include "BlueMagma/System/Vec2.hpp"
+#include "BlueMagma/System/Rect.hpp"
 
 #include <cstdint>
 #include <string>

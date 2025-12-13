@@ -8,3 +8,4 @@
 #include "BlueMagma/Asset/Asset.hpp"
 
 #include "BlueMagma/System/Vec2.hpp"
+#include "BlueMagma/System/Rect.hpp"

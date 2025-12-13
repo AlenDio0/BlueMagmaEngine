@@ -134,7 +134,7 @@ namespace BM
 		}
 
 		static constexpr Vec2<TValue> Zero() noexcept {
-			return Vec2<TValue>(0, 0);
+			return Vec2<TValue>(0);
 		};
 
 		static constexpr Vec2<TValue> Up() noexcept {

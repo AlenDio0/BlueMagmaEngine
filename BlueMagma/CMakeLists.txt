@@ -22,6 +22,7 @@ set(SOURCES
     Source/BlueMagma/Asset/SoundManager.hpp
     Source/BlueMagma/Asset/SoundManager.cpp
     Source/BlueMagma/System/Vec2.hpp
+    Source/BlueMagma/System/Rect.hpp
     Source/BlueMagma/System/Random.hpp
     Source/BlueMagma/System/Random.cpp
     Source/BlueMagma/System/Timer.hpp
