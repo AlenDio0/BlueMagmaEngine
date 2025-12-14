@@ -38,13 +38,15 @@ set_target_properties(BlueMagma PROPERTIES FOLDER "BlueMagma/Core")
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${SOURCES})
 
 # Dependencies
-# SFML
+## SFML
 target_link_libraries(BlueMagma PUBLIC SFML::Graphics)
 target_link_libraries(BlueMagma PUBLIC SFML::Audio)
-# yaml-cpp
+## yaml-cpp
 target_link_libraries(BlueMagma PUBLIC yaml-cpp)
-# spdlog
+## spdlog
 target_link_libraries(BlueMagma PRIVATE spdlog)
+## EnTT
+target_link_libraries(BlueMagma PRIVATE EnTT)
 
 # Include
 target_include_directories(BlueMagma PUBLIC "Source")

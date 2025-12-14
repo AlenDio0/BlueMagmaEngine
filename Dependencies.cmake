@@ -2,7 +2,7 @@
 
 include(FetchContent)
 
-# SFML
+## SFML
 FetchContent_Declare(
     SFML
     GIT_REPOSITORY https://github.com/SFML/SFML.git
@@ -14,7 +14,7 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(SFML)
 
-# yaml-cpp
+## yaml-cpp
 FetchContent_Declare(
     yaml-cpp
     GIT_REPOSITORY https://github.com/jbeder/yaml-cpp.git
@@ -27,7 +27,7 @@ set(CMAKE_FOLDER "yaml-cpp" CACHE INTERNAL "IDE Folder for yaml-cpp")
 
 FetchContent_MakeAvailable(yaml-cpp)
 
-# spdlog
+## spdlog
 FetchContent_Declare(
     spdlog
     GIT_REPOSITORY https://github.com/gabime/spdlog.git
@@ -39,6 +39,18 @@ FetchContent_Declare(
 set(CMAKE_FOLDER "spdlog" CACHE INTERNAL "IDE Folder for spdlog")
 
 FetchContent_MakeAvailable(spdlog)
+
+## EnTT
+FetchContent_Declare(
+    EnTT
+    GIT_REPOSITORY https://github.com/skypjack/entt.git
+    GIT_TAG v3.16.0
+    GIT_SHALLOW ON
+)
+
+set(CMAKE_FOLDER "EnTT" CACHE INTERNAL "IDE Folder for EnTT")
+
+FetchContent_MakeAvailable(EnTT)
 
 # Unload Custom IDE Folder
 unset(CMAKE_FOLDER CACHE)
