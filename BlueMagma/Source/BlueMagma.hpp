@@ -1,3 +1,4 @@
+#pragma once
 #include "BlueMagma/Core/Log.hpp"
 #include "BlueMagma/Core/Assert.hpp"
 
@@ -6,6 +7,7 @@
 #include "BlueMagma/Base/EventDispatcher.hpp"
 #include "BlueMagma/Layer/Layer.hpp"
 #include "BlueMagma/Asset/Asset.hpp"
+#include "BlueMagma/Scene/Entity.hpp"
 
 #include "BlueMagma/System/Vec2.hpp"
 #include "BlueMagma/System/Rect.hpp"

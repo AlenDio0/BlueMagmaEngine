@@ -21,6 +21,10 @@ set(SOURCES
     Source/BlueMagma/Asset/AssetManager.cpp
     Source/BlueMagma/Asset/SoundManager.hpp
     Source/BlueMagma/Asset/SoundManager.cpp
+    Source/BlueMagma/Scene/Scene.hpp
+    Source/BlueMagma/Scene/Scene.cpp
+    Source/BlueMagma/Scene/Entity.hpp
+    Source/BlueMagma/Scene/Entity.cpp
     Source/BlueMagma/System/Vec2.hpp
     Source/BlueMagma/System/Rect.hpp
     Source/BlueMagma/System/Random.hpp
@@ -46,7 +50,7 @@ target_link_libraries(BlueMagma PUBLIC yaml-cpp)
 ## spdlog
 target_link_libraries(BlueMagma PRIVATE spdlog)
 ## EnTT
-target_link_libraries(BlueMagma PRIVATE EnTT)
+target_link_libraries(BlueMagma PUBLIC EnTT)
 
 # Include
 target_include_directories(BlueMagma PUBLIC "Source")
