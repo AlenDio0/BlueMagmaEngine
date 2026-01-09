@@ -1,9 +1,10 @@
 #pragma once
 #include <BlueMagma/Layer/Layer.hpp>
+#include <BlueMagma/Scene/Scene.hpp>
+#include <BlueMagma/Scene/Entity.hpp>
+#include <BlueMagma/System/Timer.hpp>
 #include <BlueMagma/Asset/SoundManager.hpp>
-#include <SFML/Graphics/RectangleShape.hpp>
-#include <SFML/Graphics/Text.hpp>
-#include <SFML/System/Clock.hpp>
+#include <string>
 
 class GameLayer : public BM::Layer
 {
@@ -19,11 +20,15 @@ public:
 	virtual void OnRender(sf::RenderTarget& target) noexcept override;
 private:
 	bool OnKeyPressed(const BM::EventHandle::KeyPressed& keyPressed) noexcept;
-private:
-	sf::RectangleShape m_Background;
 
-	sf::Text m_Text;
-	sf::Clock m_UpdateText;
+	std::string FormatStatText(float deltaTime) const noexcept;
+private:
+	BM::Scene m_Scene;
+
+	BM::Entity m_Background;
+	BM::Entity m_StatText;
+
+	BM::Timer m_TextTimer;
 
 	BM::SoundManager m_SoundManager;
 };

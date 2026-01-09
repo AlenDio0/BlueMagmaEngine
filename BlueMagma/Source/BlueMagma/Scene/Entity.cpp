@@ -15,6 +15,6 @@ namespace BM
 
 	Entity::operator bool() const noexcept
 	{
-		return static_cast<uint32_t>(m_Handle) != 0;
+		return static_cast<uint32_t>(m_Handle) != 0xFFFFFFFFu;
 	}
 }

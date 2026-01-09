@@ -6,19 +6,42 @@
 #include <SFML/Window/Keyboard.hpp>
 #include <format>
 #include <cmath>
+#include <Scene/Entity.hpp>
 
 GameLayer::GameLayer() noexcept
-	: m_Background(GetWindow().GetSize()),
-	m_Text(GetAsset<BM::Font>("Minecraft"))
 {
-	m_Background.setFillColor(sf::Color(0x0000FF70));
-
 	m_SoundManager.Add("sound", GetAsset<BM::SoundBuffer>("Generic"));
 }
 
 void GameLayer::OnAttach() noexcept
 {
 	BM_FN();
+
+	using namespace BM::Component;
+
+	m_Background = m_Scene.Create(Transform(BM::Vec2f::Zero(), -1.f));
+	m_Background.Add<RectRender>(GetWindow().GetSize(), sf::Color(0x00FF0070));
+
+	m_StatText = m_Scene.Create(Transform(BM::Vec2f::Zero(), 3.f));
+	m_StatText.Add<TextRender>(GetAsset<BM::Font>("Minecraft"), FormatStatText(0.1f));
+
+	const BM::Texture& texture = GetAsset<BM::Texture>("Cat");
+	for (int i = 0; i < 20; i++)
+	{
+		const float cIndex = (float)i + 0.001f;
+
+		const float cPosX = 50.f * cIndex - 25.f;
+
+		m_Scene.Create(Transform(BM::Vec2f(cPosX, 130.f * log(cIndex + 1.f)), 0.2f))
+			.Add<RectRender>(BM::Vec2f(100.f), sf::Color::Red);
+
+		m_Scene.Create(Transform(BM::Vec2f(cPosX, cIndex * cIndex), 0.1f))
+			.Add<CircleRender>(50.f, sf::Color::Blue);
+
+		m_Scene.Create(Transform(BM::Vec2f(cPosX, (GetWindow().GetSize()._Y - 100.f) - cIndex * cIndex), 0.f,
+			BM::Vec2f(100.f) / texture.getSize()))
+			.Add<TextureRender>(texture);
+	}
 }
 
 void GameLayer::OnDetach() noexcept
@@ -39,21 +62,26 @@ void GameLayer::OnEvent(BM::Event& event) noexcept
 
 void GameLayer::OnUpdate(float deltaTime) noexcept
 {
-	if (m_UpdateText.getElapsedTime().asSeconds() >= 1.f)
+	m_Scene.OnUpdate();
+
+	if (m_TextTimer.AsSeconds() >= 1.f)
 	{
-		m_UpdateText.restart();
+		m_Background.Patch<BM::Component::Transform>([](auto& transform) {
+			float& newZ = transform._Z;
+			newZ = newZ == -1.f ? 2.f : -1.f;
+			});
 
-		const double cMicro = std::round(deltaTime * std::pow(10, 6));
-		const double cFPS = std::round(1.f / deltaTime);
+		m_TextTimer.Restart();
 
-		m_Text.setString(std::format("{}ms\n{}us\n{} FPS", deltaTime, cMicro, cFPS));
+		m_StatText.Patch<BM::Component::TextRender>([&](auto& text) {
+			text._Text = FormatStatText(deltaTime);
+			});
 	}
 }
 
 void GameLayer::OnRender(sf::RenderTarget& target) noexcept
 {
-	target.draw(m_Background);
-	target.draw(m_Text);
+	m_Scene.OnRender(target);
 }
 
 bool GameLayer::OnKeyPressed(const BM::EventHandle::KeyPressed& keyPressed) noexcept
@@ -94,4 +122,12 @@ bool GameLayer::OnKeyPressed(const BM::EventHandle::KeyPressed& keyPressed) noex
 	}
 
 	return true;
+}
+
+std::string GameLayer::FormatStatText(float deltaTime) const noexcept
+{
+	const double cMicro = std::round(deltaTime * std::pow(10, 6));
+	const double cFPS = std::round(1.f / deltaTime);
+
+	return std::format("{:.5f}ms\n{}us\n{} FPS", deltaTime, cMicro, cFPS);
 }

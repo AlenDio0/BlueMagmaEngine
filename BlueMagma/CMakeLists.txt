@@ -25,6 +25,7 @@ set(SOURCES
     Source/BlueMagma/Scene/Scene.cpp
     Source/BlueMagma/Scene/Entity.hpp
     Source/BlueMagma/Scene/Entity.cpp
+    Source/BlueMagma/Scene/Component.hpp
     Source/BlueMagma/System/Vec2.hpp
     Source/BlueMagma/System/Rect.hpp
     Source/BlueMagma/System/Random.hpp
