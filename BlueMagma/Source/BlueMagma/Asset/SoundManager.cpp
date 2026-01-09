@@ -48,7 +48,7 @@ namespace BM
 		catch (...) {}
 	}
 
-	void SoundManager::Play(const std::string& key, bool loop, bool wait) noexcept
+	void SoundManager::Play(const std::string& key, bool loop, bool wait, milliseconds delay) noexcept
 	{
 		BM_CORE_FN("key: {}, loop: {}, wait: {}", key, loop, wait);
 
@@ -60,30 +60,30 @@ namespace BM
 			sound.play();
 
 			while (wait && sound.getStatus() == sf::SoundSource::Status::Playing)
-				std::this_thread::sleep_for(std::chrono::milliseconds(100));
+				std::this_thread::sleep_for(delay);
 		}
 		catch (...) {}
 	}
 
-	static inline void PlayCopy(sf::Sound sound) noexcept {
+	static inline void PlayCopy(sf::Sound sound, std::chrono::milliseconds delay) noexcept {
 		try
 		{
 			sound.setLooping(false);
 			sound.play();
 
 			while (sound.getStatus() == sf::SoundSource::Status::Playing)
-				std::this_thread::sleep_for(std::chrono::milliseconds(100));
+				std::this_thread::sleep_for(delay);
 		}
 		catch (...) {}
 	}
 
-	void SoundManager::PlayThread(const std::string& key) noexcept
+	void SoundManager::PlayThread(const std::string& key, milliseconds delay) noexcept
 	{
 		BM_CORE_FN("key: {}", key);
 
 		try
 		{
-			std::thread thread(&PlayCopy, m_Sounds.at(key));
+			std::thread thread(&PlayCopy, m_Sounds.at(key), delay);
 			thread.detach();
 		}
 		catch (...) {}

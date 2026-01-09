@@ -28,6 +28,8 @@ namespace BM
 
 	class SoundManager
 	{
+	private:
+		using milliseconds = std::chrono::milliseconds;
 	public:
 		SoundManager(const SoundContext& context = {}) noexcept;
 
@@ -37,8 +39,8 @@ namespace BM
 		void Add(const std::string& key, const BM::SoundBuffer& buffer) noexcept;
 		void Add(const std::string& key, const BM::SoundBuffer& buffer, const SoundContext& context) noexcept;
 
-		void Play(const std::string& key, bool loop = false, bool wait = false) noexcept;
-		void PlayThread(const std::string& key) noexcept;
+		void Play(const std::string& key, bool loop = false, bool wait = false, milliseconds delay = milliseconds(100)) noexcept;
+		void PlayThread(const std::string& key, milliseconds delay = milliseconds(100)) noexcept;
 
 		void Stop(const std::string& key) noexcept;
 		void Pause(const std::string& key) noexcept;
