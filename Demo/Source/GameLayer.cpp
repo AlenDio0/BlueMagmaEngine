@@ -32,7 +32,7 @@ void GameLayer::OnAttach() noexcept
 
 		const float cPosX = 50.f * cIndex - 25.f;
 
-		m_Scene.Create(Transform(BM::Vec2f(cPosX, 130.f * log(cIndex + 1.f)), 0.2f))
+		m_Scene.Create(Transform(BM::Vec2f(cPosX, 130.f * logf(cIndex + 1.f)), 0.2f))
 			.Add<RectRender>(BM::Vec2f(100.f), sf::Color::Red);
 
 		m_Scene.Create(Transform(BM::Vec2f(cPosX, cIndex * cIndex), 0.1f))
