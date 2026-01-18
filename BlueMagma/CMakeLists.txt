@@ -23,6 +23,12 @@ set(SOURCES
     Source/BlueMagma/Asset/SoundManager.cpp
     Source/BlueMagma/Scene/Scene.hpp
     Source/BlueMagma/Scene/Scene.cpp
+    Source/BlueMagma/Scene/System/ISystem.hpp
+    Source/BlueMagma/Scene/System/TransformSystem.hpp
+    Source/BlueMagma/Scene/System/TransformSystem.cpp
+    Source/BlueMagma/Scene/System/RenderSystem.hpp
+    Source/BlueMagma/Scene/System/RenderSystem.cpp
+    Source/BlueMagma/Scene/EntityHandle.hpp
     Source/BlueMagma/Scene/Entity.hpp
     Source/BlueMagma/Scene/Entity.cpp
     Source/BlueMagma/Scene/Component.hpp

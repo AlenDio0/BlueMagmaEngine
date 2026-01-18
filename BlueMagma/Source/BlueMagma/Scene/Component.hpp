@@ -1,119 +1,51 @@
 #pragma once
 #include "System/Vec2.hpp"
 #include "Asset/Asset.hpp"
+#include "System/Rect.hpp"
 #include <SFML/Graphics/Color.hpp>
-#include <SFML/Graphics/RenderTarget.hpp>
-#include <SFML/Graphics/RenderStates.hpp>
-#include <SFML/Graphics/RectangleShape.hpp>
-#include <SFML/Graphics/CircleShape.hpp>
-#include <SFML/Graphics/Sprite.hpp>
-#include <SFML/Graphics/Text.hpp>
 #include <string>
-#include <string_view>
 #include <cstdint>
 
 namespace BM::Component
 {
 	struct Transform
 	{
-		Vec2f _Position;
-		float _Z;
-		Vec2f _Scale;
+		Vec2f _LocalPosition{};
+		Vec2f _Position{};
+		float _Z = 0.f;
+		Vec2f _Scale{ 1.f };
+		// TODO: Vec3 so that _Z is integrated with LocalPosition
 
-		inline Transform(Vec2f position = Vec2f::Zero(), float z = 0.f, Vec2f scale = Vec2f(1.f)) noexcept
-			: _Position(position), _Z(z), _Scale(scale) {
+		inline Transform(Vec2f position = {}, float z = 0.f, Vec2f scale = { 1.f }) noexcept
+			: _LocalPosition(position), _Z(z), _Scale(scale) {
 		}
 	};
 
 	struct RectRender
 	{
-		Vec2f _Size;
-		sf::Color _Color;
-
-		inline RectRender(Vec2f size = Vec2f::Zero(), sf::Color color = sf::Color::White) noexcept
-			: _Size(size), _Color(color) {
-		}
-
-		inline void Draw(sf::RenderTarget& target, const Transform& transform = {}) const noexcept {
-			sf::RectangleShape shape{ _Size };
-			shape.setFillColor(_Color);
-
-			sf::RenderStates states;
-			states.transform.translate(transform._Position);
-			states.transform.scale(transform._Scale);
-
-			target.draw(shape, states);
-		}
+		Vec2f _Size{};
+		sf::Color _Color{ sf::Color::White };
 	};
 
 	struct CircleRender
 	{
-		float _Radius;
-		sf::Color _Color;
-
-		inline CircleRender(float radius = 0.f, sf::Color color = sf::Color::White) noexcept
-			: _Radius(radius), _Color(color) {
-		}
-
-		inline void Draw(sf::RenderTarget& target, const Transform& transform = {}) const noexcept {
-			sf::CircleShape shape{ _Radius };
-			shape.setFillColor(_Color);
-
-			sf::RenderStates states;
-			states.transform.translate(transform._Position);
-			states.transform.scale(transform._Scale);
-
-			target.draw(shape, states);
-		}
+		float _Radius = 0.f;
+		sf::Color _Color{ sf::Color::White };
 	};
 
 	struct TextureRender
 	{
 		const Texture* _TexturePtr = nullptr;
-		sf::Color _Color;
-
-		inline TextureRender(const Texture& texture, sf::Color color = sf::Color::White) noexcept
-			: _TexturePtr(&texture), _Color(color) {
-		}
-
-		inline void Draw(sf::RenderTarget& target, const Transform& transform = {}) const noexcept {
-			if (!_TexturePtr)
-				return;
-
-			sf::Sprite sprite{ *_TexturePtr };
-			sprite.setColor(_Color);
-
-			sf::RenderStates states;
-			states.transform.translate(transform._Position);
-			states.transform.scale(transform._Scale);
-
-			target.draw(sprite, states);
-		}
+		RectInt _TextureRect{};
+		sf::Color _Color{ sf::Color::White };
+		bool _UseRect = false;
 	};
 
 	struct TextRender
 	{
 		const Font* _FontPtr = nullptr;
-		std::string _Text;
-		uint32_t _CharSize;
-		sf::Color _Color;
-
-		inline TextRender(const Font& font, std::string_view text = "", uint32_t charSize = 30u, sf::Color color = sf::Color::White) noexcept
-			: _FontPtr(&font), _Text(text), _CharSize(charSize), _Color(color) {
-		}
-
-		inline void Draw(sf::RenderTarget& target, const Transform& transform = {}) const noexcept {
-			if (!_FontPtr)
-				return;
-
-			sf::Text text(*_FontPtr, _Text, _CharSize);
-			text.setFillColor(_Color);
-
-			sf::RenderStates states;
-			states.transform.translate(transform._Position);
-			states.transform.scale(transform._Scale);
-
-			target.draw(text, states);
-		}
+		std::string _Content{ "" };
+		uint32_t _CharSize = 30u;
+		sf::Color _Color{ sf::Color::White };
 	};
 }

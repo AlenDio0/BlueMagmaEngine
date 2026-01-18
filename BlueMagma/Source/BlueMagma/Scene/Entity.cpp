@@ -17,4 +17,12 @@ namespace BM
 	{
 		return static_cast<uint32_t>(m_Handle) != 0xFFFFFFFFu;
 	}
+
+	Entity Entity::CreateChild(const Component::Transform& transform) noexcept
+	{
+		Entity child = m_ScenePtr->Create(transform);
+		child.Add<Parent>(m_Handle);
+
+		return child;
+	}
 }

@@ -1,8 +1,18 @@
 #pragma once
+#include "EntityHandle.hpp"
 #include "Scene.hpp"
 
 namespace BM
 {
+	struct Parent
+	{
+		EntityHandle _ParentHandle;
+
+		inline Parent(EntityHandle parent) noexcept
+			: _ParentHandle(parent) {
+		}
+	};
+
 	class Entity
 	{
 	public:
@@ -13,6 +23,8 @@ namespace BM
 
 		operator EntityHandle() const noexcept;
 		operator bool() const noexcept;
+
+		Entity CreateChild(const Component::Transform& transform = {}) noexcept;
 
 		template<class... TComp>
 		inline bool Has() const noexcept {

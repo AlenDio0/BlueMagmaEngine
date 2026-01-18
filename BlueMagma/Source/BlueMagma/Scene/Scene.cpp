@@ -4,14 +4,42 @@
 
 namespace BM
 {
-	static inline void Mark(bool& b) noexcept {
-		b = true;
+	entt::registry& Scene::GetRegistry() noexcept
+	{
+		return m_Registry;
 	}
 
-	Scene::Scene() noexcept
+	void Scene::AddSystemEvent(SystemEventFn onEvent) noexcept
 	{
-		m_Registry.on_construct<Component::Transform>().connect<&Mark>(m_UpdateTransform);
-		m_Registry.on_update<Component::Transform>().connect<&Mark>(m_UpdateTransform);
+		m_SystemEvents.push_back(onEvent);
+	}
+
+	void Scene::AddSystemUpdate(SystemUpdateFn onUpdate) noexcept
+	{
+		m_SystemUpdates.push_back(onUpdate);
+	}
+
+	void Scene::AddSystemRender(SystemRenderFn onRender) noexcept
+	{
+		m_SystemRenders.push_back(onRender);
+	}
+
+	void Scene::OnEvent(Event& event) noexcept
+	{
+		for (auto& onEvent : m_SystemEvents)
+			onEvent(*this, event);
+	}
+
+	void Scene::OnUpdate(float deltaTime) noexcept
+	{
+		for (auto& onUpdate : m_SystemUpdates)
+			onUpdate(*this, deltaTime);
+	}
+
+	void Scene::OnRender(sf::RenderTarget& target) const noexcept
+	{
+		for (auto& onRender : m_SystemRenders)
+			onRender(*this, target);
 	}
 
 	Entity Scene::Create(const Component::Transform& transform) noexcept
@@ -25,39 +53,5 @@ namespace BM
 	Entity Scene::GetEntity(EntityHandle handle) noexcept
 	{
 		return Entity(this, handle);
-	}
-
-	void Scene::OnUpdate() noexcept
-	{
-		if (m_UpdateTransform)
-			OnTransformUpdate();
-	}
-
-	void Scene::OnRender(sf::RenderTarget& target) const noexcept
-	{
-		using namespace Component;
-
-		{
-			auto view = View<Transform>();
-			for (auto entity : view)
-			{
-				const Transform& transform = GetComponent<Transform>(entity);
-
-				if (auto rect = TryGetComponent<RectRender>(entity))
-					rect->Draw(target, transform);
-				if (auto circle = TryGetComponent<CircleRender>(entity))
-					circle->Draw(target, transform);
-				if (auto texture = TryGetComponent<TextureRender>(entity))
-					texture->Draw(target, transform);
-				if (auto text = TryGetComponent<TextRender>(entity))
-					text->Draw(target, transform);
-			}
-		}
-	}
-
-	void Scene::OnTransformUpdate() noexcept
-	{
-		m_Registry.sort<Component::Transform>([](const auto& left, const auto& right) { return left._Z < right._Z; });
-		m_UpdateTransform = false;
 	}
 }

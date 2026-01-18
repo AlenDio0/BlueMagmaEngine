@@ -4,9 +4,12 @@
 #include <BlueMagma/Core/Log.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Window/Keyboard.hpp>
+#include <Scene/Entity.hpp>
+#include <Scene/System/TransformSystem.hpp>
+#include <Scene/System/RenderSystem.hpp>
 #include <format>
 #include <cmath>
-#include <Scene/Entity.hpp>
+#include <cfloat>
 
 GameLayer::GameLayer() noexcept
 {
@@ -17,30 +20,36 @@ void GameLayer::OnAttach() noexcept
 {
 	BM_FN();
 
+	m_Scene.AddSystem<BM::TransformSystem>();
+	m_Scene.AddSystem<BM::RenderSystem>();
+
 	using namespace BM::Component;
 
 	m_Background = m_Scene.Create(Transform(BM::Vec2f::Zero(), -1.f));
 	m_Background.Add<RectRender>(GetWindow().GetSize(), sf::Color(0x00FF0070));
 
 	m_StatText = m_Scene.Create(Transform(BM::Vec2f::Zero(), 3.f));
-	m_StatText.Add<TextRender>(GetAsset<BM::Font>("Minecraft"), FormatStatText(0.1f));
+	m_StatText.Add<TextRender>(&GetAsset<BM::Font>("Minecraft"), FormatStatText(0.1f));
 
 	const BM::Texture& texture = GetAsset<BM::Texture>("Cat");
-	for (int i = 0; i < 20; i++)
+	const float cBoxSize = 25.f;
+	const float cBoundSize = GetWindow().GetSize()._Y - cBoxSize;
+
+	const int cSize = 100;
+	const float cSizeTotal = cSize - 1.f;
+	for (int i = 0; i < cSize; i++)
 	{
-		const float cIndex = (float)i + 0.001f;
+		const float cIndex = (float)i + FLT_EPSILON;
+		const float cPosX = (cIndex / cSizeTotal) * (GetWindow().GetSize()._X - cBoxSize);
 
-		const float cPosX = 50.f * cIndex - 25.f;
+		m_Background.CreateChild(Transform(BM::Vec2f(cPosX, (cIndex / cSizeTotal) * cBoundSize), 0.f))
+			.Add<RectRender>(cBoxSize, sf::Color::Red);
 
-		m_Scene.Create(Transform(BM::Vec2f(cPosX, 130.f * logf(cIndex + 1.f)), 0.2f))
-			.Add<RectRender>(BM::Vec2f(100.f), sf::Color::Red);
+		m_Background.CreateChild(Transform(BM::Vec2f(cPosX, ((cIndex * cIndex) / (cSizeTotal * cSizeTotal)) * cBoundSize), 0.1f))
+			.Add<CircleRender>(cBoxSize / 2.f, sf::Color::Blue);
 
-		m_Scene.Create(Transform(BM::Vec2f(cPosX, cIndex * cIndex), 0.1f))
-			.Add<CircleRender>(50.f, sf::Color::Blue);
-
-		m_Scene.Create(Transform(BM::Vec2f(cPosX, (GetWindow().GetSize()._Y - 100.f) - cIndex * cIndex), 0.f,
-			BM::Vec2f(100.f) / texture.getSize()))
-			.Add<TextureRender>(texture);
+		m_Background.CreateChild(Transform(BM::Vec2f(cPosX, cBoundSize - ((cIndex * cIndex) / (cSizeTotal * cSizeTotal)) * cBoundSize), 0.2f,
+			BM::Vec2f(cBoxSize) / texture.getSize())).Add<TextureRender>(&texture);
 	}
 }
 
@@ -56,13 +65,15 @@ void GameLayer::OnTransition() noexcept
 
 void GameLayer::OnEvent(BM::Event& event) noexcept
 {
+	m_Scene.OnEvent(event);
+
 	BM::EventDispatcher dispatcher(event);
 	dispatcher.Dispatch<BM::EventHandle::KeyPressed>(BM_EVENT_FN(OnKeyPressed));
 }
 
 void GameLayer::OnUpdate(float deltaTime) noexcept
 {
-	m_Scene.OnUpdate();
+	m_Scene.OnUpdate(deltaTime);
 
 	if (m_TextTimer.AsSeconds() >= 1.f)
 	{
@@ -74,7 +85,7 @@ void GameLayer::OnUpdate(float deltaTime) noexcept
 		m_TextTimer.Restart();
 
 		m_StatText.Patch<BM::Component::TextRender>([&](auto& text) {
-			text._Text = FormatStatText(deltaTime);
+			text._Content = FormatStatText(deltaTime);
 			});
 	}
 }
