@@ -1,7 +1,6 @@
 #pragma once
 #include "Vec2.hpp"
 #include <SFML/Graphics/Rect.hpp>
-#include <algorithm>
 #include <format>
 
 namespace BM
@@ -59,15 +58,21 @@ namespace BM
 			return static_cast<Vec2<float>>(_Position) + _Size.Center();
 		}
 		constexpr Vec2<TValue> Min() const noexcept {
-			return _Position + Vec2<TValue>(std::min(_Size._X, 0), std::min(_Size._Y, 0));
+			return _Position + Vec2<TValue>(Min(_Size._X, 0), Min(_Size._Y, 0));
 		}
 		constexpr Vec2<TValue> Max() const noexcept {
-			return _Position + Vec2<TValue>(std::max(_Size._X, 0), std::max(_Size._Y, 0));
+			return _Position + Vec2<TValue>(Max(_Size._X, 0), Max(_Size._Y, 0));
 		}
 
 		constexpr bool Contains(const Vec2<TValue>& vec) const noexcept {
 			const Vec2<TValue> min = Min(), max = Max();
 			return (vec._X >= min._X && vec._Y >= min._Y) && (vec._X <= max._X && vec._Y <= max._Y);
+		}
+		constexpr bool Intersects(const Rect<TValue>& rect) const noexcept {
+			const Vec2<TValue> min1 = Min(), min2 = rect.Min(), max1 = Max(), max2 = rect.Max();
+			const TValue left = Max(min1._X, min2._X), right = Min(max1._X, max2._X);
+			const TValue top = Max(min1._Y, min2._Y), bottom = Min(max1._Y, max2._Y);
+			return left < right && top < bottom;
 		}
 
 		constexpr bool operator==(const Rect& rect) const noexcept {
@@ -92,6 +97,13 @@ namespace BM
 
 		static constexpr Rect<TValue> Zero() noexcept {
 			return Rect<TValue>(0);
+		}
+	private:
+		constexpr static inline TValue Min(const TValue& a, const TValue& b) noexcept {
+			return a < b ? a : b;
+		}
+		constexpr static inline TValue Max(const TValue& a, const TValue& b) noexcept {
+			return a < b ? b : a;
 		}
 	};
 
