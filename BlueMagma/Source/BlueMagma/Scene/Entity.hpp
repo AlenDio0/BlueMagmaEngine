@@ -19,7 +19,7 @@ namespace BM
 		inline Entity() noexcept = default;
 		inline Entity(const Entity&) noexcept = default;
 		Entity(Scene* scene, EntityHandle handle) noexcept;
-		virtual inline ~Entity() noexcept = default;
+		inline ~Entity() noexcept = default;
 
 		operator EntityHandle() const noexcept;
 		operator bool() const noexcept;

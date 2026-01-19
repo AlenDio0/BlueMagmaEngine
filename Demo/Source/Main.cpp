@@ -1,5 +1,5 @@
 #include <BlueMagma.hpp>
-#include <BlueMagma/System/Timer.hpp>
+#include <BlueMagma/Core/Timer.hpp>
 #include "DemoLayer.hpp"
 #include <chrono>
 

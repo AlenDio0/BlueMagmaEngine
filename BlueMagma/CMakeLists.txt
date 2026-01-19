@@ -7,6 +7,12 @@ set(SOURCES
     Source/BlueMagma/Core/Log.hpp
     Source/BlueMagma/Core/Log.cpp
     Source/BlueMagma/Core/Assert.hpp
+    Source/BlueMagma/Core/Vec2.hpp
+    Source/BlueMagma/Core/Rect.hpp
+    Source/BlueMagma/Core/Random.hpp
+    Source/BlueMagma/Core/Random.cpp
+    Source/BlueMagma/Core/Timer.hpp
+    Source/BlueMagma/Core/Timer.cpp
     Source/BlueMagma/Base/Application.hpp
     Source/BlueMagma/Base/Application.cpp
     Source/BlueMagma/Base/Window.hpp
@@ -32,12 +38,6 @@ set(SOURCES
     Source/BlueMagma/Scene/Entity.hpp
     Source/BlueMagma/Scene/Entity.cpp
     Source/BlueMagma/Scene/Component.hpp
-    Source/BlueMagma/System/Vec2.hpp
-    Source/BlueMagma/System/Rect.hpp
-    Source/BlueMagma/System/Random.hpp
-    Source/BlueMagma/System/Random.cpp
-    Source/BlueMagma/System/Timer.hpp
-    Source/BlueMagma/System/Timer.cpp
 )
 
 # Library

@@ -2,7 +2,7 @@
 #include <BlueMagma/Layer/Layer.hpp>
 #include <BlueMagma/Scene/Scene.hpp>
 #include <BlueMagma/Scene/Entity.hpp>
-#include <BlueMagma/System/Timer.hpp>
+#include <BlueMagma/Core/Timer.hpp>
 #include <BlueMagma/Asset/SoundManager.hpp>
 #include <string>
 

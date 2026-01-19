@@ -1,6 +1,6 @@
 #pragma once
 #include "EventDispatcher.hpp"
-#include "System/Vec2.hpp"
+#include "Core/Vec2.hpp"
 #include <string>
 #include <cstdint>
 #include <functional>

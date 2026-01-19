@@ -61,8 +61,7 @@ namespace BM
 		target.draw(s_Circle, GetRenderState(transform));
 	}
 
-	static inline Texture s_EmptyTexture{};
-	static inline sf::Sprite s_Sprite{ s_EmptyTexture };
+	static inline sf::Sprite s_Sprite{ Texture::GetDefault() };
 	void RenderSystem::DrawTexture(sf::RenderTarget& target, const Component::TextureRender& texture, const Component::Transform& transform) noexcept
 	{
 		if (!texture._TexturePtr)
@@ -77,8 +76,7 @@ namespace BM
 		target.draw(s_Sprite, GetRenderState(transform));
 	}
 
-	static inline Font s_EmptyFont{};
-	static inline sf::Text s_Text{ s_EmptyFont };
+	static inline sf::Text s_Text{ Font::GetDefault() };
 	void RenderSystem::DrawText(sf::RenderTarget& target, const Component::TextRender& text, const Component::Transform& transform) noexcept
 	{
 		if (!text._FontPtr)

@@ -2,9 +2,8 @@
 
 #include "BlueMagma/Core/Log.hpp"
 #include "BlueMagma/Core/Assert.hpp"
-
-#include "BlueMagma/System/Vec2.hpp"
-#include "BlueMagma/System/Rect.hpp"
+#include "BlueMagma/Core/Vec2.hpp"
+#include "BlueMagma/Core/Rect.hpp"
 
 #include <cstdint>
 #include <string>

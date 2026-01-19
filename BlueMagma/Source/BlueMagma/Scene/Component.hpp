@@ -1,7 +1,7 @@
 #pragma once
-#include "System/Vec2.hpp"
+#include "Core/Vec2.hpp"
 #include "Asset/Asset.hpp"
-#include "System/Rect.hpp"
+#include "Core/Rect.hpp"
 #include <SFML/Graphics/Color.hpp>
 #include <string>
 #include <cstdint>
