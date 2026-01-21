@@ -37,8 +37,15 @@ namespace BM::Component
 	{
 		const Texture* _TexturePtr = nullptr;
 		RectInt _TextureRect{};
-		sf::Color _Color{ sf::Color::White };
+		sf::Color _Color{};
 		bool _UseRect = false;
+
+		inline TextureRender(const Texture* texture = nullptr, sf::Color color = sf::Color::White) noexcept
+			: _TexturePtr(texture), _Color(color) {
+		}
+		inline TextureRender(const Texture* texture, RectInt rect, sf::Color color = sf::Color::White) noexcept
+			: _TexturePtr(texture), _TextureRect(rect), _Color(color), _UseRect(true) {
+		}
 	};
 
 	struct TextRender

@@ -9,37 +9,22 @@ namespace BM
 		return m_Registry;
 	}
 
-	void Scene::AddSystemEvent(SystemEventFn onEvent) noexcept
-	{
-		m_SystemEvents.push_back(onEvent);
-	}
-
-	void Scene::AddSystemUpdate(SystemUpdateFn onUpdate) noexcept
-	{
-		m_SystemUpdates.push_back(onUpdate);
-	}
-
-	void Scene::AddSystemRender(SystemRenderFn onRender) noexcept
-	{
-		m_SystemRenders.push_back(onRender);
-	}
-
 	void Scene::OnEvent(Event& event) noexcept
 	{
-		for (auto& onEvent : m_SystemEvents)
-			onEvent(*this, event);
+		for (auto& system : m_Systems)
+			system._EventFn(*this, event);
 	}
 
 	void Scene::OnUpdate(float deltaTime) noexcept
 	{
-		for (auto& onUpdate : m_SystemUpdates)
-			onUpdate(*this, deltaTime);
+		for (auto& system : m_Systems)
+			system._UpdateFn(*this, deltaTime);
 	}
 
 	void Scene::OnRender(sf::RenderTarget& target) const noexcept
 	{
-		for (auto& onRender : m_SystemRenders)
-			onRender(*this, target);
+		for (auto& system : m_Systems)
+			system._RenderFn(*this, target);
 	}
 
 	Entity Scene::Create(const Component::Transform& transform) noexcept

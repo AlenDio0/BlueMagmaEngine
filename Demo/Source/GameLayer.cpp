@@ -7,6 +7,7 @@
 #include <Scene/Entity.hpp>
 #include <Scene/System/TransformSystem.hpp>
 #include <Scene/System/RenderSystem.hpp>
+#include <BlueMagma/Core/Random.hpp>
 #include <format>
 #include <cmath>
 #include <cfloat>
@@ -42,14 +43,16 @@ void GameLayer::OnAttach() noexcept
 		const float cIndex = (float)i + FLT_EPSILON;
 		const float cPosX = (cIndex / cSizeTotal) * (GetWindow().GetSize()._X - cBoxSize);
 
+		const sf::Color cColor((uint8_t)BM_RANDOM(), (uint8_t)BM_RANDOM(), (uint8_t)BM_RANDOM());
+
 		m_Background.CreateChild(Transform(BM::Vec2f(cPosX, (cIndex / cSizeTotal) * cBoundSize), 0.f))
-			.Add<RectRender>(cBoxSize, sf::Color::Red);
+			.Add<RectRender>(cBoxSize, cColor);
 
 		m_Background.CreateChild(Transform(BM::Vec2f(cPosX, ((cIndex * cIndex) / (cSizeTotal * cSizeTotal)) * cBoundSize), 0.1f))
-			.Add<CircleRender>(cBoxSize / 2.f, sf::Color::Blue);
+			.Add<CircleRender>(cBoxSize / 2.f, cColor);
 
 		m_Background.CreateChild(Transform(BM::Vec2f(cPosX, cBoundSize - ((cIndex * cIndex) / (cSizeTotal * cSizeTotal)) * cBoundSize), 0.2f,
-			BM::Vec2f(cBoxSize) / texture.getSize())).Add<TextureRender>(&texture);
+			BM::Vec2f(cBoxSize) / texture.getSize())).Add<TextureRender>(&texture, cColor);
 	}
 }
 
@@ -74,7 +77,6 @@ void GameLayer::OnEvent(BM::Event& event) noexcept
 void GameLayer::OnUpdate(float deltaTime) noexcept
 {
 	m_Scene.OnUpdate(deltaTime);
-
 	if (m_TextTimer.AsSeconds() >= 1.f)
 	{
 		m_Background.Patch<BM::Component::Transform>([](auto& transform) {

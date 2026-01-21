@@ -34,12 +34,8 @@ namespace BM
 	void TransformSystem::UpdatePosition(Scene& scene) noexcept
 	{
 		auto view = scene.GetRegistry().view<Component::Transform>(entt::exclude<Parent>);
-		for (auto entity : view)
-		{
-			scene.PatchComponent<Component::Transform>(entity, [](auto& transform) {
-				transform._Position = transform._LocalPosition;
-				});
-		}
+		for (auto [entity, transform] : view.each())
+			transform._Position = transform._LocalPosition;
 	}
 
 	void TransformSystem::UpdateZ(Scene& scene) noexcept
@@ -57,13 +53,11 @@ namespace BM
 
 	void TransformSystem::UpdateChildren(Scene& scene) noexcept
 	{
-		auto children = scene.View<Component::Transform, Parent>();
-		for (auto [child, _, parent] : children.each())
+		auto children = scene.GetRegistry().view<Component::Transform, Parent>();
+		for (auto [child, transform, parent] : children.each())
 		{
-			const auto& parentTransform = scene.GetComponent<Component::Transform>(parent._ParentHandle);
-			scene.PatchComponent<Component::Transform>(child, [&](auto& transform) {
-				transform._Position = parentTransform._Position + transform._LocalPosition;
-				});
+			auto& parentTransform = scene.GetRegistry().get<Component::Transform>(parent._ParentHandle);
+			transform._Position = parentTransform._Position + transform._LocalPosition;
 		}
 	}
 }

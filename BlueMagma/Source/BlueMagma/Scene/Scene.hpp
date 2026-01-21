@@ -8,12 +8,27 @@
 #include <entt/entity/fwd.hpp>
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <vector>
-#include <concepts>
+#include <typeindex>
+#include <algorithm>
+#include <ranges>
 #include <memory>
+#include <cstdint>
 
 namespace BM
 {
+	struct SystemEntry
+	{
+		std::type_index _Id;
+		std::shared_ptr<ISystem> _Instance;
+		uint32_t _Priority;
+
+		SystemEventFn _EventFn;
+		SystemUpdateFn _UpdateFn;
+		SystemRenderFn _RenderFn;
+	};
+
 	class Entity;
+
 	class Scene
 	{
 	public:
@@ -21,20 +36,31 @@ namespace BM
 
 		entt::registry& GetRegistry() noexcept;
 
-		template<std::derived_from<ISystem> TSystem>
-		inline void AddSystem() noexcept {
-			auto system = std::make_shared<TSystem>();
+		template<class TSystem>
+		inline void AddSystem(uint32_t priority = 0) noexcept {
+			std::type_index cTypeId(typeid(TSystem));
+			if (std::ranges::any_of(m_Systems, [&](const auto& system) { return cTypeId == system._Id; }))
+				return;
 
+			auto system = std::make_shared<TSystem>();
 			system->OnAttach(*this);
 
-			AddSystemEvent([system](Scene& scene, Event& event) { system->OnEvent(scene, event); });
-			AddSystemUpdate([system](Scene& scene, float deltaTime) { system->OnUpdate(scene, deltaTime); });
-			AddSystemRender([system](const Scene& scene, sf::RenderTarget& target) { system->OnRender(scene, target); });
+			m_Systems.emplace_back(cTypeId, system, priority,
+				[system](Scene& scene, Event& event) { system->OnEvent(scene, event); },
+				[system](Scene& scene, float deltaTime) { system->OnUpdate(scene, deltaTime); },
+				[system](const Scene& scene, sf::RenderTarget& target) { system->OnRender(scene, target); }
+			);
+			std::ranges::sort(m_Systems, [](const auto& a, const auto& b) {
+				return a._Priority < b._Priority;
+				});
 		}
-
-		void AddSystemEvent(SystemEventFn onEvent) noexcept;
-		void AddSystemUpdate(SystemUpdateFn onUpdate) noexcept;
-		void AddSystemRender(SystemRenderFn onRender) noexcept;
+		template<class TSystem>
+		inline void RemoveSystem() noexcept {
+			std::type_index cTypeId(typeid(TSystem));
+			std::erase_if(m_Systems, [&](const auto& system) {
+				return cTypeId == system._Id;
+				});
+		}
 
 		void OnEvent(Event& event) noexcept;
 		void OnUpdate(float deltaTime) noexcept;
@@ -125,8 +151,6 @@ namespace BM
 	private:
 		entt::registry m_Registry;
 
-		std::vector<SystemEventFn> m_SystemEvents;
-		std::vector<SystemUpdateFn> m_SystemUpdates;
-		std::vector<SystemRenderFn> m_SystemRenders;
+		std::vector<SystemEntry> m_Systems;
 	};
 }

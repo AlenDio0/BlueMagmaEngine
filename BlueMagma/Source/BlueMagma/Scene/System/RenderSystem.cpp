@@ -1,11 +1,12 @@
 #include "bmpch.hpp"
 #include "RenderSystem.hpp"
-#include "../Scene.hpp"
+#include "Scene/Scene.hpp"
+#include <SFML/Graphics/Vertex.hpp>
+#include <SFML/Graphics/PrimitiveType.hpp>
 #include <SFML/Graphics/RenderStates.hpp>
 #include <SFML/Graphics/CircleShape.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Text.hpp>
-#include <SFML/Graphics/Vertex.hpp>
 
 namespace BM
 {
@@ -13,11 +14,10 @@ namespace BM
 	{
 		using namespace Component;
 
-		auto view = scene.View<Transform>();
-
 		std::vector<sf::Vertex> rectBatch;
 		rectBatch.reserve(scene.View<RectRender>().size() * 6);
 
+		auto view = scene.View<Transform>();
 		for (auto entity : view)
 		{
 			const Transform& transform = view.get<Transform>(entity);
@@ -44,6 +44,31 @@ namespace BM
 		}
 
 		Flush(target, rectBatch);
+	}
+
+	void RenderSystem::AddRect(std::vector<sf::Vertex>& batch, const Component::RectRender* rect, const Component::Transform& transform) noexcept
+	{
+		const Vec2f cPosition = transform._Position;
+		const Vec2f cSize = cPosition + (rect->_Size * transform._Scale);
+		const sf::Color cColor = rect->_Color;
+
+		Vec2f topLeft(cPosition);
+		Vec2f topRight(cSize._X, cPosition._Y);
+		Vec2f bottomRight(cSize);
+		Vec2f bottomLeft(cPosition._X, cSize._Y);
+
+		batch.emplace_back(topLeft, cColor);
+		batch.emplace_back(topRight, cColor);
+		batch.emplace_back(bottomRight, cColor);
+		batch.emplace_back(topLeft, cColor);
+		batch.emplace_back(bottomRight, cColor);
+		batch.emplace_back(bottomLeft, cColor);
+	}
+
+	void RenderSystem::Flush(sf::RenderTarget& target, std::vector<sf::Vertex>& batch) noexcept
+	{
+		target.draw(batch.data(), batch.size(), sf::PrimitiveType::Triangles);
+		batch.clear();
 	}
 
 	static inline sf::RenderStates GetRenderState(const Component::Transform& transform)
@@ -88,32 +113,5 @@ namespace BM
 		s_Text.setFillColor(text._Color);
 
 		target.draw(s_Text, GetRenderState(transform));
-	}
-
-	void RenderSystem::AddRect(std::vector<sf::Vertex>& batch, const Component::RectRender* rect, const Component::Transform& transform) noexcept
-	{
-		const Vec2f cPosition = transform._Position;
-		const Vec2f cSize = cPosition + (rect->_Size * transform._Scale);
-		const sf::Color cColor = rect->_Color;
-
-		Vec2f topLeft(cPosition);
-		Vec2f topRight(cSize._X, cPosition._Y);
-		Vec2f bottomRight(cSize);
-		Vec2f bottomLeft(cPosition._X, cSize._Y);
-
-		batch.emplace_back(topLeft, cColor);
-		batch.emplace_back(topRight, cColor);
-		batch.emplace_back(bottomRight, cColor);
-		batch.emplace_back(topLeft, cColor);
-		batch.emplace_back(bottomRight, cColor);
-		batch.emplace_back(bottomLeft, cColor);
-	}
-	void RenderSystem::Flush(sf::RenderTarget& target, std::vector<sf::Vertex>& batch) noexcept
-	{
-		if (batch.empty())
-			return;
-
-		target.draw(batch.data(), batch.size(), sf::PrimitiveType::Triangles);
-		batch.clear();
 	}
 }
