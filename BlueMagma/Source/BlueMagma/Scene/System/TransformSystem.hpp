@@ -10,8 +10,10 @@ namespace BM
 
 		virtual void OnUpdate(Scene& scene, float deltaTime) noexcept override;
 	private:
-		static void UpdatePosition(Scene& scene) noexcept;
-		static void UpdateZ(Scene& scene) noexcept;
-		static void UpdateChildren(Scene& scene) noexcept;
+		void UpdatePosition(Scene& scene) noexcept;
+		void UpdateZ(Scene& scene) noexcept;
+		void UpdateChildren(Scene& scene) noexcept;
+	private:
+		bool m_UpdatedZ;
 	};
 }

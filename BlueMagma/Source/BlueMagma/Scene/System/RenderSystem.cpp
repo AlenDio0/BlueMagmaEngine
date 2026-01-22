@@ -1,7 +1,6 @@
 #include "bmpch.hpp"
 #include "RenderSystem.hpp"
 #include "Scene/Scene.hpp"
-#include <SFML/Graphics/Vertex.hpp>
 #include <SFML/Graphics/PrimitiveType.hpp>
 #include <SFML/Graphics/RenderStates.hpp>
 #include <SFML/Graphics/CircleShape.hpp>
@@ -14,8 +13,7 @@ namespace BM
 	{
 		using namespace Component;
 
-		std::vector<sf::Vertex> rectBatch;
-		rectBatch.reserve(scene.View<RectRender>().size() * 6);
+		m_CachedRectBatch.reserve(scene.View<RectRender>().size() * 6);
 
 		auto view = scene.View<Transform>();
 		for (auto entity : view)
@@ -24,29 +22,29 @@ namespace BM
 
 			if (auto rect = scene.TryGetComponent<RectRender>(entity))
 			{
-				AddRect(rectBatch, rect, transform);
+				AddRect(rect, transform);
 			}
 			else if (auto circle = scene.TryGetComponent<CircleRender>(entity))
 			{
-				Flush(target, rectBatch);
+				Flush(target);
 				DrawCircle(target, *circle, transform);
 			}
 			else if (auto texture = scene.TryGetComponent<TextureRender>(entity))
 			{
-				Flush(target, rectBatch);
+				Flush(target);
 				DrawTexture(target, *texture, transform);
 			}
 			else if (auto text = scene.TryGetComponent<TextRender>(entity))
 			{
-				Flush(target, rectBatch);
+				Flush(target);
 				DrawText(target, *text, transform);
 			}
 		}
 
-		Flush(target, rectBatch);
+		Flush(target);
 	}
 
-	void RenderSystem::AddRect(std::vector<sf::Vertex>& batch, const Component::RectRender* rect, const Component::Transform& transform) noexcept
+	void RenderSystem::AddRect(const Component::RectRender* rect, const Component::Transform& transform) const noexcept
 	{
 		const Vec2f cPosition = transform._Position;
 		const Vec2f cSize = cPosition + (rect->_Size * transform._Scale);
@@ -57,18 +55,18 @@ namespace BM
 		Vec2f bottomRight(cSize);
 		Vec2f bottomLeft(cPosition._X, cSize._Y);
 
-		batch.emplace_back(topLeft, cColor);
-		batch.emplace_back(topRight, cColor);
-		batch.emplace_back(bottomRight, cColor);
-		batch.emplace_back(topLeft, cColor);
-		batch.emplace_back(bottomRight, cColor);
-		batch.emplace_back(bottomLeft, cColor);
+		m_CachedRectBatch.emplace_back(topLeft, cColor);
+		m_CachedRectBatch.emplace_back(topRight, cColor);
+		m_CachedRectBatch.emplace_back(bottomRight, cColor);
+		m_CachedRectBatch.emplace_back(topLeft, cColor);
+		m_CachedRectBatch.emplace_back(bottomRight, cColor);
+		m_CachedRectBatch.emplace_back(bottomLeft, cColor);
 	}
 
-	void RenderSystem::Flush(sf::RenderTarget& target, std::vector<sf::Vertex>& batch) noexcept
+	void RenderSystem::Flush(sf::RenderTarget& target) const noexcept
 	{
-		target.draw(batch.data(), batch.size(), sf::PrimitiveType::Triangles);
-		batch.clear();
+		target.draw(m_CachedRectBatch.data(), m_CachedRectBatch.size(), sf::PrimitiveType::Triangles);
+		m_CachedRectBatch.clear();
 	}
 
 	static inline sf::RenderStates GetRenderState(const Component::Transform& transform)
@@ -78,7 +76,7 @@ namespace BM
 	}
 
 	static inline sf::CircleShape s_Circle;
-	void RenderSystem::DrawCircle(sf::RenderTarget& target, const Component::CircleRender& circle, const Component::Transform& transform) noexcept
+	void RenderSystem::DrawCircle(sf::RenderTarget& target, const Component::CircleRender& circle, const Component::Transform& transform) const noexcept
 	{
 		s_Circle.setRadius(circle._Radius);
 		s_Circle.setFillColor(circle._Color);
@@ -87,7 +85,7 @@ namespace BM
 	}
 
 	static inline sf::Sprite s_Sprite{ Texture::GetDefault() };
-	void RenderSystem::DrawTexture(sf::RenderTarget& target, const Component::TextureRender& texture, const Component::Transform& transform) noexcept
+	void RenderSystem::DrawTexture(sf::RenderTarget& target, const Component::TextureRender& texture, const Component::Transform& transform) const noexcept
 	{
 		if (!texture._TexturePtr)
 			return;
@@ -102,7 +100,7 @@ namespace BM
 	}
 
 	static inline sf::Text s_Text{ Font::GetDefault() };
-	void RenderSystem::DrawText(sf::RenderTarget& target, const Component::TextRender& text, const Component::Transform& transform) noexcept
+	void RenderSystem::DrawText(sf::RenderTarget& target, const Component::TextRender& text, const Component::Transform& transform) const noexcept
 	{
 		if (!text._FontPtr)
 			return;

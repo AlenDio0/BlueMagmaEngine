@@ -130,6 +130,12 @@ bool GameLayer::OnKeyPressed(const BM::EventHandle::KeyPressed& keyPressed) noex
 	case Key::S:
 		m_SoundManager.Stop("sound");
 		break;
+	case Key::H:
+		m_Scene.RemoveSystem<BM::TransformSystem>();
+		break;
+	case Key::J:
+		m_Scene.RemoveSystem<BM::RenderSystem>();
+		break;
 	default:
 		return false;
 	}

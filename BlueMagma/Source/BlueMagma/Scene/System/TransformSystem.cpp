@@ -6,22 +6,15 @@
 
 namespace BM
 {
-	struct TransformState
-	{
-		bool _UpdatedZ = true;
-	};
-
 	static inline void SetTrue(bool& b) noexcept {
 		b = true;
 	}
 
 	void TransformSystem::OnAttach(Scene& scene) noexcept
 	{
-		auto& state = scene.AddCtxComponent<TransformState>();
-
 		using Transform = Component::Transform;
-		scene.OnConstruct<Transform>().connect<SetTrue>(state._UpdatedZ);
-		scene.OnUpdate<Transform>().connect<SetTrue>(state._UpdatedZ);
+		scene.OnConstruct<Transform>().connect<SetTrue>(m_UpdatedZ);
+		scene.OnUpdate<Transform>().connect<SetTrue>(m_UpdatedZ);
 	}
 
 	void TransformSystem::OnUpdate(Scene& scene, float deltaTime) noexcept
@@ -40,14 +33,12 @@ namespace BM
 
 	void TransformSystem::UpdateZ(Scene& scene) noexcept
 	{
-		auto& state = scene.GetCtxComponent<TransformState>();
-
-		if (state._UpdatedZ)
+		if (m_UpdatedZ)
 		{
 			scene.GetRegistry().sort<Component::Transform>([](const auto& left, const auto& right) {
 				return left._Z < right._Z; });
 
-			state._UpdatedZ = false;
+			m_UpdatedZ = false;
 		}
 	}
 

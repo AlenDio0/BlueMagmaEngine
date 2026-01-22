@@ -11,11 +11,13 @@ namespace BM
 	public:
 		virtual void OnRender(const Scene& scene, sf::RenderTarget& target) const noexcept override;
 	private:
-		static void AddRect(std::vector<sf::Vertex>& batch, const Component::RectRender* rect, const Component::Transform& transform) noexcept;
-		static void Flush(sf::RenderTarget& target, std::vector<sf::Vertex>& batch) noexcept;
+		void AddRect(const Component::RectRender* rect, const Component::Transform& transform) const noexcept;
+		void Flush(sf::RenderTarget& target) const noexcept;
 
-		static void DrawCircle(sf::RenderTarget& target, const Component::CircleRender& circle, const Component::Transform& transform) noexcept;
-		static void DrawTexture(sf::RenderTarget& target, const Component::TextureRender& texture, const Component::Transform& transform) noexcept;
-		static void DrawText(sf::RenderTarget& target, const Component::TextRender& text, const Component::Transform& transform) noexcept;
+		void DrawCircle(sf::RenderTarget& target, const Component::CircleRender& circle, const Component::Transform& transform) const noexcept;
+		void DrawTexture(sf::RenderTarget& target, const Component::TextureRender& texture, const Component::Transform& transform) const noexcept;
+		void DrawText(sf::RenderTarget& target, const Component::TextRender& text, const Component::Transform& transform) const noexcept;
+	private:
+		mutable std::vector<sf::Vertex> m_CachedRectBatch;
 	};
 }
