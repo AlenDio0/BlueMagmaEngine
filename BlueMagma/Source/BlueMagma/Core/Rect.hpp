@@ -43,8 +43,7 @@ namespace BM
 
 		template<typename UValue = TValue>
 		constexpr Rect(const sf::Rect<UValue>& rect) noexcept
-			: _X(static_cast<TValue>(rect._X)), _Y(static_cast<TValue>(rect._Y)),
-			_Width(static_cast<TValue>(rect._Width)), _Height(static_cast<TValue>(rect._Height)) {
+			: _Position(rect.position), _Size(rect.size) {
 		}
 		template<typename UValue = TValue>
 		constexpr operator sf::Rect<UValue>() const noexcept {
