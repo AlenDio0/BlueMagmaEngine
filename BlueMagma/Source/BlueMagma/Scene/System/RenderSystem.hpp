@@ -1,8 +1,6 @@
 #pragma once
 #include "ISystem.hpp"
-#include "Scene/Component.hpp"
-#include <SFML/Graphics/Vertex.hpp>
-#include <vector>
+#include "Scene/Component/Base.hpp"
 
 namespace BM
 {
@@ -11,13 +9,16 @@ namespace BM
 	public:
 		virtual void OnRender(const Scene& scene, sf::RenderTarget& target) const noexcept override;
 	private:
-		void AddRect(const Component::RectRender* rect, const Component::Transform& transform) const noexcept;
-		void Flush(sf::RenderTarget& target) const noexcept;
+		void DrawRect(sf::RenderTarget& target, const Component::Transform& transform,
+			Component::RectRender rect, Component::Style style) const noexcept;
 
-		void DrawCircle(sf::RenderTarget& target, const Component::CircleRender& circle, const Component::Transform& transform) const noexcept;
-		void DrawTexture(sf::RenderTarget& target, const Component::TextureRender& texture, const Component::Transform& transform) const noexcept;
-		void DrawText(sf::RenderTarget& target, const Component::TextRender& text, const Component::Transform& transform) const noexcept;
-	private:
-		mutable std::vector<sf::Vertex> m_CachedRectBatch;
+		void DrawCircle(sf::RenderTarget& target, const Component::Transform& transform,
+			Component::CircleRender circle, Component::Style style) const noexcept;
+
+		void DrawTexture(sf::RenderTarget& target, const Component::Transform& transform,
+			const Component::TextureRender& texture, Component::Style style) const noexcept;
+
+		void DrawText(sf::RenderTarget& target, const Component::Transform& transform,
+			const Component::TextRender& text, Component::Style style) const noexcept;
 	};
 }

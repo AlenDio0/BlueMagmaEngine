@@ -19,7 +19,10 @@ public:
 	virtual void OnUpdate(float deltaTime) noexcept override;
 	virtual void OnRender(sf::RenderTarget& target) noexcept override;
 private:
+	void InitExample() noexcept;
+
 	bool OnKeyPressed(const BM::EventHandle::KeyPressed& keyPressed) noexcept;
+	bool OnMouseMoved(const BM::EventHandle::MouseMoved& mouseMoved) noexcept;
 
 	std::string FormatStatText(float deltaTime) const noexcept;
 private:
@@ -28,7 +31,14 @@ private:
 	BM::Entity m_Background;
 	BM::Entity m_StatText;
 
-	BM::Timer m_TextTimer;
+	BM::Entity m_Button;
+	BM::Entity m_InputText;
+	BM::Entity m_FocusText;
+
+	BM::Entity m_MouseRect;
+
+	BM::Timer m_StatTimer;
+	BM::Timer m_SwitchTimer;
 
 	BM::SoundManager m_SoundManager;
 };

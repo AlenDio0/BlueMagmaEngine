@@ -23,6 +23,22 @@ namespace BM
 		Entity child = m_ScenePtr->Create(transform);
 		child.Add<Parent>(m_Handle);
 
+		AddOrGet<Children>();
+		Patch<Children>([&](auto& children) { children._Children.push_back(child); });
+
 		return child;
+	}
+
+	std::vector<Entity> Entity::GetChildren() noexcept
+	{
+		std::vector<Entity> children;
+		if (!Has<Children>())
+			return children;
+
+		const auto& childList = Get<Children>()._Children;
+		for (auto& child : childList)
+			children.emplace_back(m_ScenePtr, child);
+
+		return children;
 	}
 }

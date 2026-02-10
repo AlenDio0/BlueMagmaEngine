@@ -19,19 +19,24 @@ namespace BM
 
 	void TransformSystem::OnUpdate(Scene& scene, float deltaTime) noexcept
 	{
-		UpdatePosition(scene);
-		UpdateZ(scene);
+		UpdateTransform(scene);
 		UpdateChildren(scene);
+
+		UpdateSortByZ(scene);
 	}
 
-	void TransformSystem::UpdatePosition(Scene& scene) noexcept
+	void TransformSystem::UpdateTransform(Scene& scene) noexcept
 	{
 		auto view = scene.GetRegistry().view<Component::Transform>(entt::exclude<Parent>);
 		for (auto [entity, transform] : view.each())
+		{
 			transform._Position = transform._LocalPosition;
+			transform._Z = transform._LocalZ;
+			transform._Scale = transform._LocalScale;
+		}
 	}
 
-	void TransformSystem::UpdateZ(Scene& scene) noexcept
+	void TransformSystem::UpdateSortByZ(Scene& scene) noexcept
 	{
 		if (m_UpdatedZ)
 		{
@@ -47,8 +52,11 @@ namespace BM
 		auto children = scene.GetRegistry().view<Component::Transform, Parent>();
 		for (auto [child, transform, parent] : children.each())
 		{
-			auto& parentTransform = scene.GetRegistry().get<Component::Transform>(parent._ParentHandle);
-			transform._Position = parentTransform._Position + transform._LocalPosition;
+			const auto& cParentTransform = scene.GetRegistry().get<Component::Transform>(parent._ParentHandle);
+
+			transform._Position = cParentTransform._Position + (transform._LocalPosition * cParentTransform._Scale);
+			transform._Z = cParentTransform._Z + transform._LocalZ;
+			transform._Scale = cParentTransform._Scale * transform._LocalScale;
 		}
 	}
 }

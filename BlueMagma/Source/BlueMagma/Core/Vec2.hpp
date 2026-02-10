@@ -51,6 +51,9 @@ namespace BM
 
 			return *this / Length();
 		}
+		constexpr Vec2 Round() const noexcept {
+			return Vec2(std::round(_X), std::round(_Y));
+		}
 
 		constexpr TValue SquaredDistance(const Vec2& vec) const noexcept {
 			return ((_X - vec._X) * (_X - vec._X)) + ((_Y - vec._Y) * (_Y - vec._Y));

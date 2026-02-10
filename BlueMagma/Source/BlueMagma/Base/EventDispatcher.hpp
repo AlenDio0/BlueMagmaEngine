@@ -2,7 +2,7 @@
 #include <SFML/Window/Event.hpp>
 #include <functional>
 
-#define BM_EVENT_FN(fn)	[&](const auto& e) -> decltype(auto) { return fn(e); }
+#define BM_EVENT_FN(fn, ...)	[&](const auto& e) -> bool { return fn(e, __VA_ARGS__); }
 
 namespace BM
 {

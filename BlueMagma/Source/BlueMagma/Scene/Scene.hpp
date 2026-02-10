@@ -2,7 +2,7 @@
 #include "Core/Assert.hpp"
 #include "System/ISystem.hpp"
 #include "EntityHandle.hpp"
-#include "Component.hpp"
+#include "Component/Base.hpp"
 #include "Base/EventDispatcher.hpp"
 #include <entt/entt.hpp>
 #include <entt/entity/fwd.hpp>
@@ -27,14 +27,15 @@ namespace BM
 		SystemRenderFn _RenderFn;
 	};
 
+	using Registry = entt::registry;
 	class Entity;
 
 	class Scene
 	{
 	public:
-		inline Scene() noexcept = default;
+		Scene() noexcept;
 
-		entt::registry& GetRegistry() noexcept;
+		Registry& GetRegistry() noexcept;
 
 		template<class TSystem>
 		inline void AddSystem(uint32_t priority = 0) noexcept {
@@ -68,6 +69,8 @@ namespace BM
 
 		Entity Create(const Component::Transform& transform = {}) noexcept;
 		Entity GetEntity(EntityHandle handle) noexcept;
+
+		void Destroy(EntityHandle handle) noexcept;
 
 		template<class TComp>
 		inline decltype(auto) OnConstruct() noexcept {
@@ -149,7 +152,7 @@ namespace BM
 			return m_Registry.emplace_or_replace<TComp>(handle, std::forward<Args>(args)...);
 		}
 	private:
-		entt::registry m_Registry;
+		Registry m_Registry;
 
 		std::vector<SystemEntry> m_Systems;
 	};

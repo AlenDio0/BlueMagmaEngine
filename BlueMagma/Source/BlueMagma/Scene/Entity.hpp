@@ -1,17 +1,12 @@
 #pragma once
 #include "EntityHandle.hpp"
 #include "Scene.hpp"
+#include <vector>
 
 namespace BM
 {
-	struct Parent
-	{
-		EntityHandle _ParentHandle;
-
-		inline Parent(EntityHandle parent) noexcept
-			: _ParentHandle(parent) {
-		}
-	};
+	struct Parent { EntityHandle _ParentHandle; };
+	struct Children { std::vector<EntityHandle> _Children; };
 
 	class Entity
 	{
@@ -25,6 +20,21 @@ namespace BM
 		operator bool() const noexcept;
 
 		Entity CreateChild(const Component::Transform& transform = {}) noexcept;
+
+		std::vector<Entity> GetChildren() noexcept;
+		template<class... TComp>
+		inline std::vector<Entity> GetChildren() noexcept {
+			std::vector<Entity> children;
+
+			auto childList = GetChildren();
+			for (auto& child : childList)
+			{
+				if (child.Has<TComp...>())
+					children.push_back(child);
+			}
+
+			return children;
+		}
 
 		template<class... TComp>
 		inline bool Has() const noexcept {
