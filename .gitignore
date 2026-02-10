@@ -1,5 +1,6 @@
 # Directories
 build
+build_linux
 out
 .cache
 .idea
