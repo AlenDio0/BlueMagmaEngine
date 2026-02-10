@@ -1,5 +1,6 @@
 #pragma once
 #include <SFML/System/Vector2.hpp>
+#include <cmath>
 #include <cstdint>
 #include <format>
 
@@ -53,6 +54,15 @@ namespace BM
 		}
 		constexpr Vec2 Round() const noexcept {
 			return Vec2(std::round(_X), std::round(_Y));
+		}
+		constexpr Vec2 Absolute() const noexcept {
+			return Vec2(std::abs(_X), std::abs(_Y));
+		}
+		constexpr Vec2 Swap() const noexcept {
+			return Vec2(_Y, _X);
+		}
+		constexpr Vec2 Rotate() const noexcept {
+			return Vec2(_Y, -_X);
 		}
 
 		constexpr TValue SquaredDistance(const Vec2& vec) const noexcept {
