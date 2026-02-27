@@ -24,8 +24,8 @@ int main(int argc, char* argv[])
 	BM_FN("argc: {}", argc);
 
 	BM::ApplicationContext appContext;
-	appContext._WindowContext._Size = { 960, 540 };
-	appContext._WindowContext._VSync = false;
+	appContext.Window.Size = { 960, 540 };
+	appContext.Window.VSync = false;
 
 	BM::Application application(appContext);
 

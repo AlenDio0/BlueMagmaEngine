@@ -29,16 +29,16 @@ namespace BM
 	private:
 		struct RemoveOperation
 		{
-			Layer* _Layer;
+			Layer* RemoveLayer;
 		};
 		struct TransitionOperation
 		{
-			Layer* _FromLayer = nullptr;
-			std::unique_ptr<Layer> _ToLayer;
+			Layer* FromLayer = nullptr;
+			std::unique_ptr<Layer> ToLayer;
 		};
 		struct PushOperation
 		{
-			std::unique_ptr<Layer> _Layer;
+			std::unique_ptr<Layer> PushLayer;
 		};
 	private:
 		void HandleOperation(const RemoveOperation& remove) noexcept;

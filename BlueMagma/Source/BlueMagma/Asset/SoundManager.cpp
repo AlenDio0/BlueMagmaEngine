@@ -125,19 +125,19 @@ namespace BM
 
 	void SoundManager::SetContext(sf::Sound& sound, const SoundContext& context) const noexcept
 	{
-		sound.setVolume(context._Volume);
-		sound.setPitch(context._Pitch);
-		sound.setPan(context._Pan);
+		sound.setVolume(context.Volume);
+		sound.setPitch(context.Pitch);
+		sound.setPan(context.Pan);
 
-		sound.setPosition({ context._PositionX, context._PositionY, context._PositionZ });
-		sound.setDirection({ context._DirectionX, context._DirectionY, context._DirectionZ });
+		sound.setPosition({ context.PositionX, context.PositionY, context.PositionZ });
+		sound.setDirection({ context.DirectionX, context.DirectionY, context.DirectionZ });
 
-		sound.setMinDistance(context._MinDistance);
-		sound.setMaxDistance(context._MaxDistance);
+		sound.setMinDistance(context.MinDistance);
+		sound.setMaxDistance(context.MaxDistance);
 
-		sound.setMinGain(context._MinGain);
-		sound.setMaxGain(context._MaxGain);
+		sound.setMinGain(context.MinGain);
+		sound.setMaxGain(context.MaxGain);
 
-		sound.setAttenuation(context._Attenuation);
+		sound.setAttenuation(context.Attenuation);
 	}
 }

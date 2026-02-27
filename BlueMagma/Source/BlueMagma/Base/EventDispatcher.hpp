@@ -10,29 +10,29 @@ namespace BM
 
 	struct Event
 	{
-		EventHandle _Handle;
-		bool _Done = false;
+		EventHandle Handle;
+		bool Done = false;
 
 		inline Event(EventHandle handle) noexcept
-			: _Handle(handle) {
+			: Handle(handle) {
 		}
 	};
 
 	class EventDispatcher
 	{
 		template<typename TEvent>
-		using EventFn = std::function<bool(const TEvent&)>;
+		using OnEvent = std::function<bool(const TEvent&)>;
 	public:
 		inline EventDispatcher(Event& event)
 			: m_EventPtr(&event) {
 		}
 
 		template<typename TEvent>
-		inline bool Dispatch(const EventFn<TEvent>& handler) noexcept {
-			if (const TEvent* event = m_EventPtr->_Handle.getIf<TEvent>())
+		inline bool Dispatch(const OnEvent<TEvent>& handler) noexcept {
+			if (const TEvent* event = m_EventPtr->Handle.getIf<TEvent>())
 			{
 				if (handler)
-					m_EventPtr->_Done = handler(*event);
+					m_EventPtr->Done = handler(*event);
 
 				return true;
 			}

@@ -5,11 +5,11 @@
 namespace BM
 {
 	static inline void RemoveChild(Registry& registry, EntityHandle child) noexcept {
-		EntityHandle parent = registry.get<Parent>(child)._ParentHandle;
+		EntityHandle parent = registry.get<Parent>(child).Handle;
 
 		if (registry.valid(parent) && registry.all_of<Children>(parent))
 		{
-			auto& childList = registry.get<Children>(parent)._Children;
+			auto& childList = registry.get<Children>(parent).Handles;
 			std::erase(childList, child);
 		}
 	}
@@ -17,7 +17,7 @@ namespace BM
 	static inline void DestroyChildren(Registry& registry, EntityHandle entity) noexcept {
 		if (registry.all_of<Children>(entity))
 		{
-			std::vector<EntityHandle> children = registry.get<Children>(entity)._Children;
+			std::vector<EntityHandle> children = registry.get<Children>(entity).Handles;
 			for (auto child : children)
 			{
 				if (registry.valid(child))
@@ -40,19 +40,19 @@ namespace BM
 	void Scene::OnEvent(Event& event) noexcept
 	{
 		for (auto& system : m_Systems)
-			system._EventFn(*this, event);
+			system.OnEvent(*this, event);
 	}
 
 	void Scene::OnUpdate(float deltaTime) noexcept
 	{
 		for (auto& system : m_Systems)
-			system._UpdateFn(*this, deltaTime);
+			system.OnUpdate(*this, deltaTime);
 	}
 
 	void Scene::OnRender(sf::RenderTarget& target) const noexcept
 	{
 		for (auto& system : m_Systems)
-			system._RenderFn(*this, target);
+			system.OnRender(*this, target);
 	}
 
 	Entity Scene::Create(const Component::Transform& transform) noexcept

@@ -9,39 +9,39 @@ namespace BM
 	template<typename TValue>
 	struct Vec2
 	{
-		TValue _X, _Y;
+		TValue X, Y;
 
 		constexpr Vec2() noexcept = default;
 		template<typename UValue = TValue>
 		constexpr Vec2(const UValue& x, const UValue& y) noexcept
-			: _X(static_cast<TValue>(x)), _Y(static_cast<TValue>(y)) {
+			: X(static_cast<TValue>(x)), Y(static_cast<TValue>(y)) {
 		}
 		template<typename UValue = TValue>
 		constexpr Vec2(const Vec2<UValue>& vec) noexcept
-			: _X(static_cast<TValue>(vec._X)), _Y(static_cast<TValue>(vec._Y)) {
+			: X(static_cast<TValue>(vec.X)), Y(static_cast<TValue>(vec.Y)) {
 		}
 		template<typename UValue = TValue>
 		constexpr Vec2(const UValue& value) noexcept
-			: _X(static_cast<TValue>(value)), _Y(static_cast<TValue>(value)) {
+			: X(static_cast<TValue>(value)), Y(static_cast<TValue>(value)) {
 		}
 
 		template<typename UValue = TValue>
 		constexpr Vec2(const sf::Vector2<UValue>& vec) noexcept
-			: _X(static_cast<TValue>(vec.x)), _Y(static_cast<TValue>(vec.y)) {
+			: X(static_cast<TValue>(vec.x)), Y(static_cast<TValue>(vec.y)) {
 		}
 		template<typename UValue = TValue>
 		constexpr operator sf::Vector2<UValue>() const noexcept {
-			return sf::Vector2<UValue>(static_cast<UValue>(_X), static_cast<UValue>(_Y));
+			return sf::Vector2<UValue>(static_cast<UValue>(X), static_cast<UValue>(Y));
 		}
 
 		constexpr TValue Area() const noexcept {
-			return _X * _Y;
+			return X * Y;
 		}
 		constexpr Vec2<float> Center() const noexcept {
 			return Vec2<float>(*this) / 2.f;
 		}
 		constexpr TValue SquaredLength() const noexcept {
-			return (_X * _X) + (_Y * _Y);
+			return (X * X) + (Y * Y);
 		}
 		constexpr TValue Length() const noexcept {
 			return sqrt(SquaredLength());
@@ -53,30 +53,30 @@ namespace BM
 			return *this / Length();
 		}
 		constexpr Vec2 Round() const noexcept {
-			return Vec2(std::round(_X), std::round(_Y));
+			return Vec2(std::round(X), std::round(Y));
 		}
 		constexpr Vec2 Absolute() const noexcept {
-			return Vec2(std::abs(_X), std::abs(_Y));
+			return Vec2(std::abs(X), std::abs(Y));
 		}
 		constexpr Vec2 Swap() const noexcept {
-			return Vec2(_Y, _X);
+			return Vec2(Y, X);
 		}
 		constexpr Vec2 Rotate() const noexcept {
-			return Vec2(_Y, -_X);
+			return Vec2(Y, -X);
 		}
 
 		constexpr TValue SquaredDistance(const Vec2& vec) const noexcept {
-			return ((_X - vec._X) * (_X - vec._X)) + ((_Y - vec._Y) * (_Y - vec._Y));
+			return ((X - vec.X) * (X - vec.X)) + ((Y - vec.Y) * (Y - vec.Y));
 		}
 		constexpr TValue Distance(const Vec2& vec) const noexcept {
 			return sqrt(SquaredDistance(vec));
 		}
 
 		constexpr bool operator==(const Vec2& vec) const noexcept {
-			return _X == vec._X && _Y == vec._Y;
+			return X == vec.X && Y == vec.Y;
 		}
 		constexpr bool operator==(const TValue& value) const noexcept {
-			return _X == value && _Y == value;
+			return X == value && Y == value;
 		}
 
 		constexpr bool operator!=(const Vec2& vec) const noexcept {
@@ -87,29 +87,29 @@ namespace BM
 		}
 
 		constexpr Vec2 operator+(const Vec2& vec) const noexcept {
-			return Vec2(_X + vec._X, _Y + vec._Y);
+			return Vec2(X + vec.X, Y + vec.Y);
 		}
 		constexpr Vec2 operator-(const Vec2& vec) const noexcept {
-			return Vec2(_X - vec._X, _Y - vec._Y);
+			return Vec2(X - vec.X, Y - vec.Y);
 		}
 		constexpr Vec2 operator*(const Vec2& vec) const noexcept {
-			return Vec2(_X * vec._X, _Y * vec._Y);
+			return Vec2(X * vec.X, Y * vec.Y);
 		}
 		constexpr Vec2 operator/(const Vec2& vec) const noexcept {
-			return Vec2(_X / vec._X, _Y / vec._Y);
+			return Vec2(X / vec.X, Y / vec.Y);
 		}
 
 		constexpr Vec2 operator+(const TValue& value) const noexcept {
-			return Vec2(_X + value, _Y + value);
+			return Vec2(X + value, Y + value);
 		}
 		constexpr Vec2 operator-(const TValue& value) const noexcept {
-			return Vec2(_X - value, _Y - value);
+			return Vec2(X - value, Y - value);
 		}
 		constexpr Vec2 operator*(const TValue& value) const noexcept {
-			return Vec2(_X * value, _Y * value);
+			return Vec2(X * value, Y * value);
 		}
 		constexpr Vec2 operator/(const TValue& value) const noexcept {
-			return Vec2(_X / value, _Y / value);
+			return Vec2(X / value, Y / value);
 		}
 
 		constexpr Vec2& operator+=(const Vec2& vec) noexcept {
@@ -179,7 +179,7 @@ namespace std
 		}
 
 		inline auto format(const BM::Vec2<TValue>& vec, auto& context) const noexcept {
-			return std::format_to(context.out(), "[{}, {}]", vec._X, vec._Y);
+			return std::format_to(context.out(), "[{}, {}]", vec.X, vec.Y);
 		}
 	};
 }

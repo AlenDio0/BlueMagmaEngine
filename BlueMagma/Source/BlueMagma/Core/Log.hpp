@@ -31,20 +31,20 @@ namespace BM
 	public:
 		struct FileContext
 		{
-			std::string _Name = "app.log";
-			size_t _MaxFiles = 0;
-			size_t _MaxSize = BM_MB(5);
-			bool _RotateOnOpen = true;
+			std::string Name = "app.log";
+			size_t MaxFiles = 0;
+			size_t MaxSize = BM_MB(5);
+			bool RotateOnOpen = true;
 
 			inline FileContext() noexcept = default;
 			inline FileContext(std::string_view name) noexcept
-				: _Name(name) {
+				: Name(name) {
 			}
 			inline FileContext(std::string_view name, size_t maxFiles) noexcept
-				: _Name(name), _MaxFiles(maxFiles) {
+				: Name(name), MaxFiles(maxFiles) {
 			}
 			inline FileContext(std::string_view name, size_t maxFiles, size_t maxSize, bool rotateOnOpen = true) noexcept
-				: _Name(name), _MaxFiles(maxFiles), _MaxSize(maxSize), _RotateOnOpen(rotateOnOpen) {
+				: Name(name), MaxFiles(maxFiles), MaxSize(maxSize), RotateOnOpen(rotateOnOpen) {
 			}
 		};
 	public:

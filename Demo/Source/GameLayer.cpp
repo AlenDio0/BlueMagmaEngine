@@ -2,6 +2,7 @@
 #include "DemoLayer.hpp"
 #include <BlueMagma/Base/Application.hpp>
 #include <BlueMagma/Core/Log.hpp>
+#include <BlueMagma/Core/Random.hpp>
 #include <Scene/Entity.hpp>
 #include <Scene/System/TransformSystem.hpp>
 #include <Scene/System/RenderSystem.hpp>
@@ -54,21 +55,21 @@ void GameLayer::OnAttach() noexcept
 	BM::UIMaker::AddHoverColor(m_Button);
 
 	const float cSpaceAxisX = 25.f;
-	const float cInputX = cUISize._X + cSpaceAxisX;
+	const float cInputX = cUISize.X + cSpaceAxisX;
 
-	m_InputText = BM::UIMaker::CreateInputText(m_Scene, Transform(BM::Vec2f(cWindowSize.Center()._X - cInputX, cWindowSize._Y / 3.f), 10.f), cUISize,
+	m_InputText = BM::UIMaker::CreateInputText(m_Scene, Transform(BM::Vec2f(cWindowSize.Center().X - cInputX, cWindowSize.Y / 3.f), 10.f), cUISize,
 		5.f, Style(Color::White, Color::Black, 1.f), TextRender(font), Style(Color::Black), InputText("hello"));
 	BM::UIMaker::AddHoverColor(m_InputText, 0.9f);
 
-	for (int i = 0; i < 100; i++)
-		BM::UIMaker::CreateInputText(m_Scene, {}, {}, 0.f, {}, {}, {}, {});
+	//for (int i = 0; i < 100; i++)
+	//	BM::UIMaker::CreateInputText(m_Scene, {}, {}, 0.f, {}, {}, {}, {});
 
-	m_FocusText = m_InputText.CreateChild(Transform(BM::Vec2f(cInputX + cSpaceAxisX, cUISize.Center()._Y), 0.f, 1.f, BM::Vec2f(0.f, 0.5f)));
+	m_FocusText = m_InputText.CreateChild(Transform(BM::Vec2f(cInputX + cSpaceAxisX, cUISize.Center().Y), 0.f, 1.f, BM::Vec2f(0.f, 0.5f)));
 	m_FocusText.Add<TextRender>(font);
 	m_FocusText.Add<Style>(Color::Red);
 
-	BM::Entity axis = m_Scene.Create(Transform(BM::Vec2f(cWindowSize.Center()._X, 0.f), 100.f));
-	axis.Add<RectRender>(BM::Vec2f(1.f, cWindowSize._Y));
+	BM::Entity axis = m_Scene.Create(Transform(BM::Vec2f(cWindowSize.Center().X, 0.f), 100.f));
+	axis.Add<RectRender>(BM::Vec2f(1.f, cWindowSize.Y));
 
 	m_MouseRect = m_Scene.Create(Transform(cWindowSize.Center(), 100.f, 1.f, 0.5f));
 	m_MouseRect.Add<RectRender>(0.f, 5.f);
@@ -94,6 +95,7 @@ void GameLayer::OnEvent(BM::Event& event) noexcept
 	BM::EventDispatcher dispatcher(event);
 	dispatcher.Dispatch<BM::EventHandle::KeyPressed>(BM_EVENT_FN(OnKeyPressed));
 	dispatcher.Dispatch<BM::EventHandle::MouseMoved>(BM_EVENT_FN(OnMouseMoved));
+	dispatcher.Dispatch<BM::EventHandle::MouseButtonPressed>(BM_EVENT_FN(OnMousePressed));
 }
 
 void GameLayer::OnUpdate(float deltaTime) noexcept
@@ -103,11 +105,11 @@ void GameLayer::OnUpdate(float deltaTime) noexcept
 	m_Button.Patch<BM::Component::Transform>([&](auto& transform) {
 		static float sSpeedFactor = 1.f;
 
-		const float cBoundsX = (float)GetWindow().GetSize()._X;
-		const float cSizeX = m_Button.Get<BM::Component::Widget>()._Size._X;
-		const float cPivotX = cSizeX * transform._Scale._X * transform._Origin._X;
+		const float cBoundsX = (float)GetWindow().GetSize().X;
+		const float cSizeX = m_Button.Get<BM::Component::Widget>().Size.X;
+		const float cPivotX = cSizeX * transform.Scale.X * transform.Origin.X;
 
-		float& positionX = transform._LocalPosition._X;
+		float& positionX = transform.LocalPosition.X;
 		positionX += 500.f * sSpeedFactor * deltaTime;
 
 		if (positionX - cPivotX >= cBoundsX)
@@ -118,19 +120,19 @@ void GameLayer::OnUpdate(float deltaTime) noexcept
 		});
 
 	m_FocusText.Patch<BM::Component::TextRender>([&](auto& text) {
-		bool focus = m_InputText.Get<BM::Component::Widget>()._Focus;
-		text._Content = std::format("Focus: {}", focus);
+		bool focus = m_InputText.Get<BM::Component::Widget>().Focus;
+		text.Text = std::format("Focus: {}", focus);
 		});
 	m_FocusText.Patch<BM::Component::Style>([&](auto& style) {
-		bool focus = m_InputText.Get<BM::Component::Widget>()._Focus;
-		style._FillColor = focus ? sf::Color::Green : sf::Color::Red;
+		bool focus = m_InputText.Get<BM::Component::Widget>().Focus;
+		style.FillColor = focus ? sf::Color::Green : sf::Color::Red;
 		});
 
 	if (m_SwitchTimer.AsSeconds() >= 1.f)
 	{
 		m_SwitchTimer.Restart();
 		m_Background.Patch<BM::Component::Transform>([](auto& transform) {
-			float& positionZ = transform._LocalZ;
+			float& positionZ = transform.LocalZ;
 			positionZ = positionZ == -1.f ? 2.f : -1.f;
 			});
 	}
@@ -138,7 +140,7 @@ void GameLayer::OnUpdate(float deltaTime) noexcept
 	{
 		m_StatTimer.Restart();
 		m_StatText.Patch<BM::Component::TextRender>([&](auto& text) {
-			text._Content = FormatStatText(deltaTime);
+			text.Text = FormatStatText(deltaTime);
 			});
 	}
 }
@@ -154,14 +156,14 @@ void GameLayer::InitExample() noexcept
 
 	const BM::Texture& texture = GetAsset<BM::Texture>("Cat");
 	const float cBoxSize = 25.f;
-	const float cBoundSize = GetWindow().GetSize()._Y - cBoxSize;
+	const float cBoundSize = GetWindow().GetSize().Y - cBoxSize;
 
-	const uint32_t cSize = (uint32_t)((float)GetWindow().GetSize()._X / cBoxSize);
+	const uint32_t cSize = (uint32_t)((float)GetWindow().GetSize().X / cBoxSize);
 	const float cSizeTotal = cSize - 1.f;
 	for (uint32_t i = 0; i < cSize; i++)
 	{
 		const float cPercentage = ((float)i + FLT_EPSILON) / cSizeTotal;
-		const float cPosX = cPercentage * (GetWindow().GetSize()._X - cBoxSize);
+		const float cPosX = cPercentage * (GetWindow().GetSize().X - cBoxSize);
 		const float cBasePosY = cPercentage * cBoundSize;
 
 		const uint8_t cColor = (uint8_t)(cPercentage * 255.f);
@@ -236,8 +238,8 @@ bool GameLayer::OnKeyPressed(const BM::EventHandle::KeyPressed& keyPressed) noex
 bool GameLayer::OnMouseMoved(const BM::EventHandle::MouseMoved& mouseMoved) noexcept
 {
 	m_MouseRect.Patch<BM::Component::RectRender>([&](auto& rect) {
-		rect._Size = (BM::Vec2i(mouseMoved.position) - GetWindow().GetSize().Center()) * 2;
-		auto& [x, y] = rect._Size;
+		rect.Size = (BM::Vec2i(mouseMoved.position) - GetWindow().GetSize().Center()) * 2;
+		auto& [x, y] = rect.Size;
 		x = std::abs(x);
 		y = std::abs(y);
 		});
@@ -245,10 +247,23 @@ bool GameLayer::OnMouseMoved(const BM::EventHandle::MouseMoved& mouseMoved) noex
 	return false;
 }
 
+bool GameLayer::OnMousePressed(const BM::EventHandle::MouseButtonPressed& mousePressed) noexcept
+{
+	if (mousePressed.button != sf::Mouse::Button::Right)
+		return false;
+
+	BM::Entity entity = m_Scene.Create(BM::Component::Transform(mousePressed.position, 10.f, 1.f, 0.5f));
+	entity.Add<BM::Component::CircleRender>((float)BM_RANDOM(25, 50));
+	entity.Add<BM::Component::Style>(sf::Color::Transparent, sf::Color::Black, 5.f);
+
+	return false;
+}
+
 std::string GameLayer::FormatStatText(float deltaTime) const noexcept
 {
+	const size_t cEntities = m_Scene.View<BM::Component::Transform>().size();
 	const double cMicro = std::round(deltaTime * std::pow(10, 6));
 	const double cFPS = std::round(1.f / deltaTime);
 
-	return std::format("{:.5f}ms\n{}us\n{} FPS", deltaTime, cMicro, cFPS);
+	return std::format("{} Entities\n{:.5f}ms\n{}us\n{} FPS", cEntities, deltaTime, cMicro, cFPS);
 }

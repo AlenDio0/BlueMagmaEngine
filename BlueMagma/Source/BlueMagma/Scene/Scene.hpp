@@ -18,13 +18,13 @@ namespace BM
 {
 	struct SystemEntry
 	{
-		std::type_index _Id;
-		std::shared_ptr<ISystem> _Instance;
-		uint32_t _Priority;
+		std::type_index Id;
+		std::shared_ptr<ISystem> Instance;
+		uint32_t Priority;
 
-		SystemEventFn _EventFn;
-		SystemUpdateFn _UpdateFn;
-		SystemRenderFn _RenderFn;
+		SystemEventFn OnEvent;
+		SystemUpdateFn OnUpdate;
+		SystemRenderFn OnRender;
 	};
 
 	using Registry = entt::registry;
@@ -40,7 +40,7 @@ namespace BM
 		template<class TSystem>
 		inline void AddSystem(uint32_t priority = 0) noexcept {
 			std::type_index cTypeId(typeid(TSystem));
-			if (std::ranges::any_of(m_Systems, [&](const auto& system) { return cTypeId == system._Id; }))
+			if (std::ranges::any_of(m_Systems, [&](const auto& system) { return cTypeId == system.Id; }))
 				return;
 
 			auto system = std::make_shared<TSystem>();
@@ -52,14 +52,14 @@ namespace BM
 				[system](const Scene& scene, sf::RenderTarget& target) { system->OnRender(scene, target); }
 			);
 			std::ranges::sort(m_Systems, [](const auto& a, const auto& b) {
-				return a._Priority < b._Priority;
+				return a.Priority < b.Priority;
 				});
 		}
 		template<class TSystem>
 		inline void RemoveSystem() noexcept {
 			std::type_index cTypeId(typeid(TSystem));
 			std::erase_if(m_Systems, [&](const auto& system) {
-				return cTypeId == system._Id;
+				return cTypeId == system.Id;
 				});
 		}
 
@@ -103,10 +103,10 @@ namespace BM
 			BM_CORE_ASSERT(HasCtxComponent<TComp>(), "Context doesn't have TComp");
 			return m_Registry.ctx().get<TComp>();
 		}
-		template<class TComp, typename... Args>
-		inline TComp& AddCtxComponent(Args&&... args) noexcept {
+		template<class TComp, typename... TArgs>
+		inline TComp& AddCtxComponent(TArgs&&... args) noexcept {
 			BM_CORE_ASSERT(!HasCtxComponent<TComp>(), "Context already has TComp");
-			return m_Registry.ctx().emplace<TComp>(std::forward<Args>(args)...);
+			return m_Registry.ctx().emplace<TComp>(std::forward<TArgs>(args)...);
 		}
 
 		template<class... TComp>
@@ -118,15 +118,15 @@ namespace BM
 			BM_CORE_ASSERT(HasComponent<TComp>(handle), "Entity doesn't have TComp");
 			return m_Registry.get<TComp>(handle);
 		}
-		template<class TComp, typename... Args>
-		inline const TComp& AddComponent(EntityHandle handle, Args&&... args) noexcept {
+		template<class TComp, typename... TArgs>
+		inline const TComp& AddComponent(EntityHandle handle, TArgs&&... args) noexcept {
 			BM_CORE_ASSERT(!HasComponent<TComp>(handle), "Entity already has TComp");
-			return m_Registry.emplace<TComp>(handle, std::forward<Args>(args)...);
+			return m_Registry.emplace<TComp>(handle, std::forward<TArgs>(args)...);
 		}
-		template<class TComp, typename... Args>
-		inline const TComp& ReplaceComponent(EntityHandle handle, Args&&... args) noexcept {
+		template<class TComp, typename... TArgs>
+		inline const TComp& ReplaceComponent(EntityHandle handle, TArgs&&... args) noexcept {
 			BM_CORE_ASSERT(HasComponent<TComp>(handle), "Entity doesn't have TComp");
-			return m_Registry.replace<TComp>(handle, std::forward<Args>(args)...);
+			return m_Registry.replace<TComp>(handle, std::forward<TArgs>(args)...);
 		}
 		template<class TComp, class... Funcs>
 		inline const TComp& PatchComponent(EntityHandle handle, Funcs&&... funcs) noexcept {
@@ -143,13 +143,13 @@ namespace BM
 		inline const TComp* TryGetComponent(EntityHandle handle) const noexcept {
 			return m_Registry.try_get<TComp>(handle);
 		}
-		template<class TComp, typename... Args>
-		inline const TComp& AddOrGetComponent(EntityHandle handle, Args&&... args) noexcept {
-			return m_Registry.get_or_emplace<TComp>(handle, std::forward<Args>(args)...);
+		template<class TComp, typename... TArgs>
+		inline const TComp& AddOrGetComponent(EntityHandle handle, TArgs&&... args) noexcept {
+			return m_Registry.get_or_emplace<TComp>(handle, std::forward<TArgs>(args)...);
 		}
-		template<class TComp, typename... Args>
-		inline const TComp& AddOrReplaceComponent(EntityHandle handle, Args&&... args) noexcept {
-			return m_Registry.emplace_or_replace<TComp>(handle, std::forward<Args>(args)...);
+		template<class TComp, typename... TArgs>
+		inline const TComp& AddOrReplaceComponent(EntityHandle handle, TArgs&&... args) noexcept {
+			return m_Registry.emplace_or_replace<TComp>(handle, std::forward<TArgs>(args)...);
 		}
 	private:
 		Registry m_Registry;

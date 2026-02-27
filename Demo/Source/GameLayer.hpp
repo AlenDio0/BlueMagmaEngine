@@ -23,6 +23,7 @@ private:
 
 	bool OnKeyPressed(const BM::EventHandle::KeyPressed& keyPressed) noexcept;
 	bool OnMouseMoved(const BM::EventHandle::MouseMoved& mouseMoved) noexcept;
+	bool OnMousePressed(const BM::EventHandle::MouseButtonPressed& mousePressed) noexcept;
 
 	std::string FormatStatText(float deltaTime) const noexcept;
 private:

@@ -10,10 +10,10 @@ namespace BM
 {
 	struct ApplicationContext
 	{
-		WindowContext _WindowContext;
+		WindowContext Window;
 
-		bool _DefaultWindowCloseEvent = true;
-		bool _DefaultWindowResizeEvent = true;
+		bool DefaultWindowCloseEvent = true;
+		bool DefaultWindowResizeEvent = true;
 	};
 
 	class Application
@@ -31,10 +31,10 @@ namespace BM
 		LayerMachine& GetMachine() noexcept;
 		AssetManager& GetAssets() noexcept;
 
-		template<std::derived_from<Layer> TLayer, typename... Args>
-		inline void QueuePushLayer(Args&&... args) noexcept {
+		template<std::derived_from<Layer> TLayer, typename... TArgs>
+		inline void QueuePushLayer(TArgs&&... args) noexcept {
 			BM_CORE_FN();
-			m_Machine.QueuePush(std::move(std::make_unique<TLayer>(std::forward<Args>(args)...)));
+			m_Machine.QueuePush(std::move(std::make_unique<TLayer>(std::forward<TArgs>(args)...)));
 		}
 	private:
 		void EventCallback(Event& event) noexcept;

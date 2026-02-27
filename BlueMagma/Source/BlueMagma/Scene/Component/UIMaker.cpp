@@ -12,8 +12,8 @@ namespace BM::UIMaker
 		if (!widget || !transform)
 			return;
 
-		const Vec2f cOrigin = transform->_Origin;
-		const Vec2f cSize = widget->_Size;
+		const Vec2f cOrigin = transform->Origin;
+		const Vec2f cSize = widget->Size;
 
 		Entity text = entity.CreateChild(Transform(cSize.Center() - (cSize * cOrigin), 1.f, 1.f, 0.5f));
 
@@ -27,12 +27,12 @@ namespace BM::UIMaker
 		if (!style)
 			return;
 
-		sf::Color hoverColor = style->_FillColor;
+		sf::Color hoverColor = style->FillColor;
 		hoverColor.r = static_cast<uint32_t>(hoverColor.r * factor);
 		hoverColor.g = static_cast<uint32_t>(hoverColor.g * factor);
 		hoverColor.b = static_cast<uint32_t>(hoverColor.b * factor);
 
-		entity.Add<HoverColor>(style->_FillColor, hoverColor);
+		entity.Add<HoverColor>(style->FillColor, hoverColor);
 	}
 
 	Entity CreateUI(Scene& scene, Component::Transform transform, Vec2f size, float corner, Component::Style style) noexcept

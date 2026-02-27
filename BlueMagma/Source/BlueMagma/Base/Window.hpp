@@ -14,15 +14,15 @@ namespace BM
 {
 	struct WindowContext
 	{
-		std::string _Title = "BlueMagma Application";
-		Vec2u _Size = 800;
-		uint32_t _Style = sf::Style::Default;
+		std::string Title = "BlueMagma Application";
+		Vec2u Size = 800;
+		uint32_t Style = sf::Style::Default;
 
-		uint32_t _FPSLimit = 0;
-		bool _VSync = true;
+		uint32_t FPSLimit = 0;
+		bool VSync = true;
 
 		using EventCallbackFn = std::function<void(Event&)>;
-		EventCallbackFn _EventCallback;
+		EventCallbackFn EventCallback;
 	};
 
 	class Window

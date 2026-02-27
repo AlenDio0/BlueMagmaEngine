@@ -10,42 +10,42 @@ namespace BM::Component
 {
 	struct Widget
 	{
-		Vec2f _Size{};
+		Vec2f Size{};
 
-		bool _Focus = false;
-		bool _Hover = false;
+		bool Focus = false;
+		bool Hover = false;
 	};
 
 
 	struct HoverColor
 	{
-		sf::Color _IdleColor = sf::Color::White;
-		sf::Color _HoverColor = sf::Color(0xFFFFFFA0);
+		sf::Color IdleColor = sf::Color::White;
+		sf::Color Color = sf::Color(0xFFFFFFA0);
 	};
 
 	struct FocusColor
 	{
-		sf::Color _IdleColor = sf::Color::White;
-		sf::Color _FocusColor = sf::Color(0xFFFFFFA0);
+		sf::Color IdleColor = sf::Color::White;
+		sf::Color Color = sf::Color(0xFFFFFFA0);
 	};
 
 	using ClickFn = std::function<bool(Entity, EventHandle::MouseButtonPressed)>;
 	struct Clickable
 	{
-		ClickFn _OnClick;
+		ClickFn OnClick;
 	};
 
 	using PolicyFn = std::function<bool(int)>;
 	struct InputText
 	{
-		std::ostringstream _Buffer{ "" };
-		std::string _Placeholder;
+		std::ostringstream Buffer{ "" };
+		std::string Placeholder;
 
-		PolicyFn _Policy;
-		size_t _MaxLength;
+		PolicyFn Policy;
+		size_t MaxLength;
 
 		inline InputText(std::string_view placeholder = "", size_t maxLength = -1, const PolicyFn& policy = nullptr) noexcept
-			: _Placeholder(placeholder), _Policy(policy), _MaxLength(maxLength) {
+			: Placeholder(placeholder), Policy(policy), MaxLength(maxLength) {
 		}
 	};
 }

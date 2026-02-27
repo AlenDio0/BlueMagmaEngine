@@ -12,36 +12,36 @@ namespace BM
 	{
 		struct Sink
 		{
-			spdlog::sink_ptr _CoreHandle;
-			spdlog::sink_ptr _AppHandle;
+			spdlog::sink_ptr CoreHandle;
+			spdlog::sink_ptr AppHandle;
 		};
-		std::vector<Sink> _Sinks;
+		std::vector<Sink> Sinks;
 
-		std::shared_ptr<spdlog::logger> _CoreLogger;
-		std::shared_ptr<spdlog::logger> _AppLogger;
+		std::shared_ptr<spdlog::logger> CoreLogger;
+		std::shared_ptr<spdlog::logger> AppLogger;
 	} s_Log;
 
 	static inline spdlog::level::level_enum ConvertLevel(Log::Level level) noexcept {
 		return static_cast<spdlog::level::level_enum>(level);
 	}
 
-	template<typename TSink, typename... Args>
-	static inline spdlog::sink_ptr CreateSink(Log::Level level, const std::string& pattern, Args&&... args) noexcept {
+	template<typename TSink, typename... TArgs>
+	static inline spdlog::sink_ptr CreateSink(Log::Level level, const std::string& pattern, TArgs&&... args) noexcept {
 		if (level == Log::Off)
 			return nullptr;
 
-		spdlog::sink_ptr sink = std::make_shared<TSink>(std::forward<Args>(args)...);
+		spdlog::sink_ptr sink = std::make_shared<TSink>(std::forward<TArgs>(args)...);
 		sink->set_level(ConvertLevel(level));
 		sink->set_pattern(pattern);
 
 		return sink;
 	}
 
-	template<typename TSink, typename... Args>
-	static inline void AddSink(Log::Level core, Log::Level app, const std::string& pattern, Args&&... args) noexcept {
-		s_Log._Sinks.emplace_back(
-			CreateSink<TSink>(core, pattern, std::forward<Args>(args)...),
-			CreateSink<TSink>(app, pattern, std::forward<Args>(args)...)
+	template<typename TSink, typename... TArgs>
+	static inline void AddSink(Log::Level core, Log::Level app, const std::string& pattern, TArgs&&... args) noexcept {
+		s_Log.Sinks.emplace_back(
+			CreateSink<TSink>(core, pattern, std::forward<TArgs>(args)...),
+			CreateSink<TSink>(app, pattern, std::forward<TArgs>(args)...)
 		);
 	}
 
@@ -61,12 +61,12 @@ namespace BM
 			coreLogger = std::make_shared<spdlog::logger>("BlueMagma");
 			appLogger = std::make_shared<spdlog::logger>(loggerName);
 
-			auto coreSinks = sinks | std::views::filter([](const Sink& x) { return x._CoreHandle != nullptr; }) |
-				std::views::transform(&Sink::_CoreHandle);
+			auto coreSinks = sinks | std::views::filter([](const Sink& x) { return x.CoreHandle != nullptr; }) |
+				std::views::transform(&Sink::CoreHandle);
 			coreLogger->sinks().assign(coreSinks.begin(), coreSinks.end());
 
-			auto appSinks = sinks | std::views::filter([](const Sink& x) { return x._AppHandle != nullptr; }) |
-				std::views::transform(&Sink::_AppHandle);
+			auto appSinks = sinks | std::views::filter([](const Sink& x) { return x.AppHandle != nullptr; }) |
+				std::views::transform(&Sink::AppHandle);
 			appLogger->sinks().assign(appSinks.begin(), appSinks.end());
 
 			spdlog::register_logger(coreLogger);
@@ -101,13 +101,13 @@ namespace BM
 
 	void Log::CoreLog(Level level, const std::string& message) noexcept
 	{
-		if (s_Log._CoreLogger)
-			s_Log._CoreLogger->log(ConvertLevel(level), message);
+		if (s_Log.CoreLogger)
+			s_Log.CoreLogger->log(ConvertLevel(level), message);
 	}
 
 	void Log::AppLog(Level level, const std::string& message) noexcept
 	{
-		if (s_Log._AppLogger)
-			s_Log._AppLogger->log(ConvertLevel(level), message);
+		if (s_Log.AppLogger)
+			s_Log.AppLogger->log(ConvertLevel(level), message);
 	}
 }

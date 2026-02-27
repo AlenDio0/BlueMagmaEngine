@@ -30,9 +30,9 @@ namespace BM
 		auto view = scene.GetRegistry().view<Component::Transform>(entt::exclude<Parent>);
 		for (auto [entity, transform] : view.each())
 		{
-			transform._Position = transform._LocalPosition;
-			transform._Z = transform._LocalZ;
-			transform._Scale = transform._LocalScale;
+			transform.Position = transform.LocalPosition;
+			transform.Z = transform.LocalZ;
+			transform.Scale = transform.LocalScale;
 		}
 	}
 
@@ -41,7 +41,7 @@ namespace BM
 		if (m_UpdatedZ)
 		{
 			scene.GetRegistry().sort<Component::Transform>([](const auto& left, const auto& right) {
-				return left._Z < right._Z; });
+				return left.Z < right.Z; });
 
 			m_UpdatedZ = false;
 		}
@@ -52,11 +52,11 @@ namespace BM
 		auto children = scene.GetRegistry().view<Component::Transform, Parent>();
 		for (auto [child, transform, parent] : children.each())
 		{
-			const auto& cParentTransform = scene.GetRegistry().get<Component::Transform>(parent._ParentHandle);
+			const auto& cParentTransform = scene.GetRegistry().get<Component::Transform>(parent.Handle);
 
-			transform._Position = cParentTransform._Position + (transform._LocalPosition * cParentTransform._Scale);
-			transform._Z = cParentTransform._Z + transform._LocalZ;
-			transform._Scale = cParentTransform._Scale * transform._LocalScale;
+			transform.Position = cParentTransform.Position + (transform.LocalPosition * cParentTransform.Scale);
+			transform.Z = cParentTransform.Z + transform.LocalZ;
+			transform.Scale = cParentTransform.Scale * transform.LocalScale;
 		}
 	}
 }

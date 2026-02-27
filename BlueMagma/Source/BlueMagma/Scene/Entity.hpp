@@ -5,8 +5,8 @@
 
 namespace BM
 {
-	struct Parent { EntityHandle _ParentHandle; };
-	struct Children { std::vector<EntityHandle> _Children; };
+	struct Parent { EntityHandle Handle; };
+	struct Children { std::vector<EntityHandle> Handles; };
 
 	class Entity
 	{
@@ -44,13 +44,13 @@ namespace BM
 		inline const TComp& Get() const noexcept {
 			return m_ScenePtr->GetComponent<TComp>(m_Handle);
 		}
-		template<class TComp, typename... Args>
-		inline const TComp& Add(Args&&... args) noexcept {
-			return m_ScenePtr->AddComponent<TComp>(m_Handle, std::forward<Args>(args)...);
+		template<class TComp, typename... TArgs>
+		inline const TComp& Add(TArgs&&... args) noexcept {
+			return m_ScenePtr->AddComponent<TComp>(m_Handle, std::forward<TArgs>(args)...);
 		}
-		template<class TComp, typename... Args>
-		inline const TComp& Replace(Args&&... args) noexcept {
-			return m_ScenePtr->ReplaceComponent<TComp>(m_Handle, std::forward<Args>(args)...);
+		template<class TComp, typename... TArgs>
+		inline const TComp& Replace(TArgs&&... args) noexcept {
+			return m_ScenePtr->ReplaceComponent<TComp>(m_Handle, std::forward<TArgs>(args)...);
 		}
 		template<class TComp, class... Funcs>
 		inline const TComp& Patch(Funcs&&... funcs) noexcept {
@@ -65,13 +65,13 @@ namespace BM
 		inline const TComp* TryGet() const noexcept {
 			return m_ScenePtr->TryGetComponent<TComp>(m_Handle);
 		}
-		template<class TComp, typename... Args>
-		inline const TComp& AddOrGet(Args&&... args) noexcept {
-			return m_ScenePtr->AddOrGetComponent<TComp>(m_Handle, std::forward<Args>(args)...);
+		template<class TComp, typename... TArgs>
+		inline const TComp& AddOrGet(TArgs&&... args) noexcept {
+			return m_ScenePtr->AddOrGetComponent<TComp>(m_Handle, std::forward<TArgs>(args)...);
 		}
-		template<class TComp, typename... Args>
-		inline const TComp& AddOrReplace(Args&&... args) noexcept {
-			return m_ScenePtr->AddOrReplaceComponent<TComp>(m_Handle, std::forward<Args>(args)...);
+		template<class TComp, typename... TArgs>
+		inline const TComp& AddOrReplace(TArgs&&... args) noexcept {
+			return m_ScenePtr->AddOrReplaceComponent<TComp>(m_Handle, std::forward<TArgs>(args)...);
 		}
 	private:
 		Scene* m_ScenePtr = nullptr;

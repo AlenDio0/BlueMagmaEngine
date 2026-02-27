@@ -24,7 +24,7 @@ namespace BM
 		child.Add<Parent>(m_Handle);
 
 		AddOrGet<Children>();
-		Patch<Children>([&](auto& children) { children._Children.push_back(child); });
+		Patch<Children>([&](auto& children) { children.Handles.push_back(child); });
 
 		return child;
 	}
@@ -35,7 +35,7 @@ namespace BM
 		if (!Has<Children>())
 			return children;
 
-		const auto& childList = Get<Children>()._Children;
+		const auto& childList = Get<Children>().Handles;
 		for (auto& child : childList)
 			children.emplace_back(m_ScenePtr, child);
 

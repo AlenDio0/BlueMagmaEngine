@@ -16,15 +16,15 @@ namespace BM
 	void BM::Window::Create() noexcept
 	{
 		BM_CORE_DEBUG("{}()\n - Size: {}\n - Title: {}\n - Style: {}\n - FPSLimit: {}\n - VSync: {}", __FUNCTION__,
-			m_Context._Size, m_Context._Title, m_Context._Style, m_Context._FPSLimit, m_Context._VSync);
+			m_Context.Size, m_Context.Title, m_Context.Style, m_Context.FPSLimit, m_Context.VSync);
 
 		try
 		{
 			m_Handle = std::make_unique<sf::RenderWindow>();
-			m_Handle->create(sf::VideoMode(m_Context._Size), m_Context._Title, m_Context._Style);
+			m_Handle->create(sf::VideoMode(m_Context.Size), m_Context.Title, m_Context.Style);
 
-			m_Handle->setFramerateLimit(m_Context._FPSLimit);
-			m_Handle->setVerticalSyncEnabled(m_Context._VSync);
+			m_Handle->setFramerateLimit(m_Context.FPSLimit);
+			m_Handle->setVerticalSyncEnabled(m_Context.VSync);
 
 			BM_CORE_INFO("Window created");
 		}
@@ -56,13 +56,13 @@ namespace BM
 
 	void Window::PollEvent() noexcept
 	{
-		if (!m_Context._EventCallback)
+		if (!m_Context.EventCallback)
 			return;
 
 		while (auto ev = m_Handle->pollEvent())
 		{
 			Event event(static_cast<EventHandle>(ev.value()));
-			m_Context._EventCallback(event);
+			m_Context.EventCallback(event);
 		}
 	}
 

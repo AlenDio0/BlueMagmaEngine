@@ -10,20 +10,20 @@ namespace BM
 {
 	struct SoundContext
 	{
-		float _Volume = 100.f;
-		float _Pitch = 1.f;
-		float _Pan = 0.f;
+		float Volume = 100.f;
+		float Pitch = 1.f;
+		float Pan = 0.f;
 
-		float _PositionX = 0.f, _PositionY = 0.f, _PositionZ = 0.f;
-		float _DirectionX = 0.f, _DirectionY = 0.f, _DirectionZ = -1.f;
+		float PositionX = 0.f, PositionY = 0.f, PositionZ = 0.f;
+		float DirectionX = 0.f, DirectionY = 0.f, DirectionZ = -1.f;
 
-		float _MinDistance = 1.f;
-		float _MaxDistance = std::numeric_limits<float>::max();
+		float MinDistance = 1.f;
+		float MaxDistance = std::numeric_limits<float>::max();
 
-		float _MinGain = std::numeric_limits<float>::min();
-		float _MaxGain = std::numeric_limits<float>::max();
+		float MinGain = std::numeric_limits<float>::min();
+		float MaxGain = std::numeric_limits<float>::max();
 
-		float _Attenuation = 1.f;
+		float Attenuation = 1.f;
 	};
 
 	class SoundManager

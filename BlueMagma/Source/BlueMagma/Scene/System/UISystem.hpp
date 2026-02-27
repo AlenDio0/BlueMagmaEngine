@@ -7,7 +7,7 @@ namespace BM
 	class UISystem : public ISystem
 	{
 	public:
-		virtual void OnEvent(Scene& scene, Event& event) noexcept;
+		virtual void OnEvent(Scene& scene, Event& event) noexcept override;
 		virtual void OnUpdate(Scene& scene, float deltaTime) noexcept override;
 	private:
 		bool OnMousePressed(const EventHandle::MouseButtonPressed& mousePressed, Scene& scene) noexcept;

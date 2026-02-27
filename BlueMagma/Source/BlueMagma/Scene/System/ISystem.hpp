@@ -23,9 +23,9 @@ namespace BM
 
 		/*
 		*	To implement a Custom System you need:
-		*	 - public ISystem as a parent class
-		*	 - implement any virtual function you need
-		*	 - to implement member variables, if needed, you can extend its lifetime with the Scene
+		*	 - Public ISystem as a parent class
+		*	 - Implement any virtual function you need
+		*	 - To implement member variables, if needed, you can extend its lifetime with the Scene
 		*	    constructing it as a CtxComponent
 		*/
 	};

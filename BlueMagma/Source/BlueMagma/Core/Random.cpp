@@ -10,17 +10,17 @@ namespace BM
 	{
 		static inline struct RandomData
 		{
-			std::default_random_engine _Engine;
-			std::uniform_int_distribution<size_t> _Distribution;
+			std::default_random_engine Engine;
+			std::uniform_int_distribution<size_t> Distribution;
 
 			inline RandomData() noexcept {
-				_Engine.seed(static_cast<uint32_t>(time(nullptr)));
+				Engine.seed(static_cast<uint32_t>(time(nullptr)));
 			}
 		} s_Random;
 
 		size_t Get() noexcept
 		{
-			return s_Random._Distribution(s_Random._Engine);
+			return s_Random.Distribution(s_Random.Engine);
 		}
 
 		size_t Get(size_t min, size_t max) noexcept

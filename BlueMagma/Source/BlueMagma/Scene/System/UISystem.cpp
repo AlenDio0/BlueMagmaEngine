@@ -23,8 +23,8 @@ namespace BM
 	}
 
 	static inline bool Contains(const Component::Transform& transform, const Component::Widget& widget, Vec2f point) noexcept {
-		const Vec2f cPosition = transform._Position - (widget._Size * transform._Scale * transform._Origin);
-		const Vec2f cSize = widget._Size * transform._Scale;
+		const Vec2f cPosition = transform.Position - (widget.Size * transform.Scale * transform.Origin);
+		const Vec2f cSize = widget.Size * transform.Scale;
 
 		return RectFloat(cPosition, cSize).Contains(point);
 	}
@@ -36,19 +36,19 @@ namespace BM
 			for (auto [entity, transform, widget] : view.each())
 			{
 				bool onMouse = Contains(transform, widget, mousePressed.position);
-				widget._Focus = onMouse;
-				widget._Hover = onMouse;
+				widget.Focus = onMouse;
+				widget.Hover = onMouse;
 			}
 		}
 		{
 			auto view = scene.GetRegistry().view<Component::Widget, Component::Clickable>();
 			for (auto [entity, widget, clickable] : view.each())
 			{
-				auto& onClick = clickable._OnClick;
+				auto& onClick = clickable.OnClick;
 				if (!onClick)
 					continue;
 
-				if (widget._Focus)
+				if (widget.Focus)
 				{
 					bool dispatched = onClick(Entity(&scene, entity), mousePressed);
 					if (dispatched)
@@ -64,7 +64,7 @@ namespace BM
 	{
 		auto view = scene.GetRegistry().view<Component::Transform, Component::Widget>();
 		for (auto [entity, transform, widget] : view.each())
-			widget._Hover = Contains(transform, widget, mouseMoved.position);
+			widget.Hover = Contains(transform, widget, mouseMoved.position);
 
 		return false;
 	}
@@ -74,20 +74,20 @@ namespace BM
 		auto view = scene.GetRegistry().view<Component::Widget, Component::InputText>();
 		for (auto [entity, widget, inputText] : view.each())
 		{
-			if (!widget._Focus)
+			if (!widget.Focus)
 				continue;
 
 			uint32_t input = textEntered.unicode;
-			auto& buff = inputText._Buffer;
+			auto& buff = inputText.Buffer;
 
 			const std::string cBuffStr = buff.str();
 			const size_t cSize = cBuffStr.size();
 
 			const bool cDelete = input == SpecialKey::Delete;
 
-			if (cSize >= inputText._MaxLength && !cDelete)
+			if (cSize >= inputText.MaxLength && !cDelete)
 				continue;
-			if (inputText._Policy && !inputText._Policy(input))
+			if (inputText.Policy && !inputText.Policy(input))
 				continue;
 
 			switch (input)
@@ -98,7 +98,7 @@ namespace BM
 				break;
 			case SpecialKey::Escape:
 			case SpecialKey::Enter:
-				widget._Focus = false;
+				widget.Focus = false;
 				break;
 			default:
 				buff << (char)input;
@@ -114,12 +114,12 @@ namespace BM
 		{
 			auto view = scene.GetRegistry().view<Component::Style, Component::Widget, Component::HoverColor>();
 			for (auto [entity, style, widget, hover] : view.each())
-				style._FillColor = widget._Hover ? hover._HoverColor : hover._IdleColor;
+				style.FillColor = widget.Hover ? hover.Color : hover.IdleColor;
 		}
 		{
 			auto view = scene.GetRegistry().view<Component::Style, Component::Widget, Component::FocusColor>();
 			for (auto [entity, style, widget, focus] : view.each())
-				style._FillColor = widget._Focus ? focus._FocusColor : focus._IdleColor;
+				style.FillColor = widget.Focus ? focus.Color : focus.IdleColor;
 		}
 	}
 
@@ -134,7 +134,7 @@ namespace BM
 			for (auto& child : children)
 			{
 				child.Patch<Component::TextRender>([&](auto& textRender) {
-					textRender._Content = !input._Buffer.str().empty() ? input._Buffer.str() : input._Placeholder;
+					textRender.Text = !input.Buffer.str().empty() ? input.Buffer.str() : input.Placeholder;
 					});
 			}
 		}

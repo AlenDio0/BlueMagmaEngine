@@ -8,14 +8,14 @@ namespace BM
 		: m_Context(context)
 	{
 		BM_CORE_DEBUG("{}()\n - DefaultWindowCloseEvent: {}\n - DefaultWindowResizeEvent: {}", __FUNCTION__,
-			context._DefaultWindowCloseEvent, context._DefaultWindowResizeEvent);
+			context.DefaultWindowCloseEvent, context.DefaultWindowResizeEvent);
 
 		s_Instance = this;
 
-		if (!m_Context._WindowContext._EventCallback)
-			m_Context._WindowContext._EventCallback = [&](Event& event) { EventCallback(event); };
+		if (!m_Context.Window.EventCallback)
+			m_Context.Window.EventCallback = [&](Event& event) { EventCallback(event); };
 
-		m_Window = std::make_unique<Window>(m_Context._WindowContext);
+		m_Window = std::make_unique<Window>(m_Context.Window);
 		m_Window->Create();
 	}
 
@@ -95,15 +95,15 @@ namespace BM
 		{
 			EventDispatcher dispatcher(event);
 
-			if (m_Context._DefaultWindowCloseEvent)
+			if (m_Context.DefaultWindowCloseEvent)
 				dispatcher.Dispatch<EventHandle::Closed>(BM_EVENT_FN(OnCloseEvent));
-			if (m_Context._DefaultWindowResizeEvent)
+			if (m_Context.DefaultWindowResizeEvent)
 				dispatcher.Dispatch<EventHandle::Resized>(BM_EVENT_FN(OnResizeEvent));
 		}
 
 		for (const auto& layer : m_Machine.GetLayers() | std::views::reverse)
 		{
-			if (event._Done)
+			if (event.Done)
 				break;
 
 			layer->OnEvent(event);

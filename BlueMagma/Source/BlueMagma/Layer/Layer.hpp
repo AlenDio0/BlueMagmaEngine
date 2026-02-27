@@ -31,10 +31,10 @@ namespace BM
 		LayerMachine& GetMachine() const noexcept;
 		AssetManager& GetAssets() const noexcept;
 
-		template<std::derived_from<Layer> TLayer, typename... Args>
-		inline void QueueTransitionTo(Args&&... args) noexcept {
+		template<std::derived_from<Layer> TLayer, typename... TArgs>
+		inline void QueueTransitionTo(TArgs&&... args) noexcept {
 			BM_CORE_FN();
-			QueueTransition(std::move(std::make_unique<TLayer>(std::forward<Args>(args)...)));
+			QueueTransition(std::move(std::make_unique<TLayer>(std::forward<TArgs>(args)...)));
 		}
 		void QueueRemoveLayer() noexcept;
 

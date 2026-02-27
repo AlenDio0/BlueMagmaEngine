@@ -88,21 +88,21 @@ namespace BM
 	{
 		sf::RenderStates states;
 		return states.transform
-			.translate(transform._Position)
-			.scale(transform._Scale)
-			.translate(Vec2f(offset + transform._Origin * size).Round() * -1.f);
+			.translate(transform.Position)
+			.scale(transform.Scale)
+			.translate(Vec2f(offset + transform.Origin * size).Round() * -1.f);
 	}
 
 	static inline sf::RectangleShape s_Rect;
 	void RenderSystem::DrawRect(sf::RenderTarget& target, const Transform& transform, RectRender rect, Style style) const noexcept
 	{
-		const Vec2f cSize = rect._Size;
+		const Vec2f cSize = rect.Size;
 		auto states = GetRenderStates(transform, cSize);
 
-		if (rect._Corner <= 0.f && style._Outline == 0.f)
+		if (rect.Corner <= 0.f && style.Outline == 0.f)
 		{
 			s_Rect.setSize(cSize);
-			s_Rect.setFillColor(style._FillColor);
+			s_Rect.setFillColor(style.FillColor);
 			s_Rect.setOutlineThickness(0.f);
 
 			target.draw(s_Rect, states);
@@ -111,13 +111,13 @@ namespace BM
 
 		auto& shader = Shader::s_RectShader;
 		shader.setUniform("uSize", sf::Glsl::Vec2(cSize));
-		shader.setUniform("uCorner", rect._Corner);
-		shader.setUniform("uOutline", -std::abs(style._Outline));
-		shader.setUniform("uOutlineColor", sf::Glsl::Vec4(style._OutlineColor));
+		shader.setUniform("uCorner", rect.Corner);
+		shader.setUniform("uOutline", -std::abs(style.Outline));
+		shader.setUniform("uOutlineColor", sf::Glsl::Vec4(style.OutlineColor));
 
 		sf::Vertex vertices[6];
-		const Vec2f cTopL(0.f, 0.f), cTopR(cSize._X, 0.f), cBottomR(cSize._X, cSize._Y), cBottomL(0.f, cSize._Y);
-		const sf::Color cColor = style._FillColor;
+		const Vec2f cTopL(0.f, 0.f), cTopR(cSize.X, 0.f), cBottomR(cSize.X, cSize.Y), cBottomL(0.f, cSize.Y);
+		const sf::Color cColor = style.FillColor;
 
 		vertices[0] = sf::Vertex(cTopL, cColor, Vec2f(0.f, 0.f));
 		vertices[1] = sf::Vertex(cTopR, cColor, Vec2f(1.f, 0.f));
@@ -135,14 +135,14 @@ namespace BM
 	static inline sf::CircleShape s_Circle;
 	void RenderSystem::DrawCircle(sf::RenderTarget& target, const Transform& transform, CircleRender circle, Style style) const noexcept
 	{
-		const float cRadius = circle._Radius;
+		const float cRadius = circle.Radius;
 		const float cDiameter = cRadius * 2.f;
 		auto states = GetRenderStates(transform, cDiameter);
 
-		if (style._Outline == 0.f)
+		if (style.Outline == 0.f)
 		{
 			s_Circle.setRadius(cRadius);
-			s_Circle.setFillColor(style._FillColor);
+			s_Circle.setFillColor(style.FillColor);
 			s_Circle.setOutlineThickness(0.f);
 
 			target.draw(s_Circle, states);
@@ -151,12 +151,12 @@ namespace BM
 
 		auto& shader = Shader::s_CircleShader;
 		shader.setUniform("uRadius", cRadius);
-		shader.setUniform("uOutline", -std::abs(style._Outline));
-		shader.setUniform("uOutlineColor", sf::Glsl::Vec4(style._OutlineColor));
+		shader.setUniform("uOutline", -std::abs(style.Outline));
+		shader.setUniform("uOutlineColor", sf::Glsl::Vec4(style.OutlineColor));
 
 		sf::Vertex vertices[6];
 		const Vec2f cTopL(0.f, 0.f), cTopR(cDiameter, 0.f), cBottomR(cDiameter, cDiameter), cBottomL(0.f, cDiameter);
-		const sf::Color cColor = style._FillColor;
+		const sf::Color cColor = style.FillColor;
 
 		vertices[0] = sf::Vertex(cTopL, cColor, Vec2f(0.f, 0.f));
 		vertices[1] = sf::Vertex(cTopR, cColor, Vec2f(1.f, 0.f));
@@ -174,32 +174,32 @@ namespace BM
 	static inline sf::Sprite s_Sprite{ Texture::GetDefault() };
 	void RenderSystem::DrawTexture(sf::RenderTarget& target, const Transform& transform, const TextureRender& texture, Style style) const noexcept
 	{
-		if (!texture._TexturePtr)
+		if (!texture.TexturePtr)
 			return;
 
-		s_Sprite.setTexture(*texture._TexturePtr, true);
-		if (texture._UseRect)
-			s_Sprite.setTextureRect(texture._TextureRect);
-		s_Sprite.setColor(style._FillColor);
+		s_Sprite.setTexture(*texture.TexturePtr, true);
+		if (texture.UseRect)
+			s_Sprite.setTextureRect(texture.TextureRect);
+		s_Sprite.setColor(style.FillColor);
 
 		RectFloat cBounds = s_Sprite.getLocalBounds();
-		target.draw(s_Sprite, GetRenderStates(transform, cBounds._Size, cBounds._Position));
+		target.draw(s_Sprite, GetRenderStates(transform, cBounds.Size, cBounds.Position));
 	}
 
 	static inline sf::Text s_Text{ Font::GetDefault() };
 	void RenderSystem::DrawText(sf::RenderTarget& target, const Transform& transform, const TextRender& text, Style style) const noexcept
 	{
-		if (!text._FontPtr)
+		if (!text.FontPtr)
 			return;
 
-		s_Text.setFont(*text._FontPtr);
-		s_Text.setString(text._Content);
-		s_Text.setCharacterSize(text._CharSize);
-		s_Text.setOutlineThickness(style._Outline);
-		s_Text.setFillColor(style._FillColor);
-		s_Text.setOutlineColor(style._OutlineColor);
+		s_Text.setFont(*text.FontPtr);
+		s_Text.setString(text.Text);
+		s_Text.setCharacterSize(text.CharSize);
+		s_Text.setOutlineThickness(style.Outline);
+		s_Text.setFillColor(style.FillColor);
+		s_Text.setOutlineColor(style.OutlineColor);
 
 		const RectFloat cBounds = s_Text.getLocalBounds();
-		target.draw(s_Text, GetRenderStates(transform, cBounds._Size, cBounds._Position));
+		target.draw(s_Text, GetRenderStates(transform, cBounds.Size, cBounds.Position));
 	}
 }
