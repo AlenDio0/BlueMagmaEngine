@@ -16,6 +16,9 @@ namespace BM
 		Entity(Scene* scene, EntityHandle handle) noexcept;
 		inline ~Entity() noexcept = default;
 
+		EntityHandle GetHandle() const noexcept;
+		bool IsValid() const noexcept;
+
 		operator EntityHandle() const noexcept;
 		operator bool() const noexcept;
 
@@ -76,5 +79,20 @@ namespace BM
 	private:
 		Scene* m_ScenePtr = nullptr;
 		EntityHandle m_Handle{ 0xFFFFFFFFu };
+	};
+}
+
+namespace std
+{
+	template<>
+	struct formatter<BM::Entity>
+	{
+		constexpr auto parse(auto& context) {
+			return context.begin();
+		}
+
+		inline auto format(const BM::Entity& entity, auto& context) const noexcept {
+			return std::format_to(context.out(), "{}", entity.GetHandle());
+		}
 	};
 }

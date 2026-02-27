@@ -10,6 +10,8 @@ namespace BM
 	class LayerMachine
 	{
 	public:
+		void Clear() noexcept;
+
 		void QueueRemove(Layer* layer) noexcept;
 		void QueueTransition(Layer* fromLayer, std::unique_ptr<Layer> toLayer) noexcept;
 		void QueuePush(std::unique_ptr<Layer> layer) noexcept;

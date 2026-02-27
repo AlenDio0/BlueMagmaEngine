@@ -64,6 +64,8 @@ namespace BM
 
 			m_Window->DisplayScreen();
 		}
+
+		m_Machine.Clear();
 	}
 
 	void Application::Stop()

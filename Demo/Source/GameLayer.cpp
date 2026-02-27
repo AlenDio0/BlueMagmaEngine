@@ -42,8 +42,9 @@ void GameLayer::OnAttach() noexcept
 	m_StatText.Add<TextRender>(font, FormatStatText(0.1f));
 	m_StatText.Add<Style>(Color::White, Color::Black, 1.f);
 
-	auto onButtonPressed = [](auto entity, auto event) {
+	auto onButtonPressed = [&](auto entity, auto event) {
 		BM_INFO("Button pressed");
+		m_Scene.Destroy(entity);
 		return false;
 		};
 
@@ -102,22 +103,25 @@ void GameLayer::OnUpdate(float deltaTime) noexcept
 {
 	m_Scene.OnUpdate(deltaTime);
 
-	m_Button.Patch<BM::Component::Transform>([&](auto& transform) {
-		static float sSpeedFactor = 1.f;
+	if (m_Button)
+	{
+		m_Button.Patch<BM::Component::Transform>([&](auto& transform) {
+			static float sSpeedFactor = 1.f;
 
-		const float cBoundsX = (float)GetWindow().GetSize().X;
-		const float cSizeX = m_Button.Get<BM::Component::Widget>().Size.X;
-		const float cPivotX = cSizeX * transform.Scale.X * transform.Origin.X;
+			const float cBoundsX = (float)GetWindow().GetSize().X;
+			const float cSizeX = m_Button.Get<BM::Component::Widget>().Size.X;
+			const float cPivotX = cSizeX * transform.Scale.X * transform.Origin.X;
 
-		float& positionX = transform.LocalPosition.X;
-		positionX += 500.f * sSpeedFactor * deltaTime;
+			float& positionX = transform.LocalPosition.X;
+			positionX += 500.f * sSpeedFactor * deltaTime;
 
-		if (positionX - cPivotX >= cBoundsX)
-		{
-			positionX = -cPivotX;
-			sSpeedFactor += 0.1f;
-		}
-		});
+			if (positionX - cPivotX >= cBoundsX)
+			{
+				positionX = -cPivotX;
+				sSpeedFactor += 0.1f;
+			}
+			});
+	}
 
 	m_FocusText.Patch<BM::Component::TextRender>([&](auto& text) {
 		bool focus = m_InputText.Get<BM::Component::Widget>().Focus;

@@ -70,7 +70,10 @@ namespace BM
 		Entity Create(const Component::Transform& transform = {}) noexcept;
 		Entity GetEntity(EntityHandle handle) noexcept;
 
+		void Clear() noexcept;
 		void Destroy(EntityHandle handle) noexcept;
+
+		bool IsValid(EntityHandle handle) const noexcept;
 
 		template<class TComp>
 		inline decltype(auto) OnConstruct() noexcept {

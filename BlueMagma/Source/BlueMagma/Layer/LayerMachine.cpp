@@ -3,6 +3,18 @@
 
 namespace BM
 {
+	void LayerMachine::Clear() noexcept
+	{
+		BM_CORE_FN();
+
+		const size_t cSize = m_Layers.size();
+		for (size_t i = 0; i < cSize; i++)
+			QueueRemove(m_Layers.at(i).get());
+		ProcessLayerChanges();
+
+		BM_CORE_INFO("{}() Cleared {} layers", __FUNCTION__, cSize);
+	}
+
 	void LayerMachine::QueueRemove(Layer* layer) noexcept
 	{
 		BM_CORE_FN("layer: {}", (void*)layer);

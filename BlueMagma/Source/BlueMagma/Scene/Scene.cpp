@@ -5,8 +5,9 @@
 namespace BM
 {
 	static inline void RemoveChild(Registry& registry, EntityHandle child) noexcept {
-		EntityHandle parent = registry.get<Parent>(child).Handle;
+		BM_CORE_FN("child: {}", child);
 
+		EntityHandle parent = registry.get<Parent>(child).Handle;
 		if (registry.valid(parent) && registry.all_of<Children>(parent))
 		{
 			auto& childList = registry.get<Children>(parent).Handles;
@@ -15,6 +16,7 @@ namespace BM
 	}
 
 	static inline void DestroyChildren(Registry& registry, EntityHandle entity) noexcept {
+		BM_CORE_FN("entity: {}", entity);
 		if (registry.all_of<Children>(entity))
 		{
 			std::vector<EntityHandle> children = registry.get<Children>(entity).Handles;
@@ -68,8 +70,19 @@ namespace BM
 		return Entity(this, handle);
 	}
 
+	void Scene::Clear() noexcept
+	{
+		m_Registry.clear();
+	}
+
 	void Scene::Destroy(EntityHandle handle) noexcept
 	{
+		BM_CORE_FN("handle: {}", handle);
 		m_Registry.destroy(handle);
+	}
+
+	bool Scene::IsValid(EntityHandle handle) const noexcept
+	{
+		return m_Registry.valid(handle);
 	}
 }

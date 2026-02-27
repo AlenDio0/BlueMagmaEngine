@@ -8,6 +8,16 @@ namespace BM
 	{
 	}
 
+	EntityHandle Entity::GetHandle() const noexcept
+	{
+		return m_Handle;
+	}
+
+	bool Entity::IsValid() const noexcept
+	{
+		return m_ScenePtr->IsValid(m_Handle);
+	}
+
 	Entity::operator EntityHandle() const noexcept
 	{
 		return m_Handle;
@@ -15,7 +25,7 @@ namespace BM
 
 	Entity::operator bool() const noexcept
 	{
-		return static_cast<uint32_t>(m_Handle) != 0xFFFFFFFFu;
+		return IsValid();
 	}
 
 	Entity Entity::CreateChild(const Component::Transform& transform) noexcept
