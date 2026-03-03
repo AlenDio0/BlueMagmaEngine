@@ -2,7 +2,6 @@
 #include "GameLayer.hpp"
 #include <BlueMagma/Base/Application.hpp>
 #include <BlueMagma/Base/EventDispatcher.hpp>
-#include <SFML/Graphics/RenderTarget.hpp>
 
 DemoLayer::DemoLayer() noexcept
 	: m_Sprite(GetAsset<BM::Texture>("Cat"))

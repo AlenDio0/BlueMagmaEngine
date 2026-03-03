@@ -1,12 +1,12 @@
 #pragma once
-#include <BlueMagma/Layer/Layer.hpp>
+#include <BlueMagma/Layer/AppLayer.hpp>
 #include <BlueMagma/Scene/Scene.hpp>
 #include <BlueMagma/Scene/Entity.hpp>
 #include <BlueMagma/Core/Timer.hpp>
 #include <BlueMagma/Asset/SoundManager.hpp>
 #include <string>
 
-class GameLayer : public BM::Layer
+class GameLayer : public BM::AppLayer
 {
 public:
 	GameLayer() noexcept;

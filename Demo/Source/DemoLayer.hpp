@@ -1,9 +1,9 @@
 #pragma once
-#include <BlueMagma/Layer/Layer.hpp>
+#include <BlueMagma/Layer/AppLayer.hpp>
 #include <BlueMagma/Asset/SoundManager.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 
-class DemoLayer : public BM::Layer
+class DemoLayer : public BM::AppLayer
 {
 public:
 	DemoLayer() noexcept;

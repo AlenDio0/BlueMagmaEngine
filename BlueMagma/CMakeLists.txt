@@ -21,7 +21,8 @@ set(SOURCES
     Source/BlueMagma/Base/Renderer.cpp
     Source/BlueMagma/Base/EventDispatcher.hpp
     Source/BlueMagma/Layer/Layer.hpp
-    Source/BlueMagma/Layer/Layer.cpp
+    Source/BlueMagma/Layer/AppLayer.hpp
+    Source/BlueMagma/Layer/AppLayer.cpp
     Source/BlueMagma/Layer/LayerMachine.hpp
     Source/BlueMagma/Layer/LayerMachine.cpp
     Source/BlueMagma/Asset/Asset.hpp
