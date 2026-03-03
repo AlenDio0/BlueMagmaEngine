@@ -4,9 +4,9 @@
 #include "EntityHandle.hpp"
 #include "Component/Base.hpp"
 #include "Base/EventDispatcher.hpp"
+#include "Base/Renderer.hpp"
 #include <entt/entt.hpp>
 #include <entt/entity/fwd.hpp>
-#include <SFML/Graphics/RenderTarget.hpp>
 #include <vector>
 #include <typeindex>
 #include <algorithm>
@@ -49,7 +49,7 @@ namespace BM
 			m_Systems.emplace_back(cTypeId, system, priority,
 				[system](Scene& scene, Event& event) { system->OnEvent(scene, event); },
 				[system](Scene& scene, float deltaTime) { system->OnUpdate(scene, deltaTime); },
-				[system](const Scene& scene, sf::RenderTarget& target) { system->OnRender(scene, target); }
+				[system](Scene& scene) { system->OnRender(scene); }
 			);
 			std::ranges::sort(m_Systems, [](const auto& a, const auto& b) {
 				return a.Priority < b.Priority;
@@ -65,7 +65,7 @@ namespace BM
 
 		void OnEvent(Event& event) noexcept;
 		void OnUpdate(float deltaTime) noexcept;
-		void OnRender(sf::RenderTarget& target) const noexcept;
+		void OnRender() noexcept;
 
 		Entity Create(const Component::Transform& transform = {}) noexcept;
 		Entity GetEntity(EntityHandle handle) noexcept;
@@ -74,6 +74,9 @@ namespace BM
 		void Destroy(EntityHandle handle) noexcept;
 
 		bool IsValid(EntityHandle handle) const noexcept;
+
+		void SetRenderer(Renderer& renderer) noexcept;
+		Renderer* GetRenderer() noexcept;
 
 		template<class TComp>
 		inline decltype(auto) OnConstruct() noexcept {

@@ -63,8 +63,12 @@ namespace BM
 
 	using namespace Component;
 
-	void RenderSystem::OnRender(const Scene& scene, sf::RenderTarget& target) const noexcept
+	void RenderSystem::OnRender(Scene& scene) const noexcept
 	{
+		Renderer* renderer = scene.GetRenderer();
+		if (!renderer)
+			return;
+
 		auto view = scene.View<Transform>();
 		for (auto entity : view)
 		{
@@ -74,13 +78,13 @@ namespace BM
 				style = *entityStyle;
 
 			if (auto rect = scene.TryGetComponent<RectRender>(entity))
-				DrawRect(target, transform, *rect, style);
+				DrawRect(*renderer, transform, *rect, style);
 			else if (auto circle = scene.TryGetComponent<CircleRender>(entity))
-				DrawCircle(target, transform, *circle, style);
+				DrawCircle(*renderer, transform, *circle, style);
 			else if (auto texture = scene.TryGetComponent<TextureRender>(entity))
-				DrawTexture(target, transform, *texture, style);
+				DrawTexture(*renderer, transform, *texture, style);
 			else if (auto text = scene.TryGetComponent<TextRender>(entity))
-				DrawText(target, transform, *text, style);
+				DrawText(*renderer, transform, *text, style);
 		}
 	}
 
@@ -94,7 +98,7 @@ namespace BM
 	}
 
 	static inline sf::RectangleShape s_Rect;
-	void RenderSystem::DrawRect(sf::RenderTarget& target, const Transform& transform, RectRender rect, Style style) const noexcept
+	void RenderSystem::DrawRect(Renderer& renderer, const Transform& transform, RectRender rect, Style style) const noexcept
 	{
 		const Vec2f cSize = rect.Size;
 		auto states = GetRenderStates(transform, cSize);
@@ -105,7 +109,7 @@ namespace BM
 			s_Rect.setFillColor(style.FillColor);
 			s_Rect.setOutlineThickness(0.f);
 
-			target.draw(s_Rect, states);
+			renderer.Draw(s_Rect, states);
 			return;
 		}
 
@@ -129,11 +133,11 @@ namespace BM
 		states.shader = &shader;
 		states.blendMode = sf::BlendAlpha;
 
-		target.draw(vertices, 6, sf::PrimitiveType::Triangles, states);
+		renderer.Draw(vertices, 6, sf::PrimitiveType::Triangles, states);
 	}
 
 	static inline sf::CircleShape s_Circle;
-	void RenderSystem::DrawCircle(sf::RenderTarget& target, const Transform& transform, CircleRender circle, Style style) const noexcept
+	void RenderSystem::DrawCircle(Renderer& renderer, const Transform& transform, CircleRender circle, Style style) const noexcept
 	{
 		const float cRadius = circle.Radius;
 		const float cDiameter = cRadius * 2.f;
@@ -145,7 +149,7 @@ namespace BM
 			s_Circle.setFillColor(style.FillColor);
 			s_Circle.setOutlineThickness(0.f);
 
-			target.draw(s_Circle, states);
+			renderer.Draw(s_Circle, states);
 			return;
 		}
 
@@ -168,11 +172,11 @@ namespace BM
 		states.shader = &shader;
 		states.blendMode = sf::BlendAlpha;
 
-		target.draw(vertices, 6, sf::PrimitiveType::Triangles, states);
+		renderer.Draw(vertices, 6, sf::PrimitiveType::Triangles, states);
 	}
 
 	static inline sf::Sprite s_Sprite{ Texture::GetDefault() };
-	void RenderSystem::DrawTexture(sf::RenderTarget& target, const Transform& transform, const TextureRender& texture, Style style) const noexcept
+	void RenderSystem::DrawTexture(Renderer& renderer, const Transform& transform, const TextureRender& texture, Style style) const noexcept
 	{
 		if (!texture.TexturePtr)
 			return;
@@ -183,11 +187,11 @@ namespace BM
 		s_Sprite.setColor(style.FillColor);
 
 		RectFloat cBounds = s_Sprite.getLocalBounds();
-		target.draw(s_Sprite, GetRenderStates(transform, cBounds.Size, cBounds.Position));
+		renderer.Draw(s_Sprite, GetRenderStates(transform, cBounds.Size, cBounds.Position));
 	}
 
 	static inline sf::Text s_Text{ Font::GetDefault() };
-	void RenderSystem::DrawText(sf::RenderTarget& target, const Transform& transform, const TextRender& text, Style style) const noexcept
+	void RenderSystem::DrawText(Renderer& renderer, const Transform& transform, const TextRender& text, Style style) const noexcept
 	{
 		if (!text.FontPtr)
 			return;
@@ -200,6 +204,6 @@ namespace BM
 		s_Text.setOutlineColor(style.OutlineColor);
 
 		const RectFloat cBounds = s_Text.getLocalBounds();
-		target.draw(s_Text, GetRenderStates(transform, cBounds.Size, cBounds.Position));
+		renderer.Draw(s_Text, GetRenderStates(transform, cBounds.Size, cBounds.Position));
 	}
 }

@@ -22,7 +22,10 @@ namespace BM
 		UpdateInputText(scene);
 	}
 
-	static inline bool Contains(const Component::Transform& transform, const Component::Widget& widget, Vec2f point) noexcept {
+	static inline bool Contains(Scene& scene, const Component::Transform& transform, const Component::Widget& widget, Vec2i point) noexcept {
+		if (Renderer* renderer = scene.GetRenderer())
+			point = renderer->PixelToCoords(point);
+
 		const Vec2f cPosition = transform.Position - (widget.Size * transform.Scale * transform.Origin);
 		const Vec2f cSize = widget.Size * transform.Scale;
 
@@ -35,7 +38,7 @@ namespace BM
 			auto view = scene.GetRegistry().view<Component::Transform, Component::Widget>();
 			for (auto [entity, transform, widget] : view.each())
 			{
-				bool onMouse = Contains(transform, widget, mousePressed.position);
+				bool onMouse = Contains(scene, transform, widget, mousePressed.position);
 				widget.Focus = onMouse;
 				widget.Hover = onMouse;
 			}
@@ -64,7 +67,7 @@ namespace BM
 	{
 		auto view = scene.GetRegistry().view<Component::Transform, Component::Widget>();
 		for (auto [entity, transform, widget] : view.each())
-			widget.Hover = Contains(transform, widget, mouseMoved.position);
+			widget.Hover = Contains(scene, transform, widget, mouseMoved.position);
 
 		return false;
 	}

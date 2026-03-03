@@ -14,6 +14,11 @@ namespace BM
 		return GetApp().GetWindow();
 	}
 
+	Renderer& Layer::GetRenderer() const noexcept
+	{
+		return GetWindow().GetRenderer();
+	}
+
 	LayerMachine& Layer::GetMachine() const noexcept
 	{
 		return GetApp().GetMachine();

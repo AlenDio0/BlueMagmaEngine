@@ -57,12 +57,12 @@ namespace BM
 			for (const auto& layer : layers)
 				layer->OnUpdate(deltaTime);
 
-			m_Window->ClearScreen();
+			m_Window->GetRenderer().Clear();
 
 			for (const auto& layer : layers)
-				layer->OnRender(m_Window->GetHandle());
+				layer->OnRender();
 
-			m_Window->DisplayScreen();
+			m_Window->GetRenderer().Display();
 		}
 
 		m_Machine.Clear();
@@ -80,6 +80,11 @@ namespace BM
 		BM_CORE_ASSERT(m_Window != nullptr, "Window not contructed yet");
 
 		return *m_Window;
+	}
+
+	Renderer& Application::GetRenderer() noexcept
+	{
+		return GetWindow().GetRenderer();
 	}
 
 	LayerMachine& Application::GetMachine() noexcept
@@ -121,9 +126,11 @@ namespace BM
 
 	bool Application::OnResizeEvent(const EventHandle::Resized& event) noexcept
 	{
-		sf::View view = m_Window->GetHandle().getView();
-		view.setSize((Vec2f)event.size);
-		m_Window->GetHandle().setView(view);
+		Renderer& renderer = m_Window->GetRenderer();
+
+		sf::View view = renderer.GetView();
+		view.setSize(m_Window->GetSize());
+		renderer.SetView(view);
 
 		return false;
 	}

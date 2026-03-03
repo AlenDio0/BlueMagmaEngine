@@ -28,6 +28,7 @@ namespace BM
 		void Stop();
 
 		Window& GetWindow() noexcept;
+		Renderer& GetRenderer() noexcept;
 		LayerMachine& GetMachine() noexcept;
 		AssetManager& GetAssets() noexcept;
 

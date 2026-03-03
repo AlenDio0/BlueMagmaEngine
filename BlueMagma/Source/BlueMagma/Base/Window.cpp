@@ -1,5 +1,6 @@
 #include "bmpch.hpp"
 #include "Window.hpp"
+#include <SFML/Graphics/Image.hpp>
 
 namespace BM
 {
@@ -15,20 +16,25 @@ namespace BM
 
 	void BM::Window::Create() noexcept
 	{
-		BM_CORE_DEBUG("{}()\n - Size: {}\n - Title: {}\n - Style: {}\n - FPSLimit: {}\n - VSync: {}", __FUNCTION__,
-			m_Context.Size, m_Context.Title, m_Context.Style, m_Context.FPSLimit, m_Context.VSync);
+		BM_CORE_DEBUG("{}()\n - Size: {}\n - Title: '{}'\n - Style: {}\n - FPSLimit: {}\n - VSync: {}\n - IconPath: '{}'", __FUNCTION__,
+			m_Context.Size, m_Context.Title, m_Context.Style, m_Context.FPSLimit, m_Context.VSync, m_Context.IconPath.string());
 
-		try
+		m_Handle = std::make_unique<sf::RenderWindow>();
+		m_Renderer = std::make_unique<Renderer>(*m_Handle);
+
+		m_Handle->create(sf::VideoMode(m_Context.Size), m_Context.Title, m_Context.Style);
+
+		m_Handle->setFramerateLimit(m_Context.FPSLimit);
+		m_Handle->setVerticalSyncEnabled(m_Context.VSync);
+
+		if (!m_Context.IconPath.empty())
 		{
-			m_Handle = std::make_unique<sf::RenderWindow>();
-			m_Handle->create(sf::VideoMode(m_Context.Size), m_Context.Title, m_Context.Style);
-
-			m_Handle->setFramerateLimit(m_Context.FPSLimit);
-			m_Handle->setVerticalSyncEnabled(m_Context.VSync);
-
-			BM_CORE_INFO("Window created");
+			sf::Image icon;
+			if (icon.loadFromFile(m_Context.IconPath))
+				m_Handle->setIcon(icon);
 		}
-		catch (...) {}
+
+		BM_CORE_INFO("Window created");
 	}
 
 	void BM::Window::Destroy() noexcept
@@ -36,7 +42,10 @@ namespace BM
 		BM_CORE_FN();
 
 		m_Handle->close();
+
+		m_Renderer.reset();
 		m_Handle.reset();
+
 
 		BM_CORE_INFO("Window destroyed");
 	}
@@ -45,13 +54,9 @@ namespace BM
 	{
 		BM_CORE_FN();
 
-		try
-		{
-			m_Handle->close();
+		m_Handle->close();
 
-			BM_CORE_INFO("Window closed");
-		}
-		catch (...) {}
+		BM_CORE_INFO("Window closed");
 	}
 
 	void Window::PollEvent() noexcept
@@ -66,43 +71,29 @@ namespace BM
 		}
 	}
 
-	void Window::ClearScreen(sf::Color newColor) noexcept
+	bool Window::SetActive(bool active) noexcept
 	{
-		try
-		{
-			m_Handle->clear(newColor);
-		}
-		catch (...) {}
+		return m_Handle->setActive(active);
 	}
 
-	void Window::Draw(const sf::Drawable& drawable) noexcept
+	void Window::RequestFocus() noexcept
 	{
-		try
-		{
-			m_Handle->draw(drawable);
-		}
-		catch (...) {}
-	}
-
-	void Window::DisplayScreen() noexcept
-	{
-		try
-		{
-			m_Handle->display();
-		}
-		catch (...) {}
+		m_Handle->requestFocus();
 	}
 
 	bool Window::IsOpen() const noexcept
 	{
-		try
-		{
-			return m_Handle && m_Handle->isOpen();
-		}
-		catch (const std::exception&)
-		{
-			return false;
-		}
+		return m_Handle && m_Handle->isOpen();
+	}
+
+	bool Window::HasFocus() const noexcept
+	{
+		return m_Handle->hasFocus();
+	}
+
+	const WindowContext& Window::GetContext() const noexcept
+	{
+		return m_Context;
 	}
 
 	Vec2u Window::GetSize() const noexcept
@@ -110,10 +101,14 @@ namespace BM
 		return m_Handle->getSize();
 	}
 
+	Renderer& Window::GetRenderer() noexcept
+	{
+		return *m_Renderer;
+	}
+
 	sf::RenderWindow& Window::GetHandle() const noexcept
 	{
 		BM_CORE_ASSERT(m_Handle != nullptr, "Window Handle not contructed yet");
-
 		return *m_Handle;
 	}
 }

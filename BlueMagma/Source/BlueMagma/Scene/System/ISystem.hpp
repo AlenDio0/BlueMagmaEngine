@@ -1,6 +1,6 @@
 #pragma once
 #include "Base/EventDispatcher.hpp"
-#include <SFML/Graphics/RenderTarget.hpp>
+#include "Base/Renderer.hpp"
 #include <functional>
 
 namespace BM
@@ -9,7 +9,7 @@ namespace BM
 
 	using SystemEventFn = std::function<void(Scene&, Event&)>;
 	using SystemUpdateFn = std::function<void(Scene&, float)>;
-	using SystemRenderFn = std::function<void(const Scene&, sf::RenderTarget&)>;
+	using SystemRenderFn = std::function<void(Scene&)>;
 
 	class ISystem
 	{
@@ -19,7 +19,7 @@ namespace BM
 
 		inline virtual void OnEvent(Scene& scene, Event& event) noexcept {}
 		inline virtual void OnUpdate(Scene& scene, float deltaTime) noexcept {}
-		inline virtual void OnRender(const Scene& scene, sf::RenderTarget& target) const noexcept {}
+		inline virtual void OnRender(Scene& scene) const noexcept {}
 
 		/*
 		*	To implement a Custom System you need:

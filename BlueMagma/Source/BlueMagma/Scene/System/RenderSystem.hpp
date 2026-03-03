@@ -7,18 +7,18 @@ namespace BM
 	class RenderSystem : public ISystem
 	{
 	public:
-		virtual void OnRender(const Scene& scene, sf::RenderTarget& target) const noexcept override;
+		virtual void OnRender(Scene& scene) const noexcept override;
 	private:
-		void DrawRect(sf::RenderTarget& target, const Component::Transform& transform,
+		void DrawRect(Renderer& renderer, const Component::Transform& transform,
 			Component::RectRender rect, Component::Style style) const noexcept;
 
-		void DrawCircle(sf::RenderTarget& target, const Component::Transform& transform,
+		void DrawCircle(Renderer& renderer, const Component::Transform& transform,
 			Component::CircleRender circle, Component::Style style) const noexcept;
 
-		void DrawTexture(sf::RenderTarget& target, const Component::Transform& transform,
+		void DrawTexture(Renderer& renderer, const Component::Transform& transform,
 			const Component::TextureRender& texture, Component::Style style) const noexcept;
 
-		void DrawText(sf::RenderTarget& target, const Component::Transform& transform,
+		void DrawText(Renderer& renderer, const Component::Transform& transform,
 			const Component::TextRender& text, Component::Style style) const noexcept;
 	};
 }

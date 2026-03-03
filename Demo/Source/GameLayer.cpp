@@ -14,6 +14,7 @@
 #include <cmath>
 #include <cfloat>
 #include <cstdint>
+#include <SFML/Graphics/View.hpp>
 
 GameLayer::GameLayer() noexcept
 {
@@ -23,6 +24,8 @@ GameLayer::GameLayer() noexcept
 void GameLayer::OnAttach() noexcept
 {
 	BM_FN();
+
+	m_Scene.SetRenderer(GetRenderer());
 
 	m_Scene.AddSystem<BM::TransformSystem>();
 	m_Scene.AddSystem<BM::UISystem>();
@@ -108,16 +111,23 @@ void GameLayer::OnUpdate(float deltaTime) noexcept
 		m_Button.Patch<BM::Component::Transform>([&](auto& transform) {
 			static float sSpeedFactor = 1.f;
 
-			const float cBoundsX = (float)GetWindow().GetSize().X;
-			const float cSizeX = m_Button.Get<BM::Component::Widget>().Size.X;
-			const float cPivotX = cSizeX * transform.Scale.X * transform.Origin.X;
+			const sf::View& view = GetRenderer().GetView();
+			const float cViewCenterX = view.getCenter().x;
+			const float cViewWidth = view.getSize().x;
+
+			const float cViewLeft = cViewCenterX - (cViewWidth / 2.f);
+			const float cViewRight = cViewCenterX + (cViewWidth / 2.f);
+
+			const float cWidth = m_Button.Get<BM::Component::Widget>().Size.X * transform.Scale.X;
+			const float cLeft = cWidth * transform.Origin.X;
+			const float cRight = cWidth * (1.f - transform.Origin.X);
 
 			float& positionX = transform.LocalPosition.X;
-			positionX += 500.f * sSpeedFactor * deltaTime;
+			positionX += 300.f * sSpeedFactor * deltaTime;
 
-			if (positionX - cPivotX >= cBoundsX)
+			if (positionX - cLeft >= cViewRight)
 			{
-				positionX = -cPivotX;
+				positionX = cViewLeft - cRight;
 				sSpeedFactor += 0.1f;
 			}
 			});
@@ -149,9 +159,9 @@ void GameLayer::OnUpdate(float deltaTime) noexcept
 	}
 }
 
-void GameLayer::OnRender(sf::RenderTarget& target) noexcept
+void GameLayer::OnRender() noexcept
 {
-	m_Scene.OnRender(target);
+	m_Scene.OnRender();
 }
 
 void GameLayer::InitExample() noexcept
@@ -242,7 +252,7 @@ bool GameLayer::OnKeyPressed(const BM::EventHandle::KeyPressed& keyPressed) noex
 bool GameLayer::OnMouseMoved(const BM::EventHandle::MouseMoved& mouseMoved) noexcept
 {
 	m_MouseRect.Patch<BM::Component::RectRender>([&](auto& rect) {
-		rect.Size = (BM::Vec2i(mouseMoved.position) - GetWindow().GetSize().Center()) * 2;
+		rect.Size = (GetRenderer().PixelToCoords(mouseMoved.position) - GetRenderer().GetView().getCenter()) * 2;
 		auto& [x, y] = rect.Size;
 		x = std::abs(x);
 		y = std::abs(y);
@@ -256,7 +266,7 @@ bool GameLayer::OnMousePressed(const BM::EventHandle::MouseButtonPressed& mouseP
 	if (mousePressed.button != sf::Mouse::Button::Right)
 		return false;
 
-	BM::Entity entity = m_Scene.Create(BM::Component::Transform(mousePressed.position, 10.f, 1.f, 0.5f));
+	BM::Entity entity = m_Scene.Create(BM::Component::Transform(GetRenderer().PixelToCoords(mousePressed.position), 10.f, 1.f, 0.5f));
 	entity.Add<BM::Component::CircleRender>((float)BM_RANDOM(25, 50));
 	entity.Add<BM::Component::Style>(sf::Color::Transparent, sf::Color::Black, 5.f);
 

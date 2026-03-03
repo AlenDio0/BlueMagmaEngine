@@ -51,10 +51,10 @@ namespace BM
 			system.OnUpdate(*this, deltaTime);
 	}
 
-	void Scene::OnRender(sf::RenderTarget& target) const noexcept
+	void Scene::OnRender() noexcept
 	{
 		for (auto& system : m_Systems)
-			system.OnRender(*this, target);
+			system.OnRender(*this);
 	}
 
 	Entity Scene::Create(const Component::Transform& transform) noexcept
@@ -84,5 +84,19 @@ namespace BM
 	bool Scene::IsValid(EntityHandle handle) const noexcept
 	{
 		return m_Registry.valid(handle);
+	}
+
+	void Scene::SetRenderer(Renderer& renderer) noexcept
+	{
+		AddCtxComponent<Renderer*>(&renderer);
+	}
+
+	Renderer* Scene::GetRenderer() noexcept
+	{
+		auto renderer = TryGetCtxComponent<Renderer*>();
+		if (!renderer)
+			return nullptr;
+
+		return *renderer;
 	}
 }

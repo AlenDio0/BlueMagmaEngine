@@ -17,7 +17,7 @@ public:
 
 	virtual void OnEvent(BM::Event& event) noexcept override;
 	virtual void OnUpdate(float deltaTime) noexcept override;
-	virtual void OnRender(sf::RenderTarget& target) noexcept override;
+	virtual void OnRender() noexcept override;
 private:
 	void InitExample() noexcept;
 

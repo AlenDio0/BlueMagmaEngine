@@ -11,7 +11,7 @@ public:
 	virtual void OnTransition() noexcept override;
 
 	virtual void OnEvent(BM::Event& event) noexcept override;
-	virtual void OnRender(sf::RenderTarget& target) noexcept override;
+	virtual void OnRender() noexcept override;
 private:
 	bool OnKeyPressed(const BM::EventHandle::KeyPressed& keyPressed) noexcept;
 	bool OnMousePressed(const BM::EventHandle::MouseButtonPressed& mousePressed) noexcept;

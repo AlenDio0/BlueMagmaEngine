@@ -26,9 +26,9 @@ void DemoLayer::OnEvent(BM::Event& event) noexcept
 	dispatcher.Dispatch<BM::EventHandle::MouseButtonPressed>(BM_EVENT_FN(OnMousePressed));
 }
 
-void DemoLayer::OnRender(sf::RenderTarget& target) noexcept
+void DemoLayer::OnRender() noexcept
 {
-	target.draw(m_Sprite);
+	GetRenderer().Draw(m_Sprite);
 }
 
 bool DemoLayer::OnKeyPressed(const BM::EventHandle::KeyPressed& keyPressed) noexcept
@@ -55,7 +55,7 @@ bool DemoLayer::OnKeyPressed(const BM::EventHandle::KeyPressed& keyPressed) noex
 
 bool DemoLayer::OnMousePressed(const BM::EventHandle::MouseButtonPressed& mousePressed) noexcept
 {
-	m_Sprite.setPosition((BM::Vec2f)mousePressed.position);
+	m_Sprite.setPosition(GetRenderer().PixelToCoords(mousePressed.position));
 
 	return true;
 }

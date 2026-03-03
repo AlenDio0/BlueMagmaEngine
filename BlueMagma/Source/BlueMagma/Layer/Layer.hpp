@@ -1,8 +1,8 @@
 #pragma once
 #include "Base/Window.hpp"
+#include "Base/Renderer.hpp"
 #include "Base/EventDispatcher.hpp"
 #include "Asset/AssetManager.hpp"
-#include <SFML/Graphics/RenderTarget.hpp>
 #include <concepts>
 #include <memory>
 
@@ -23,11 +23,12 @@ namespace BM
 
 		inline virtual void OnEvent(Event& event) noexcept {}
 		inline virtual void OnUpdate(float deltaTime) noexcept {}
-		inline virtual void OnRender(sf::RenderTarget& target) noexcept {}
+		inline virtual void OnRender() noexcept {}
 	protected:
 		Application& GetApp() const noexcept;
 
 		Window& GetWindow() const noexcept;
+		Renderer& GetRenderer() const noexcept;
 		LayerMachine& GetMachine() const noexcept;
 		AssetManager& GetAssets() const noexcept;
 
