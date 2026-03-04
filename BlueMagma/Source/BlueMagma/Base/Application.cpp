@@ -7,8 +7,8 @@ namespace BM
 	Application::Application(const ApplicationContext& context) noexcept
 		: m_Context(context)
 	{
-		BM_CORE_DEBUG("{}()\n - DefaultWindowCloseEvent: {}\n - DefaultWindowResizeEvent: {}", __FUNCTION__,
-			context.DefaultWindowCloseEvent, context.DefaultWindowResizeEvent);
+		BM_CORE_DEBUG("{}()\n - DefaultWindowCloseEvent: {}", __FUNCTION__,
+			context.DefaultWindowCloseEvent);
 
 		s_Instance = this;
 
@@ -104,8 +104,6 @@ namespace BM
 
 			if (m_Context.DefaultWindowCloseEvent)
 				dispatcher.Dispatch<EventHandle::Closed>(BM_EVENT_FN(OnCloseEvent));
-			if (m_Context.DefaultWindowResizeEvent)
-				dispatcher.Dispatch<EventHandle::Resized>(BM_EVENT_FN(OnResizeEvent));
 		}
 
 		for (const auto& layer : m_Machine.GetLayers() | std::views::reverse)
@@ -120,17 +118,6 @@ namespace BM
 	bool Application::OnCloseEvent(const EventHandle::Closed& event) noexcept
 	{
 		m_Window->Close();
-
-		return false;
-	}
-
-	bool Application::OnResizeEvent(const EventHandle::Resized& event) noexcept
-	{
-		Renderer& renderer = m_Window->GetRenderer();
-
-		sf::View view = renderer.GetView();
-		view.setSize(m_Window->GetSize());
-		renderer.SetView(view);
 
 		return false;
 	}

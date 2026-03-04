@@ -13,7 +13,6 @@ namespace BM
 		WindowContext Window;
 
 		bool DefaultWindowCloseEvent = true;
-		bool DefaultWindowResizeEvent = true;
 	};
 
 	class Application

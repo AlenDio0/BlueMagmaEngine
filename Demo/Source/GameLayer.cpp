@@ -14,9 +14,9 @@
 #include <cmath>
 #include <cfloat>
 #include <cstdint>
-#include <SFML/Graphics/View.hpp>
 
 GameLayer::GameLayer() noexcept
+	: m_Camera(GetRenderer().GetCamera()), m_ButtonSpeedFactor(1.f)
 {
 	m_SoundManager.Add("sound", GetAsset<BM::SoundBuffer>("Generic"));
 }
@@ -25,61 +25,37 @@ void GameLayer::OnAttach() noexcept
 {
 	BM_FN();
 
-	m_Scene.SetRenderer(GetRenderer());
+	m_Scene.AttachRenderer(GetRenderer());
 
 	m_Scene.AddSystem<BM::TransformSystem>();
 	m_Scene.AddSystem<BM::UISystem>();
 	m_Scene.AddSystem<BM::RenderSystem>();
 
 	using namespace BM::Component;
-	using Color = sf::Color;
 
 	auto font = &GetAsset<BM::Font>("Minecraft");
 	const BM::Vec2f cWindowSize = GetWindow().GetSize();
 
 	m_Background = m_Scene.Create(Transform(BM::Vec2f::Zero(), -1.f));
 	m_Background.Add<RectRender>(cWindowSize);
-	m_Background.Add<Style>(Color(0x00FF00A0));
+	m_Background.Add<Style>(sf::Color(0x00FF00A0));
 
 	m_StatText = m_Scene.Create(Transform(BM::Vec2f::Zero(), 3.f));
 	m_StatText.Add<TextRender>(font, FormatStatText(0.1f));
-	m_StatText.Add<Style>(Color::White, Color::Black, 1.f);
+	m_StatText.Add<Style>(sf::Color::White, sf::Color::Black, 1.f);
 
-	auto onButtonPressed = [&](auto entity, auto event) {
-		BM_INFO("Button pressed");
-		m_Scene.Destroy(entity);
-		return false;
-		};
+	BM::Entity axisX = m_Scene.Create(Transform(BM::Vec2f(0.f, cWindowSize.Center().Y), 5.f));
+	axisX.Add<RectRender>(BM::Vec2f(cWindowSize.X, 1.f));
 
-	const BM::Vec2f cUISize(200.f, 40.f);
-
-	m_Button = BM::UIMaker::CreateButton(m_Scene, Transform(cWindowSize.Center(), 10.f, 1.f, 0.5f), cUISize,
-		5.f, Style(Color::Blue, Color::Red, 2.f), onButtonPressed);
-	BM::UIMaker::AddTextChild(m_Button, TextRender(font, "Hello World!"), Style(Color::Green, Color::Black, 1.f));
-	BM::UIMaker::AddHoverColor(m_Button);
-
-	const float cSpaceAxisX = 25.f;
-	const float cInputX = cUISize.X + cSpaceAxisX;
-
-	m_InputText = BM::UIMaker::CreateInputText(m_Scene, Transform(BM::Vec2f(cWindowSize.Center().X - cInputX, cWindowSize.Y / 3.f), 10.f), cUISize,
-		5.f, Style(Color::White, Color::Black, 1.f), TextRender(font), Style(Color::Black), InputText("hello"));
-	BM::UIMaker::AddHoverColor(m_InputText, 0.9f);
-
-	//for (int i = 0; i < 100; i++)
-	//	BM::UIMaker::CreateInputText(m_Scene, {}, {}, 0.f, {}, {}, {}, {});
-
-	m_FocusText = m_InputText.CreateChild(Transform(BM::Vec2f(cInputX + cSpaceAxisX, cUISize.Center().Y), 0.f, 1.f, BM::Vec2f(0.f, 0.5f)));
-	m_FocusText.Add<TextRender>(font);
-	m_FocusText.Add<Style>(Color::Red);
-
-	BM::Entity axis = m_Scene.Create(Transform(BM::Vec2f(cWindowSize.Center().X, 0.f), 100.f));
-	axis.Add<RectRender>(BM::Vec2f(1.f, cWindowSize.Y));
+	BM::Entity axisY = m_Scene.Create(Transform(BM::Vec2f(cWindowSize.Center().X, 0.f), 5.f));
+	axisY.Add<RectRender>(BM::Vec2f(1.f, cWindowSize.Y));
 
 	m_MouseRect = m_Scene.Create(Transform(cWindowSize.Center(), 100.f, 1.f, 0.5f));
-	m_MouseRect.Add<RectRender>(0.f, 5.f);
-	m_MouseRect.Add<Style>(Color::Transparent, Color(0xFF000080), 2.f);
+	m_MouseRect.Add<RectRender>(cWindowSize.Center(), 5.f);
+	m_MouseRect.Add<Style>(sf::Color::Transparent, sf::Color(0xFF000080), 2.f);
 
 	//InitExample();
+	//InitUIExample();
 }
 
 void GameLayer::OnDetach() noexcept
@@ -97,52 +73,74 @@ void GameLayer::OnEvent(BM::Event& event) noexcept
 	m_Scene.OnEvent(event);
 
 	BM::EventDispatcher dispatcher(event);
+
+	dispatcher.Dispatch<BM::EventHandle::Resized>(BM_EVENT_FN(m_Camera.OnResizeEvent));
+
 	dispatcher.Dispatch<BM::EventHandle::KeyPressed>(BM_EVENT_FN(OnKeyPressed));
 	dispatcher.Dispatch<BM::EventHandle::MouseMoved>(BM_EVENT_FN(OnMouseMoved));
 	dispatcher.Dispatch<BM::EventHandle::MouseButtonPressed>(BM_EVENT_FN(OnMousePressed));
+	dispatcher.Dispatch<BM::EventHandle::MouseWheelScrolled>(BM_EVENT_FN(OnMouseScrolled));
 }
 
 void GameLayer::OnUpdate(float deltaTime) noexcept
 {
 	m_Scene.OnUpdate(deltaTime);
 
+	{
+		namespace Keyboard = sf::Keyboard;
+		using Key = Keyboard::Key;
+
+		BM::Vec2f direction(0.f, 0.f);
+		if (Keyboard::isKeyPressed(Key::W))
+			direction.Y -= 1.f;
+		if (Keyboard::isKeyPressed(Key::S))
+			direction.Y += 1.f;
+		if (Keyboard::isKeyPressed(Key::A))
+			direction.X -= 1.f;
+		if (Keyboard::isKeyPressed(Key::D))
+			direction.X += 1.f;
+
+		constexpr float cSpeed = 500.f;
+		const float cCameraSpeed = (cSpeed * m_Camera.GetZoomFactor()) * deltaTime;
+		m_Camera.Move(direction.Normalized() * cCameraSpeed);
+	}
+
 	if (m_Button)
 	{
 		m_Button.Patch<BM::Component::Transform>([&](auto& transform) {
-			static float sSpeedFactor = 1.f;
-
-			const sf::View& view = GetRenderer().GetView();
-			const float cViewCenterX = view.getCenter().x;
-			const float cViewWidth = view.getSize().x;
-
-			const float cViewLeft = cViewCenterX - (cViewWidth / 2.f);
-			const float cViewRight = cViewCenterX + (cViewWidth / 2.f);
+			const BM::Camera2D cCamera = GetRenderer().GetCamera();
+			const float cCameraLeft = (cCamera.GetCenter() - cCamera.GetSize().Center()).X;
+			const float cCameraRight = (cCamera.GetCenter() + cCamera.GetSize().Center()).X;
 
 			const float cWidth = m_Button.Get<BM::Component::Widget>().Size.X * transform.Scale.X;
 			const float cLeft = cWidth * transform.Origin.X;
 			const float cRight = cWidth * (1.f - transform.Origin.X);
 
+			constexpr float cSpeed = 300.f;
 			float& positionX = transform.LocalPosition.X;
-			positionX += 300.f * sSpeedFactor * deltaTime;
+			positionX += cSpeed * m_ButtonSpeedFactor * deltaTime;
 
-			if (positionX - cLeft >= cViewRight)
+			if (positionX - cLeft >= cCameraRight)
 			{
-				positionX = cViewLeft - cRight;
-				sSpeedFactor += 0.1f;
+				positionX = cCameraLeft - cRight;
+				m_ButtonSpeedFactor += 0.1f;
 			}
 			});
 	}
 
-	m_FocusText.Patch<BM::Component::TextRender>([&](auto& text) {
+	if (m_FocusText && m_InputText)
+	{
 		bool focus = m_InputText.Get<BM::Component::Widget>().Focus;
-		text.Text = std::format("Focus: {}", focus);
-		});
-	m_FocusText.Patch<BM::Component::Style>([&](auto& style) {
-		bool focus = m_InputText.Get<BM::Component::Widget>().Focus;
-		style.FillColor = focus ? sf::Color::Green : sf::Color::Red;
-		});
 
-	if (m_SwitchTimer.AsSeconds() >= 1.f)
+		m_FocusText.Patch<BM::Component::TextRender>([&](auto& text) {
+			text.Text = std::format("Focus: {}", focus);
+			});
+		m_FocusText.Patch<BM::Component::Style>([&](auto& style) {
+			style.FillColor = focus ? sf::Color::Green : sf::Color::Red;
+			});
+	}
+
+	if (m_Background && m_SwitchTimer.AsSeconds() >= 1.f)
 	{
 		m_SwitchTimer.Restart();
 		m_Background.Patch<BM::Component::Transform>([](auto& transform) {
@@ -150,7 +148,7 @@ void GameLayer::OnUpdate(float deltaTime) noexcept
 			positionZ = positionZ == -1.f ? 2.f : -1.f;
 			});
 	}
-	if (m_StatTimer.AsSeconds() >= 0.5f)
+	if (m_StatText && m_StatTimer.AsSeconds() >= 0.5f)
 	{
 		m_StatTimer.Restart();
 		m_StatText.Patch<BM::Component::TextRender>([&](auto& text) {
@@ -161,6 +159,8 @@ void GameLayer::OnUpdate(float deltaTime) noexcept
 
 void GameLayer::OnRender() noexcept
 {
+	GetRenderer().SetCamera(m_Camera);
+
 	m_Scene.OnRender();
 }
 
@@ -169,7 +169,7 @@ void GameLayer::InitExample() noexcept
 	using namespace BM::Component;
 
 	const BM::Texture& texture = GetAsset<BM::Texture>("Cat");
-	const float cBoxSize = 25.f;
+	constexpr float cBoxSize = 25.f;
 	const float cBoundSize = GetWindow().GetSize().Y - cBoxSize;
 
 	const uint32_t cSize = (uint32_t)((float)GetWindow().GetSize().X / cBoxSize);
@@ -201,46 +201,66 @@ void GameLayer::InitExample() noexcept
 	}
 }
 
+void GameLayer::InitUIExample() noexcept
+{
+	using namespace BM::Component;
+
+	auto font = &GetAsset<BM::Font>("Minecraft");
+	const BM::Vec2f cWindowSize = GetWindow().GetSize();
+	constexpr BM::Vec2f cUISize(200.f, 40.f);
+
+	auto onButtonPressed = [&](auto entity, auto event) {
+		BM_INFO("Button pressed");
+		m_Scene.Destroy(entity);
+		return false;
+		};
+
+
+	m_Button = BM::UIMaker::CreateButton(m_Scene, Transform(cWindowSize.Center(), 10.f, 1.f, 0.5f), cUISize,
+		5.f, Style(sf::Color::Blue, sf::Color::Red, 2.f), onButtonPressed);
+	BM::UIMaker::AddTextChild(m_Button, TextRender(font, "Hello World!"), Style(sf::Color::Green, sf::Color::Black, 1.f));
+	BM::UIMaker::AddHoverColor(m_Button);
+
+	constexpr float cSpaceAxisX = 25.f;
+	constexpr float cInputX = cUISize.X + cSpaceAxisX;
+
+	m_InputText = BM::UIMaker::CreateInputText(m_Scene, Transform(BM::Vec2f(cWindowSize.Center().X - cInputX, cWindowSize.Y / 3.f), 10.f),
+		cUISize, 5.f, Style(sf::Color::White, sf::Color::Black, 1.f), TextRender(font), Style(sf::Color::Black), InputText("hello"));
+	BM::UIMaker::AddHoverColor(m_InputText, 0.9f);
+
+	m_FocusText = m_InputText.CreateChild(Transform(BM::Vec2f(cInputX + cSpaceAxisX, cUISize.Center().Y), 0.f, 1.f, BM::Vec2f(0.f, 0.5f)));
+	m_FocusText.Add<TextRender>(font);
+	m_FocusText.Add<Style>(sf::Color::Red);
+}
+
 bool GameLayer::OnKeyPressed(const BM::EventHandle::KeyPressed& keyPressed) noexcept
 {
-	return false;
-
-	{
-		using namespace sf::Keyboard;
-		std::string key = getDescription(delocalize(keyPressed.code)).toAnsiString();
-		BM_FN("keyPressed: {}", key);
-	}
-
 	switch (keyPressed.code)
 	{
 		using Key = sf::Keyboard::Key;
 
-	case Key::A:
+	case Key::B:
+		m_Camera = GetRenderer().GetDefaultCamera();
+		break;
+
+	case Key::T:
 		QueueTransitionTo<DemoLayer>();
 		break;
-	case Key::B:
+	case Key::Y:
 		GetApp().QueuePushLayer<DemoLayer>();
 		break;
-	case Key::C:
+	case Key::U:
 		QueueRemoveLayer();
 		break;
-	case Key::D:
+
+	case Key::P:
 		m_SoundManager.Play("sound");
 		break;
-	case Key::E:
+	case Key::L:
 		m_SoundManager.Play("sound", true);
 		break;
-	case Key::F:
+	case Key::O:
 		m_SoundManager.PlayThread("sound");
-		break;
-	case Key::S:
-		m_SoundManager.Stop("sound");
-		break;
-	case Key::H:
-		m_Scene.RemoveSystem<BM::TransformSystem>();
-		break;
-	case Key::J:
-		m_Scene.RemoveSystem<BM::RenderSystem>();
 		break;
 	default:
 		return false;
@@ -251,12 +271,16 @@ bool GameLayer::OnKeyPressed(const BM::EventHandle::KeyPressed& keyPressed) noex
 
 bool GameLayer::OnMouseMoved(const BM::EventHandle::MouseMoved& mouseMoved) noexcept
 {
-	m_MouseRect.Patch<BM::Component::RectRender>([&](auto& rect) {
-		rect.Size = (GetRenderer().PixelToCoords(mouseMoved.position) - GetRenderer().GetView().getCenter()) * 2;
-		auto& [x, y] = rect.Size;
-		x = std::abs(x);
-		y = std::abs(y);
-		});
+	if (m_MouseRect)
+	{
+		m_MouseRect.Patch<BM::Component::RectRender>([&](auto& rect) {
+			const BM::Vec2f cPosition = m_MouseRect.Get<BM::Component::Transform>().Position;
+			rect.Size = (GetRenderer().PixelToCoords(mouseMoved.position) - cPosition) * 2;
+			auto& [x, y] = rect.Size;
+			x = std::abs(x);
+			y = std::abs(y);
+			});
+	}
 
 	return false;
 }
@@ -269,6 +293,18 @@ bool GameLayer::OnMousePressed(const BM::EventHandle::MouseButtonPressed& mouseP
 	BM::Entity entity = m_Scene.Create(BM::Component::Transform(GetRenderer().PixelToCoords(mousePressed.position), 10.f, 1.f, 0.5f));
 	entity.Add<BM::Component::CircleRender>((float)BM_RANDOM(25, 50));
 	entity.Add<BM::Component::Style>(sf::Color::Transparent, sf::Color::Black, 5.f);
+
+	return false;
+}
+
+bool GameLayer::OnMouseScrolled(const BM::EventHandle::MouseWheelScrolled& mouseScrolled) noexcept
+{
+	const float zoomAmount = m_Camera.GetZoomFactor() / 10.f;
+
+	if (mouseScrolled.delta > 0.f)
+		m_Camera.ZoomIn(zoomAmount, 0.1f);
+	else if (mouseScrolled.delta < 0.f)
+		m_Camera.ZoomOut(zoomAmount, 2.f);
 
 	return false;
 }

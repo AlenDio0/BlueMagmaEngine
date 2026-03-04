@@ -13,6 +13,8 @@ set(SOURCES
     Source/BlueMagma/Core/Random.cpp
     Source/BlueMagma/Core/Timer.hpp
     Source/BlueMagma/Core/Timer.cpp
+    Source/BlueMagma/Core/Camera2D.hpp
+    Source/BlueMagma/Core/Camera2D.cpp
     Source/BlueMagma/Base/Application.hpp
     Source/BlueMagma/Base/Application.cpp
     Source/BlueMagma/Base/Window.hpp

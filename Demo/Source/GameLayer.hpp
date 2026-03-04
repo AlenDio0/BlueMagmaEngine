@@ -1,5 +1,6 @@
 #pragma once
 #include <BlueMagma/Layer/AppLayer.hpp>
+#include <BlueMagma/Core/Camera2D.hpp>
 #include <BlueMagma/Scene/Scene.hpp>
 #include <BlueMagma/Scene/Entity.hpp>
 #include <BlueMagma/Core/Timer.hpp>
@@ -20,13 +21,17 @@ public:
 	virtual void OnRender() noexcept override;
 private:
 	void InitExample() noexcept;
+	void InitUIExample() noexcept;
 
 	bool OnKeyPressed(const BM::EventHandle::KeyPressed& keyPressed) noexcept;
 	bool OnMouseMoved(const BM::EventHandle::MouseMoved& mouseMoved) noexcept;
 	bool OnMousePressed(const BM::EventHandle::MouseButtonPressed& mousePressed) noexcept;
+	bool OnMouseScrolled(const BM::EventHandle::MouseWheelScrolled& mouseScrolled) noexcept;
 
 	std::string FormatStatText(float deltaTime) const noexcept;
 private:
+	BM::Camera2D m_Camera;
+
 	BM::Scene m_Scene;
 
 	BM::Entity m_Background;
@@ -42,4 +47,6 @@ private:
 	BM::Timer m_SwitchTimer;
 
 	BM::SoundManager m_SoundManager;
+
+	float m_ButtonSpeedFactor;
 };
