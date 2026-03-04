@@ -15,6 +15,9 @@ namespace BM
 
 	bool Entity::IsValid() const noexcept
 	{
+		if (!m_ScenePtr)
+			return false;
+
 		return m_ScenePtr->IsValid(m_Handle);
 	}
 

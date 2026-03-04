@@ -75,7 +75,7 @@ namespace BM
 
 		bool IsValid(EntityHandle handle) const noexcept;
 
-		void SetRenderer(Renderer& renderer) noexcept;
+		void AttachRenderer(Renderer& renderer) noexcept;
 		Renderer* GetRenderer() noexcept;
 
 		template<class TComp>
@@ -113,6 +113,10 @@ namespace BM
 		inline TComp& AddCtxComponent(TArgs&&... args) noexcept {
 			BM_CORE_ASSERT(!HasCtxComponent<TComp>(), "Context already has TComp");
 			return m_Registry.ctx().emplace<TComp>(std::forward<TArgs>(args)...);
+		}
+		template<class TComp, typename... TArgs>
+		inline TComp& AddOrReplaceCtxComponent(TArgs&&... args) noexcept {
+			return m_Registry.ctx().insert_or_assign<TComp>(std::forward<TArgs>(args)...);
 		}
 
 		template<class... TComp>

@@ -86,9 +86,9 @@ namespace BM
 		return m_Registry.valid(handle);
 	}
 
-	void Scene::SetRenderer(Renderer& renderer) noexcept
+	void Scene::AttachRenderer(Renderer& renderer) noexcept
 	{
-		AddCtxComponent<Renderer*>(&renderer);
+		AddOrReplaceCtxComponent<Renderer*>(&renderer);
 	}
 
 	Renderer* Scene::GetRenderer() noexcept
