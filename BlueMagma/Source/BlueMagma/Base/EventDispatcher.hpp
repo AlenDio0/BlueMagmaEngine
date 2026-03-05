@@ -6,7 +6,7 @@
 
 namespace BM
 {
-	class EventHandle : public sf::Event {};
+	using EventHandle = sf::Event;
 
 	struct Event
 	{
@@ -29,6 +29,9 @@ namespace BM
 
 		template<typename TEvent>
 		inline bool Dispatch(const OnEvent<TEvent>& handler) noexcept {
+			if (m_EventPtr->Done)
+				return false;
+
 			if (const TEvent* event = m_EventPtr->Handle.getIf<TEvent>())
 			{
 				if (handler)
