@@ -14,6 +14,7 @@ namespace BM
 		dispatcher.Dispatch<BM::EventHandle::MouseButtonPressed>(BM_EVENT_FN(OnMousePressed, scene));
 		dispatcher.Dispatch<BM::EventHandle::MouseMoved>(BM_EVENT_FN(OnMouseMoved, scene));
 		dispatcher.Dispatch<BM::EventHandle::TextEntered>(BM_EVENT_FN(OnTextEntered, scene));
+		dispatcher.Dispatch<BM::EventHandle::KeyPressed>(BM_EVENT_FN(OnKeyPressed, scene));
 	}
 
 	void UISystem::OnUpdate(Scene& scene, float deltaTime) noexcept
@@ -74,11 +75,14 @@ namespace BM
 
 	bool UISystem::OnTextEntered(const EventHandle::TextEntered& textEntered, Scene& scene) noexcept
 	{
+		bool dispatched = false;
+
 		auto view = scene.GetRegistry().view<Component::Widget, Component::InputText>();
 		for (auto [entity, widget, inputText] : view.each())
 		{
 			if (!widget.Focus)
 				continue;
+			dispatched = inputText.Focus ? true : dispatched;
 
 			uint32_t input = textEntered.unicode;
 			auto& buff = inputText.Buffer;
@@ -109,7 +113,22 @@ namespace BM
 			}
 		}
 
-		return true;
+		return dispatched;
+	}
+
+	bool UISystem::OnKeyPressed(const EventHandle::KeyPressed& keyPressed, Scene& scene) noexcept
+	{
+		bool dispatched = false;
+
+		auto view = scene.GetRegistry().view<Component::Widget, Component::InputText>();
+		for (auto [entity, widget, inputText] : view.each())
+		{
+			if (!widget.Focus)
+				continue;
+			dispatched = inputText.Focus ? true : dispatched;
+		}
+
+		return dispatched;
 	}
 
 	void UISystem::UpdateColor(Scene& scene) noexcept

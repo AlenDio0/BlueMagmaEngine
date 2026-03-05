@@ -28,6 +28,7 @@ private:
 	bool OnMousePressed(const BM::EventHandle::MouseButtonPressed& mousePressed) noexcept;
 	bool OnMouseScrolled(const BM::EventHandle::MouseWheelScrolled& mouseScrolled) noexcept;
 
+	void UpdateMouseRect(BM::Vec2f position) noexcept;
 	std::string FormatStatText(float deltaTime) const noexcept;
 private:
 	BM::Camera2D m_Camera;

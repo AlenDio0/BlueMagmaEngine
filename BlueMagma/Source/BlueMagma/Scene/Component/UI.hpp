@@ -16,7 +16,6 @@ namespace BM::Component
 		bool Hover = false;
 	};
 
-
 	struct HoverColor
 	{
 		sf::Color IdleColor = sf::Color::White;
@@ -43,6 +42,7 @@ namespace BM::Component
 
 		PolicyFn Policy;
 		size_t MaxLength;
+		bool Focus = true;
 
 		inline InputText(std::string_view placeholder = "", size_t maxLength = -1, const PolicyFn& policy = nullptr) noexcept
 			: Placeholder(placeholder), Policy(policy), MaxLength(maxLength) {

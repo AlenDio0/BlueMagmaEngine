@@ -13,6 +13,7 @@ namespace BM
 		bool OnMousePressed(const EventHandle::MouseButtonPressed& mousePressed, Scene& scene) noexcept;
 		bool OnMouseMoved(const EventHandle::MouseMoved& mouseMoved, Scene& scene) noexcept;
 		bool OnTextEntered(const EventHandle::TextEntered& textEntered, Scene& scene) noexcept;
+		bool OnKeyPressed(const EventHandle::KeyPressed& keyPressed, Scene& scene) noexcept;
 
 		void UpdateColor(Scene& scene) noexcept;
 		void UpdateInputText(Scene& scene) noexcept;

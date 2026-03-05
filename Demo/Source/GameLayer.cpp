@@ -44,18 +44,18 @@ void GameLayer::OnAttach() noexcept
 	m_StatText.Add<TextRender>(font, FormatStatText(0.1f));
 	m_StatText.Add<Style>(sf::Color::White, sf::Color::Black, 1.f);
 
-	BM::Entity axisX = m_Scene.Create(Transform(BM::Vec2f(0.f, cWindowSize.Center().Y), 5.f));
-	axisX.Add<RectRender>(BM::Vec2f(cWindowSize.X, 1.f));
-
-	BM::Entity axisY = m_Scene.Create(Transform(BM::Vec2f(cWindowSize.Center().X, 0.f), 5.f));
-	axisY.Add<RectRender>(BM::Vec2f(1.f, cWindowSize.Y));
+	constexpr float cAxisThickness = 2.f;
+	BM::Entity axisX = m_Scene.Create(Transform(BM::Vec2f(cWindowSize.Center()), 5.f, 1.f, 0.5f));
+	axisX.Add<RectRender>(BM::Vec2f(cWindowSize.X, cAxisThickness));
+	BM::Entity axisY = m_Scene.Create(Transform(BM::Vec2f(cWindowSize.Center()), 5.f, 1.f, 0.5f));
+	axisY.Add<RectRender>(BM::Vec2f(cAxisThickness, cWindowSize.Y));
 
 	m_MouseRect = m_Scene.Create(Transform(cWindowSize.Center(), 100.f, 1.f, 0.5f));
 	m_MouseRect.Add<RectRender>(cWindowSize.Center(), 5.f);
 	m_MouseRect.Add<Style>(sf::Color::Transparent, sf::Color(0xFF000080), 2.f);
 
 	//InitExample();
-	//InitUIExample();
+	InitUIExample();
 }
 
 void GameLayer::OnDetach() noexcept
@@ -86,6 +86,7 @@ void GameLayer::OnUpdate(float deltaTime) noexcept
 {
 	m_Scene.OnUpdate(deltaTime);
 
+	// FIXME: Focus on InputText
 	{
 		namespace Keyboard = sf::Keyboard;
 		using Key = Keyboard::Key;
@@ -100,17 +101,20 @@ void GameLayer::OnUpdate(float deltaTime) noexcept
 		if (Keyboard::isKeyPressed(Key::D))
 			direction.X += 1.f;
 
-		constexpr float cSpeed = 500.f;
-		const float cCameraSpeed = (cSpeed * m_Camera.GetZoomFactor()) * deltaTime;
-		m_Camera.Move(direction.Normalized() * cCameraSpeed);
+		if (direction != 0.f)
+		{
+			constexpr float cSpeed = 500.f;
+			const float cCameraSpeed = (cSpeed * m_Camera.GetZoomFactor()) * deltaTime;
+			const BM::Vec2f cCameraOffset = direction.Normalized() * cCameraSpeed;
+			m_Camera.Move(cCameraOffset);
+		}
 	}
 
 	if (m_Button)
 	{
 		m_Button.Patch<BM::Component::Transform>([&](auto& transform) {
-			const BM::Camera2D cCamera = GetRenderer().GetCamera();
-			const float cCameraLeft = (cCamera.GetCenter() - cCamera.GetSize().Center()).X;
-			const float cCameraRight = (cCamera.GetCenter() + cCamera.GetSize().Center()).X;
+			const float cCameraLeft = (m_Camera.GetCenter() - m_Camera.GetSize().Center() * m_Camera.GetZoomFactor()).X;
+			const float cCameraRight = (m_Camera.GetCenter() + m_Camera.GetSize().Center() * m_Camera.GetZoomFactor()).X;
 
 			const float cWidth = m_Button.Get<BM::Component::Widget>().Size.X * transform.Scale.X;
 			const float cLeft = cWidth * transform.Origin.X;
@@ -271,16 +275,7 @@ bool GameLayer::OnKeyPressed(const BM::EventHandle::KeyPressed& keyPressed) noex
 
 bool GameLayer::OnMouseMoved(const BM::EventHandle::MouseMoved& mouseMoved) noexcept
 {
-	if (m_MouseRect)
-	{
-		m_MouseRect.Patch<BM::Component::RectRender>([&](auto& rect) {
-			const BM::Vec2f cPosition = m_MouseRect.Get<BM::Component::Transform>().Position;
-			rect.Size = (GetRenderer().PixelToCoords(mouseMoved.position) - cPosition) * 2;
-			auto& [x, y] = rect.Size;
-			x = std::abs(x);
-			y = std::abs(y);
-			});
-	}
+	UpdateMouseRect(GetRenderer().PixelToCoords(mouseMoved.position));
 
 	return false;
 }
@@ -307,6 +302,20 @@ bool GameLayer::OnMouseScrolled(const BM::EventHandle::MouseWheelScrolled& mouse
 		m_Camera.ZoomOut(zoomAmount, 2.f);
 
 	return false;
+}
+
+void GameLayer::UpdateMouseRect(BM::Vec2f position) noexcept
+{
+	if (m_MouseRect)
+	{
+		m_MouseRect.Patch<BM::Component::RectRender>([&](auto& rect) {
+			const BM::Vec2f cPosition = m_MouseRect.Get<BM::Component::Transform>().Position;
+			rect.Size = (position - cPosition) * 2.f;
+			auto& [x, y] = rect.Size;
+			x = std::abs(x);
+			y = std::abs(y);
+			});
+	}
 }
 
 std::string GameLayer::FormatStatText(float deltaTime) const noexcept
