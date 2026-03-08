@@ -1,5 +1,6 @@
 #pragma once
 #include "ISystem.hpp"
+#include "Core/Timer.hpp"
 #include <cstdint>
 
 namespace BM
@@ -18,6 +19,8 @@ namespace BM
 		void UpdateColor(Scene& scene) noexcept;
 		void UpdateInputText(Scene& scene) noexcept;
 	private:
-		enum SpecialKey : uint32_t { Delete = 8, Enter = 13, Escape = 27 };
+		enum SpecialKey : uint32_t { Backspace = 8 };
+	private:
+		Timer m_CursorBlinkTimer;
 	};
 }

@@ -72,6 +72,10 @@ namespace BM
 		auto view = scene.View<Transform>();
 		for (auto entity : view)
 		{
+			auto hidden = scene.TryGetComponent<Hidden>(entity);
+			if (hidden && !hidden->Visible)
+				continue;
+
 			const Transform& transform = view.get<Transform>(entity);
 			Style style{};
 			if (auto entityStyle = scene.TryGetComponent<Style>(entity))
@@ -182,8 +186,8 @@ namespace BM
 			return;
 
 		s_Sprite.setTexture(*texture.TexturePtr, true);
-		if (texture.UseRect)
-			s_Sprite.setTextureRect(texture.TextureRect);
+		if (texture.TextureRect)
+			s_Sprite.setTextureRect(texture.TextureRect.value());
 		s_Sprite.setColor(style.FillColor);
 
 		RectFloat cBounds = s_Sprite.getLocalBounds();

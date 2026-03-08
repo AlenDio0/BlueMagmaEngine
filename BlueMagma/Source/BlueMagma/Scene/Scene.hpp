@@ -101,21 +101,21 @@ namespace BM
 			return m_Registry.ctx().find<TComp>();
 		}
 		template<class TComp>
-		inline TComp* TryGetCtxComponent() noexcept {
+		inline decltype(auto) TryGetCtxComponent() noexcept {
 			return m_Registry.ctx().find<TComp>();
 		}
 		template<class TComp>
-		inline TComp& GetCtxComponent() noexcept {
+		inline decltype(auto) GetCtxComponent() noexcept {
 			BM_CORE_ASSERT(HasCtxComponent<TComp>(), "Context doesn't have TComp");
 			return m_Registry.ctx().get<TComp>();
 		}
 		template<class TComp, typename... TArgs>
-		inline TComp& AddCtxComponent(TArgs&&... args) noexcept {
+		inline decltype(auto) AddCtxComponent(TArgs&&... args) noexcept {
 			BM_CORE_ASSERT(!HasCtxComponent<TComp>(), "Context already has TComp");
 			return m_Registry.ctx().emplace<TComp>(std::forward<TArgs>(args)...);
 		}
 		template<class TComp, typename... TArgs>
-		inline TComp& AddOrReplaceCtxComponent(TArgs&&... args) noexcept {
+		inline decltype(auto) AddOrReplaceCtxComponent(TArgs&&... args) noexcept {
 			return m_Registry.ctx().insert_or_assign<TComp>(std::forward<TArgs>(args)...);
 		}
 
@@ -124,22 +124,22 @@ namespace BM
 			return m_Registry.all_of<TComp...>(handle);
 		}
 		template<class TComp>
-		inline const TComp& GetComponent(EntityHandle handle) const noexcept {
+		inline decltype(auto) GetComponent(EntityHandle handle) const noexcept {
 			BM_CORE_ASSERT(HasComponent<TComp>(handle), "Entity doesn't have TComp");
 			return m_Registry.get<TComp>(handle);
 		}
 		template<class TComp, typename... TArgs>
-		inline const TComp& AddComponent(EntityHandle handle, TArgs&&... args) noexcept {
+		inline decltype(auto) AddComponent(EntityHandle handle, TArgs&&... args) noexcept {
 			BM_CORE_ASSERT(!HasComponent<TComp>(handle), "Entity already has TComp");
 			return m_Registry.emplace<TComp>(handle, std::forward<TArgs>(args)...);
 		}
 		template<class TComp, typename... TArgs>
-		inline const TComp& ReplaceComponent(EntityHandle handle, TArgs&&... args) noexcept {
+		inline decltype(auto) ReplaceComponent(EntityHandle handle, TArgs&&... args) noexcept {
 			BM_CORE_ASSERT(HasComponent<TComp>(handle), "Entity doesn't have TComp");
 			return m_Registry.replace<TComp>(handle, std::forward<TArgs>(args)...);
 		}
 		template<class TComp, class... Funcs>
-		inline const TComp& PatchComponent(EntityHandle handle, Funcs&&... funcs) noexcept {
+		inline decltype(auto) PatchComponent(EntityHandle handle, Funcs&&... funcs) noexcept {
 			BM_CORE_ASSERT(HasComponent<TComp>(handle), "Entity doesn't have TComp");
 			return m_Registry.patch<TComp>(handle, std::forward<Funcs>(funcs)...);
 		}
@@ -150,15 +150,15 @@ namespace BM
 		}
 
 		template<class TComp>
-		inline const TComp* TryGetComponent(EntityHandle handle) const noexcept {
+		inline decltype(auto) TryGetComponent(EntityHandle handle) const noexcept {
 			return m_Registry.try_get<TComp>(handle);
 		}
 		template<class TComp, typename... TArgs>
-		inline const TComp& AddOrGetComponent(EntityHandle handle, TArgs&&... args) noexcept {
+		inline decltype(auto) AddOrGetComponent(EntityHandle handle, TArgs&&... args) noexcept {
 			return m_Registry.get_or_emplace<TComp>(handle, std::forward<TArgs>(args)...);
 		}
 		template<class TComp, typename... TArgs>
-		inline const TComp& AddOrReplaceComponent(EntityHandle handle, TArgs&&... args) noexcept {
+		inline decltype(auto) AddOrReplaceComponent(EntityHandle handle, TArgs&&... args) noexcept {
 			return m_Registry.emplace_or_replace<TComp>(handle, std::forward<TArgs>(args)...);
 		}
 	private:

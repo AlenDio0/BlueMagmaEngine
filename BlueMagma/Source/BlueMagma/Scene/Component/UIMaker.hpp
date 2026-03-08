@@ -7,13 +7,26 @@
 
 namespace BM::UIMaker
 {
-	void AddTextChild(Entity entity, Component::TextRender textRender, Component::Style style) noexcept;
+	struct UIProps
+	{
+		Component::Transform Transform;
+		Vec2f Size;
+		float Corner;
+		Component::Style Style;
+	};
+	struct TextProps
+	{
+		Component::TextRender Text;
+		Component::Style Style;
+		bool Centered = false;
+	};
+
+	Entity AddTextChild(Entity entity, const TextProps& props) noexcept;
 	void AddHoverColor(Entity entity, float factor = 0.75f) noexcept;
 
-	Entity CreateUI(Scene& scene, Component::Transform transform, Vec2f size, float corner, Component::Style style) noexcept;
+	Entity CreateUI(Scene& scene, const UIProps& props) noexcept;
 
-	Entity CreateButton(Scene& scene, Component::Transform transform, Vec2f size, float corner, Component::Style buttonStyle, Component::ClickFn onClick = nullptr) noexcept;
+	Entity CreateButton(Scene& scene, const UIProps& props, Component::ClickFn onClick = nullptr) noexcept;
 
-	Entity CreateInputText(Scene& scene, Component::Transform transform, Vec2f size, float corner, Component::Style backgroundStyle,
-		Component::TextRender textRender, Component::Style textStyle, Component::InputText input) noexcept;
+	Entity CreateInputText(Scene& scene, const UIProps& baseProps, const TextProps& textProps, Component::InputText input) noexcept;
 }

@@ -5,9 +5,14 @@
 #include "Scene/Component/Base.hpp"
 #include "Scene/Component/UI.hpp"
 #include "Core/Rect.hpp"
+#include "Core/Timer.hpp"
+#include <SFML/Window/Keyboard.hpp>
+#include <SFML/System/String.hpp>
 
 namespace BM
 {
+	using namespace Component;
+
 	void UISystem::OnEvent(Scene& scene, Event& event) noexcept
 	{
 		EventDispatcher dispatcher(event);
@@ -23,20 +28,58 @@ namespace BM
 		UpdateInputText(scene);
 	}
 
-	static inline bool Contains(Scene& scene, const Component::Transform& transform, const Component::Widget& widget, Vec2i point) noexcept {
+	static inline Vec2f PixelToCoords(Scene& scene, Vec2i point) noexcept {
 		if (Renderer* renderer = scene.GetRenderer())
-			point = renderer->PixelToCoords(point);
+			return renderer->PixelToCoords(point);
+		return point;
+	}
 
+	static inline bool Contains(Scene& scene, const Transform& transform, const Widget& widget, Vec2i point) noexcept {
 		const Vec2f cPosition = transform.Position - (widget.Size * transform.Scale * transform.Origin);
 		const Vec2f cSize = widget.Size * transform.Scale;
 
-		return RectFloat(cPosition, cSize).Contains(point);
+		const Vec2f cCoords = PixelToCoords(scene, point);
+		return RectFloat(cPosition, cSize).Contains(cCoords);
+	}
+
+	static inline size_t CoordsToCursorIndex(Entity inputText, InputText& input, float coordsX) noexcept {
+		Entity text = input.TextChild;
+		if (!text)
+			return 0;
+
+		auto textTransform = text.TryGet<Transform>();
+		auto textRender = text.TryGet<TextRender>();
+		if (!textTransform || !textRender || !textRender->FontPtr || input.Text.empty())
+			return 0;
+
+		const float cRelativeMouseX = (coordsX - textTransform->Position.X) / textTransform->Scale.X;
+
+		sf::String utfText = input.Text;
+		char32_t previousChar = 0;
+		float currentX = 0.f;
+		for (size_t i = 0; i < utfText.getSize(); i++)
+		{
+			char32_t currentChar = utfText[i];
+			float advance = textRender->FontPtr->getGlyph(currentChar, textRender->CharSize, false).advance;
+			if (previousChar != 0)
+				advance += textRender->FontPtr->getKerning(previousChar, currentChar, textRender->CharSize);
+			previousChar = currentChar;
+
+			if (cRelativeMouseX < currentX + (advance / 2.f))
+				return i;
+
+			currentX += advance;
+		}
+
+		return utfText.getSize();
 	}
 
 	bool UISystem::OnMousePressed(const EventHandle::MouseButtonPressed& mousePressed, Scene& scene) noexcept
 	{
+		bool dispatched = false;
+
 		{
-			auto view = scene.GetRegistry().view<Component::Transform, Component::Widget>();
+			auto view = scene.GetRegistry().view<Transform, Widget>();
 			for (auto [entity, transform, widget] : view.each())
 			{
 				bool onMouse = Contains(scene, transform, widget, mousePressed.position);
@@ -44,29 +87,51 @@ namespace BM
 				widget.Hover = onMouse;
 			}
 		}
+
 		{
-			auto view = scene.GetRegistry().view<Component::Widget, Component::Clickable>();
+			auto view = scene.GetRegistry().view<Widget, Clickable>();
 			for (auto [entity, widget, clickable] : view.each())
 			{
-				auto& onClick = clickable.OnClick;
+				const auto& onClick = clickable.OnClick;
 				if (!onClick)
 					continue;
 
 				if (widget.Focus)
 				{
-					bool dispatched = onClick(Entity(&scene, entity), mousePressed);
+					dispatched = onClick(Entity(&scene, entity), mousePressed);
 					if (dispatched)
 						return true;
 				}
 			}
 		}
+		{
+			auto view = scene.GetRegistry().view<Widget, InputText>();
+			for (auto [entity, widget, input] : view.each())
+			{
+				if (!widget.Focus)
+					continue;
+				dispatched = true;
 
-		return false;
+				Entity inputText(&scene, entity);
+				input.CursorIndex = CoordsToCursorIndex(inputText, input, PixelToCoords(scene, mousePressed.position).X);
+
+				Entity cursor = input.CursorChild;
+				if (cursor)
+				{
+					cursor.TryPatch<Hidden>([&](auto& hidden) {
+						hidden.Visible = true;
+						m_CursorBlinkTimer.Restart();
+						});
+				}
+			}
+		}
+
+		return dispatched;
 	}
 
 	bool UISystem::OnMouseMoved(const EventHandle::MouseMoved& mouseMoved, Scene& scene) noexcept
 	{
-		auto view = scene.GetRegistry().view<Component::Transform, Component::Widget>();
+		auto view = scene.GetRegistry().view<Transform, Widget>();
 		for (auto [entity, transform, widget] : view.each())
 			widget.Hover = Contains(scene, transform, widget, mouseMoved.position);
 
@@ -77,39 +142,41 @@ namespace BM
 	{
 		bool dispatched = false;
 
-		auto view = scene.GetRegistry().view<Component::Widget, Component::InputText>();
-		for (auto [entity, widget, inputText] : view.each())
+		auto view = scene.GetRegistry().view<Widget, InputText>();
+		for (auto [entity, widget, input] : view.each())
 		{
 			if (!widget.Focus)
 				continue;
-			dispatched = inputText.Focus ? true : dispatched;
+			dispatched = true;
 
-			uint32_t input = textEntered.unicode;
-			auto& buff = inputText.Buffer;
+			const char cCharInput = static_cast<char>(textEntered.unicode);
 
-			const std::string cBuffStr = buff.str();
-			const size_t cSize = cBuffStr.size();
+			auto& text = input.Text;
+			auto& cursorIndex = input.CursorIndex;
 
-			const bool cDelete = input == SpecialKey::Delete;
-
-			if (cSize >= inputText.MaxLength && !cDelete)
-				continue;
-			if (inputText.Policy && !inputText.Policy(input))
+			const bool cIsBackspaceKey = cCharInput == SpecialKey::Backspace;
+			if (cIsBackspaceKey)
 				continue;
 
-			switch (input)
+			const bool cIsOverMaxLimit = text.size() >= input.MaxLength;
+			if (cIsOverMaxLimit)
+				continue;
+
+			const bool cIsAgainstPolicy = input.Policy && !input.Policy(cCharInput);
+			if (cIsAgainstPolicy)
+				continue;
+
+			text.insert(cursorIndex, 1, cCharInput);
+			cursorIndex++;
+
+			Entity inputText(&scene, entity);
+			Entity cursor = input.CursorChild;
+			if (cursor)
 			{
-			case SpecialKey::Delete:
-				buff.str("");
-				buff << cBuffStr.substr(0, cSize - 1);
-				break;
-			case SpecialKey::Escape:
-			case SpecialKey::Enter:
-				widget.Focus = false;
-				break;
-			default:
-				buff << (char)input;
-				break;
+				cursor.TryPatch<Hidden>([&](auto& hidden) {
+					hidden.Visible = true;
+					m_CursorBlinkTimer.Restart();
+					});
 			}
 		}
 
@@ -120,12 +187,68 @@ namespace BM
 	{
 		bool dispatched = false;
 
-		auto view = scene.GetRegistry().view<Component::Widget, Component::InputText>();
-		for (auto [entity, widget, inputText] : view.each())
+		auto view = scene.GetRegistry().view<Widget, InputText>();
+		for (auto [entity, widget, input] : view.each())
 		{
 			if (!widget.Focus)
 				continue;
-			dispatched = inputText.Focus ? true : dispatched;
+			dispatched = true;
+
+			auto& cursorIndex = input.CursorIndex;
+			const size_t cTextSize = input.Text.size();
+
+			const bool cIsControlPressed = keyPressed.control;
+
+			bool resetBlink = false;
+			switch (keyPressed.code)
+			{
+				using Key = sf::Keyboard::Key;
+
+			case Key::Escape:
+			case Key::Enter:
+				widget.Focus = false;
+				break;
+			case Key::Backspace:
+				if (cursorIndex == 0)
+					break;
+
+				input.Text.erase(cursorIndex - 1, 1);
+				cursorIndex--;
+				break;
+			case Key::Delete:
+				if (cursorIndex < cTextSize)
+					input.Text.erase(cursorIndex, 1);
+				break;
+			case Key::Left:
+				cursorIndex = cIsControlPressed ? 0 : (cursorIndex == 0 ? 0 : --cursorIndex);
+				resetBlink = true;
+				break;
+			case Key::Home:
+				cursorIndex = 0;
+				resetBlink = true;
+				break;
+
+			case Key::Right:
+				cursorIndex = cIsControlPressed ? cTextSize : (cursorIndex >= cTextSize ? cTextSize : ++cursorIndex);
+				resetBlink = true;
+				break;
+			case Key::End:
+				cursorIndex = cTextSize;
+				resetBlink = true;
+				break;
+			}
+
+			if (resetBlink)
+			{
+				Entity cursor = input.CursorChild;
+				if (cursor)
+				{
+					cursor.TryPatch<Hidden>([&](auto& hidden) {
+						hidden.Visible = true;
+						m_CursorBlinkTimer.Restart();
+						});
+				}
+			}
 		}
 
 		return dispatched;
@@ -134,12 +257,12 @@ namespace BM
 	void UISystem::UpdateColor(Scene& scene) noexcept
 	{
 		{
-			auto view = scene.GetRegistry().view<Component::Style, Component::Widget, Component::HoverColor>();
+			auto view = scene.GetRegistry().view<Style, Widget, HoverColor>();
 			for (auto [entity, style, widget, hover] : view.each())
 				style.FillColor = widget.Hover ? hover.Color : hover.IdleColor;
 		}
 		{
-			auto view = scene.GetRegistry().view<Component::Style, Component::Widget, Component::FocusColor>();
+			auto view = scene.GetRegistry().view<Style, Widget, FocusColor>();
 			for (auto [entity, style, widget, focus] : view.each())
 				style.FillColor = widget.Focus ? focus.Color : focus.IdleColor;
 		}
@@ -147,16 +270,66 @@ namespace BM
 
 	void UISystem::UpdateInputText(Scene& scene) noexcept
 	{
-		auto view = scene.GetRegistry().view<Component::Widget, Component::InputText>();
-		for (auto [entity, widget, input] : view.each())
+		auto view = scene.GetRegistry().view<Transform, Widget, InputText>();
+		for (auto [entity, transform, widget, input] : view.each())
 		{
 			Entity inputText(&scene, entity);
 
-			auto children = inputText.GetChildren<Component::Transform, Component::TextRender>();
-			for (auto& child : children)
+			Entity text = input.TextChild;
+			if (text)
 			{
-				child.Patch<Component::TextRender>([&](auto& textRender) {
-					textRender.Text = !input.Buffer.str().empty() ? input.Buffer.str() : input.Placeholder;
+				text.TryPatch<TextRender>([&](auto& textRender) {
+					textRender.Text = !input.Text.empty() ? input.Text : input.Placeholder;
+					});
+				text.TryPatch<Style>([&](auto& style) {
+					style.FillColor.a = !input.Text.empty() ? 0xFF : 0x80;
+					});
+			}
+
+			Entity cursor = input.CursorChild;
+			if (cursor)
+			{
+				cursor.TryPatch<Transform>([&](auto& transform) {
+					const float cTextX = std::round(text.Get<Transform>().LocalPosition.X - 2.f);
+					if (input.Text.empty())
+					{
+						transform.LocalPosition.X = cTextX;
+						return;
+					}
+
+					const auto& textRender = text.Get<TextRender>();
+					if (!textRender.FontPtr)
+						return;
+
+					sf::String textToCursor = input.Text.substr(0, input.CursorIndex);
+					float offsetX = 0.f;
+
+					char32_t previousChar = 0;
+					for (char32_t currentChar : textToCursor)
+					{
+						const auto& glyph = textRender.FontPtr->getGlyph(currentChar, textRender.CharSize, false);
+						if (previousChar == 0)
+							offsetX = glyph.bounds.position.x;
+						else
+							offsetX += textRender.FontPtr->getKerning(previousChar, currentChar, textRender.CharSize);
+						previousChar = currentChar;
+
+						offsetX += glyph.advance;
+					}
+					transform.LocalPosition.X = cTextX + std::round(offsetX);
+					});
+				cursor.TryPatch<Hidden>([&](auto& hidden) {
+					if (!widget.Focus)
+					{
+						hidden.Visible = false;
+						return;
+					}
+
+					if (m_CursorBlinkTimer.AsSeconds() >= 0.5f)
+					{
+						hidden.Visible = !hidden.Visible;
+						m_CursorBlinkTimer.Restart();
+					}
 					});
 			}
 		}

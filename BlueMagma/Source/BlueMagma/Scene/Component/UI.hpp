@@ -3,7 +3,6 @@
 #include "Core/Vec2.hpp"
 #include "Base/EventDispatcher.hpp"
 #include <functional>
-#include <sstream>
 #include <string>
 
 namespace BM::Component
@@ -34,18 +33,18 @@ namespace BM::Component
 		ClickFn OnClick;
 	};
 
-	using PolicyFn = std::function<bool(int)>;
+	using PolicyFn = std::function<bool(char)>;
 	struct InputText
 	{
-		std::ostringstream Buffer{ "" };
-		std::string Placeholder;
+		std::string Text = "";
+		std::string Placeholder = "";
+
+		size_t CursorIndex = 0;
+		size_t MaxLength = 0xFFFFFFFFFFFFFFFFull;
 
 		PolicyFn Policy;
-		size_t MaxLength;
-		bool Focus = true;
 
-		inline InputText(std::string_view placeholder = "", size_t maxLength = -1, const PolicyFn& policy = nullptr) noexcept
-			: Placeholder(placeholder), Policy(policy), MaxLength(maxLength) {
-		}
+		Entity TextChild{};
+		Entity CursorChild{};
 	};
 }

@@ -45,9 +45,9 @@ void GameLayer::OnAttach() noexcept
 	m_StatText.Add<Style>(sf::Color::White, sf::Color::Black, 1.f);
 
 	constexpr float cAxisThickness = 2.f;
-	BM::Entity axisX = m_Scene.Create(Transform(BM::Vec2f(cWindowSize.Center()), 5.f, 1.f, 0.5f));
+	BM::Entity axisX = m_Scene.Create(Transform(cWindowSize.Center(), 5.f, 1.f, 0.5f));
 	axisX.Add<RectRender>(BM::Vec2f(cWindowSize.X, cAxisThickness));
-	BM::Entity axisY = m_Scene.Create(Transform(BM::Vec2f(cWindowSize.Center()), 5.f, 1.f, 0.5f));
+	BM::Entity axisY = m_Scene.Create(Transform(cWindowSize.Center(), 5.f, 1.f, 0.5f));
 	axisY.Add<RectRender>(BM::Vec2f(cAxisThickness, cWindowSize.Y));
 
 	m_MouseRect = m_Scene.Create(Transform(cWindowSize.Center(), 100.f, 1.f, 0.5f));
@@ -103,10 +103,14 @@ void GameLayer::OnUpdate(float deltaTime) noexcept
 
 		if (direction != 0.f)
 		{
+			const bool cLShiftKey = sf::Keyboard::isKeyPressed(Key::LShift);
+
 			constexpr float cSpeed = 500.f;
-			const float cCameraSpeed = (cSpeed * m_Camera.GetZoomFactor()) * deltaTime;
+			const float cCameraSpeed = (cSpeed * m_Camera.GetZoomFactor() * (cLShiftKey ? 2.f : 1.f)) * deltaTime;
 			const BM::Vec2f cCameraOffset = direction.Normalized() * cCameraSpeed;
 			m_Camera.Move(cCameraOffset);
+
+			UpdateMouseRect(GetRenderer().PixelToCoords(sf::Mouse::getPosition(GetWindow().GetHandle())));
 		}
 	}
 
@@ -170,7 +174,7 @@ void GameLayer::OnRender() noexcept
 
 void GameLayer::InitExample() noexcept
 {
-	using namespace BM::Component;
+	namespace Comp = BM::Component;
 
 	const BM::Texture& texture = GetAsset<BM::Texture>("Cat");
 	constexpr float cBoxSize = 25.f;
@@ -186,28 +190,28 @@ void GameLayer::InitExample() noexcept
 
 		const uint8_t cColor = (uint8_t)(cPercentage * 255.f);
 
-		BM::Entity rect = m_Scene.Create(Transform(BM::Vec2f(cPosX, cBasePosY), cPercentage));
-		rect.Add<RectRender>(cBoxSize, 5.f);
-		rect.Add<Style>(sf::Color(cColor, 0, 0), sf::Color::Black, 2.f);
+		BM::Entity rect = m_Scene.Create(Comp::Transform({ cPosX, cBasePosY }, cPercentage));
+		rect.Add<Comp::RectRender>(cBoxSize, 5.f);
+		rect.Add<Comp::Style>(sf::Color(cColor, 0, 0), sf::Color::Black, 2.f);
 
-		BM::Entity circle = m_Scene.Create(Transform(BM::Vec2f(cPosX, cPercentage * cBasePosY), 0.1f + cPercentage));
-		circle.Add<CircleRender>(cBoxSize / 2.f);
-		circle.Add<Style>(sf::Color(0, cColor, 0), sf::Color::Black, i % 2 ? 0.f : 1.f);
+		BM::Entity circle = m_Scene.Create(Comp::Transform({ cPosX, cPercentage * cBasePosY }, 0.1f + cPercentage));
+		circle.Add<Comp::CircleRender>(cBoxSize / 2.f);
+		circle.Add<Comp::Style>(sf::Color(0, cColor, 0), sf::Color::Black, i % 2 ? 0.f : 1.f);
 
-		BM::Entity sprite = m_Scene.Create(Transform(BM::Vec2f(cPosX, cBoundSize - (cPercentage * cBasePosY)), 0.2f + cPercentage,
+		BM::Entity sprite = m_Scene.Create(Comp::Transform({ cPosX, cBoundSize - (cPercentage * cBasePosY) }, 0.2f + cPercentage,
 			BM::Vec2f(cBoxSize) / texture.getSize()));
-		sprite.Add<TextureRender>(&texture);
-		sprite.Add<Style>(sf::Color(cColor, cColor, cColor));
+		sprite.Add<Comp::TextureRender>(&texture);
+		sprite.Add<Comp::Style>(sf::Color(cColor, cColor, cColor));
 
-		BM::Entity text = m_Scene.Create(Transform(BM::Vec2f(cPosX, cBoundSize - cBasePosY), 0.3f + cPercentage));
-		text.Add<TextRender>(&GetAsset<BM::Font>("Minecraft"), "O", (uint32_t)cBoxSize);
-		text.Add<Style>(sf::Color(cColor, 0, cColor), sf::Color::Black, 5.f);
+		BM::Entity text = m_Scene.Create(Comp::Transform({ cPosX, cBoundSize - cBasePosY }, 0.3f + cPercentage));
+		text.Add<Comp::TextRender>(&GetAsset<BM::Font>("Minecraft"), "O", (uint32_t)cBoxSize);
+		text.Add<Comp::Style>(sf::Color(cColor, 0, cColor), sf::Color::Black, 5.f);
 	}
 }
 
 void GameLayer::InitUIExample() noexcept
 {
-	using namespace BM::Component;
+	namespace Comp = BM::Component;
 
 	auto font = &GetAsset<BM::Font>("Minecraft");
 	const BM::Vec2f cWindowSize = GetWindow().GetSize();
@@ -220,21 +224,28 @@ void GameLayer::InitUIExample() noexcept
 		};
 
 
-	m_Button = BM::UIMaker::CreateButton(m_Scene, Transform(cWindowSize.Center(), 10.f, 1.f, 0.5f), cUISize,
-		5.f, Style(sf::Color::Blue, sf::Color::Red, 2.f), onButtonPressed);
-	BM::UIMaker::AddTextChild(m_Button, TextRender(font, "Hello World!"), Style(sf::Color::Green, sf::Color::Black, 1.f));
+	m_Button = BM::UIMaker::CreateButton(m_Scene, BM::UIMaker::UIProps{ .Transform{cWindowSize.Center(), 10.f, 1.f, 0.5f},
+		.Size = cUISize, .Corner = 5.f, .Style{sf::Color::Blue, sf::Color::Red, 2.f} }, onButtonPressed);
+	BM::UIMaker::AddTextChild(m_Button, BM::UIMaker::TextProps{ .Text{font, "Hello World!"},
+		.Style{sf::Color::Green, sf::Color::Black, 1.f}, .Centered = true });
 	BM::UIMaker::AddHoverColor(m_Button);
 
 	constexpr float cSpaceAxisX = 25.f;
 	constexpr float cInputX = cUISize.X + cSpaceAxisX;
 
-	m_InputText = BM::UIMaker::CreateInputText(m_Scene, Transform(BM::Vec2f(cWindowSize.Center().X - cInputX, cWindowSize.Y / 3.f), 10.f),
-		cUISize, 5.f, Style(sf::Color::White, sf::Color::Black, 1.f), TextRender(font), Style(sf::Color::Black), InputText("hello"));
+	m_InputText = BM::UIMaker::CreateInputText(m_Scene, BM::UIMaker::UIProps{
+		.Transform{{cWindowSize.Center().X - cInputX, cWindowSize.Y / 3.f}, 10.f},
+		.Size = cUISize, .Corner = 5.f, .Style{sf::Color::White, sf::Color::Black, 1.f} },
+		BM::UIMaker::TextProps{ .Text{font}, .Style{sf::Color::Black} },
+		Comp::InputText{ .Placeholder = "hello" });
+	auto text = m_InputText.CreateChild(Comp::Transform(BM::Vec2f(0.f, 100.f)));
+
+	text.Add<Comp::TextRender>(font);
 	BM::UIMaker::AddHoverColor(m_InputText, 0.9f);
 
-	m_FocusText = m_InputText.CreateChild(Transform(BM::Vec2f(cInputX + cSpaceAxisX, cUISize.Center().Y), 0.f, 1.f, BM::Vec2f(0.f, 0.5f)));
-	m_FocusText.Add<TextRender>(font);
-	m_FocusText.Add<Style>(sf::Color::Red);
+	m_FocusText = m_InputText.CreateChild(Comp::Transform({ cInputX + cSpaceAxisX, cUISize.Center().Y }, 0.f, 1.f, { 0.f, 0.5f }));
+	m_FocusText.Add<Comp::TextRender>(font);
+	m_FocusText.Add<Comp::Style>(sf::Color::Red);
 }
 
 bool GameLayer::OnKeyPressed(const BM::EventHandle::KeyPressed& keyPressed) noexcept
@@ -285,9 +296,20 @@ bool GameLayer::OnMousePressed(const BM::EventHandle::MouseButtonPressed& mouseP
 	if (mousePressed.button != sf::Mouse::Button::Right)
 		return false;
 
+	const float cRadius = static_cast<float>(BM_RANDOM(25, 50));
+
 	BM::Entity entity = m_Scene.Create(BM::Component::Transform(GetRenderer().PixelToCoords(mousePressed.position), 10.f, 1.f, 0.5f));
-	entity.Add<BM::Component::CircleRender>((float)BM_RANDOM(25, 50));
+	entity.Add<BM::Component::CircleRender>(cRadius);
 	entity.Add<BM::Component::Style>(sf::Color::Transparent, sf::Color::Black, 5.f);
+
+	entity.Add<BM::Component::Widget>(BM::Vec2f(cRadius));
+	entity.Add<BM::Component::Clickable>([&](auto entity, auto event) {
+		if (event.button != sf::Mouse::Button::Left)
+			return false;
+
+		m_Scene.Destroy(entity);
+		return true;
+		});
 
 	return false;
 }
