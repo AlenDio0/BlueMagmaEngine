@@ -5,25 +5,17 @@ namespace BM::UIMaker
 {
 	using namespace Component;
 
+	Vec2f Center(Vec2f size, Vec2f origin) noexcept
+	{
+		const Vec2f cTopLeft = (size * origin) * -1.f;
+		return cTopLeft + size.Center();
+	}
+
 	Entity AddTextChild(Entity entity, const TextProps& props) noexcept
 	{
 		BM_CORE_FN("entity: {}", entity);
-		auto transform = entity.TryGet<Transform>();
-		auto widget = entity.TryGet<Widget>();
-		if (!transform || !widget)
-		{
-			BM_CORE_WARN("Cannot add a Text child without Transform and Widget [entity: {}]", entity);
-			return Entity();
-		}
 
-		const Vec2f cSize = widget->Size;
-		const Vec2f cCenterPosition = (cSize.Center() - (cSize * transform->Origin)).Round();
-
-		const Vec2f cPosition = Vec2f(props.Centered ? cCenterPosition.X : 5.f, cCenterPosition.Y);
-		const Vec2f cOrigin = Vec2f(props.Centered ? 0.5f : 0.f, 0.5f);
-
-		Entity text = entity.CreateChild(Transform(cPosition, 1.f, 1.f, cOrigin));
-
+		Entity text = entity.CreateChild(props.Transform);
 		text.Add<TextRender>(props.Text);
 		text.Add<Style>(props.Style);
 
@@ -72,15 +64,14 @@ namespace BM::UIMaker
 	Entity CreateInputText(Scene& scene, const UIProps& baseProps, const TextProps& textProps, Component::InputText input) noexcept
 	{
 		Entity inputText = CreateUI(scene, baseProps);
-
 		Entity text = AddTextChild(inputText, textProps);
 
-		Transform cursorTransform = text.Get<Transform>();
-		cursorTransform.Origin = Vec2f(0.f, 0.5f);
+		Transform cursorTransform = textProps.Transform;
+		cursorTransform.Origin = 0.5f;
 		cursorTransform.LocalZ += 1.f;
 
 		Entity cursor = inputText.CreateChild(cursorTransform);
-		cursor.Add<RectRender>(Vec2f(2.f, static_cast<float>(textProps.Text.CharSize) * 1.1f));
+		cursor.Add<RectRender>(Vec2f(1.f, static_cast<float>(textProps.Text.CharSize) * 1.1f));
 		cursor.Add<Style>(textProps.Style);
 		cursor.Add<Hidden>();
 

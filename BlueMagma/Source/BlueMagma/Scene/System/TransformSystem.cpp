@@ -52,6 +52,8 @@ namespace BM
 		auto children = scene.GetRegistry().view<Component::Transform, Parent>();
 		for (auto [child, transform, parent] : children.each())
 		{
+			if (!scene.IsValid(parent.Handle))
+				continue;
 			const auto& cParentTransform = scene.GetRegistry().get<Component::Transform>(parent.Handle);
 
 			transform.Position = cParentTransform.Position + (transform.LocalPosition * cParentTransform.Scale);

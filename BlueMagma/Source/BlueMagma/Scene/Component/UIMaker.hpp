@@ -16,10 +16,12 @@ namespace BM::UIMaker
 	};
 	struct TextProps
 	{
+		Component::Transform Transform;
 		Component::TextRender Text;
 		Component::Style Style;
-		bool Centered = false;
 	};
+
+	Vec2f Center(Vec2f size, Vec2f origin) noexcept;
 
 	Entity AddTextChild(Entity entity, const TextProps& props) noexcept;
 	void AddHoverColor(Entity entity, float factor = 0.75f) noexcept;

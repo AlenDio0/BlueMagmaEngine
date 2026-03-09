@@ -98,7 +98,7 @@ namespace BM
 		return states.transform
 			.translate(transform.Position)
 			.scale(transform.Scale)
-			.translate(Vec2f(offset + transform.Origin * size).Round() * -1.f);
+			.translate((offset + (transform.Origin * size)).Round() * -1.f);
 	}
 
 	static inline sf::RectangleShape s_Rect;

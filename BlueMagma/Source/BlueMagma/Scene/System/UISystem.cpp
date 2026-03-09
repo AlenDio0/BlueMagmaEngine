@@ -42,7 +42,7 @@ namespace BM
 		return RectFloat(cPosition, cSize).Contains(cCoords);
 	}
 
-	static inline size_t CoordsToCursorIndex(Entity inputText, InputText& input, float coordsX) noexcept {
+	static inline size_t CoordsToCursorIndex(InputText& input, float coordsX) noexcept {
 		Entity text = input.TextChild;
 		if (!text)
 			return 0;
@@ -52,26 +52,41 @@ namespace BM
 		if (!textTransform || !textRender || !textRender->FontPtr || input.Text.empty())
 			return 0;
 
-		const float cRelativeMouseX = (coordsX - textTransform->Position.X) / textTransform->Scale.X;
+		const sf::String cUtfText = input.Text;
 
-		sf::String utfText = input.Text;
-		char32_t previousChar = 0;
-		float currentX = 0.f;
-		for (size_t i = 0; i < utfText.getSize(); i++)
+		float textWidth = 0.f;
+		if (textTransform->Origin.X != 0.f)
 		{
-			char32_t currentChar = utfText[i];
+			char32_t previousChar = 0;
+			for (char32_t currentChar : cUtfText)
+			{
+				textWidth += textRender->FontPtr->getGlyph(currentChar, textRender->CharSize, false).advance;
+				if (previousChar != 0)
+					textWidth += textRender->FontPtr->getKerning(previousChar, currentChar, textRender->CharSize);
+				previousChar = currentChar;
+			}
+		}
+		const float cMousePivotX = (coordsX - textTransform->Position.X) / textTransform->Scale.X;
+		const float cOriginOffset = textWidth * textTransform->Origin.X;
+		const float cRelativeMouseX = cMousePivotX + cOriginOffset;
+
+		char32_t previousChar = 0;
+		float textX = 0.f;
+		for (size_t i = 0; i < cUtfText.getSize(); i++)
+		{
+			char32_t currentChar = cUtfText[i];
 			float advance = textRender->FontPtr->getGlyph(currentChar, textRender->CharSize, false).advance;
 			if (previousChar != 0)
 				advance += textRender->FontPtr->getKerning(previousChar, currentChar, textRender->CharSize);
 			previousChar = currentChar;
 
-			if (cRelativeMouseX < currentX + (advance / 2.f))
+			if (cRelativeMouseX < textX + (advance / 2.f))
 				return i;
 
-			currentX += advance;
+			textX += advance;
 		}
 
-		return utfText.getSize();
+		return cUtfText.getSize();
 	}
 
 	bool UISystem::OnMousePressed(const EventHandle::MouseButtonPressed& mousePressed, Scene& scene) noexcept
@@ -112,9 +127,7 @@ namespace BM
 					continue;
 				dispatched = true;
 
-				Entity inputText(&scene, entity);
-				input.CursorIndex = CoordsToCursorIndex(inputText, input, PixelToCoords(scene, mousePressed.position).X);
-
+				input.CursorIndex = CoordsToCursorIndex(input, PixelToCoords(scene, mousePressed.position).X);
 				Entity cursor = input.CursorChild;
 				if (cursor)
 				{
@@ -290,33 +303,38 @@ namespace BM
 			if (cursor)
 			{
 				cursor.TryPatch<Transform>([&](auto& transform) {
-					const float cTextX = std::round(text.Get<Transform>().LocalPosition.X - 2.f);
-					if (input.Text.empty())
-					{
-						transform.LocalPosition.X = cTextX;
-						return;
-					}
-
+					const auto& textTransform = text.Get<Transform>();
 					const auto& textRender = text.Get<TextRender>();
 					if (!textRender.FontPtr)
 						return;
 
-					sf::String textToCursor = input.Text.substr(0, input.CursorIndex);
-					float offsetX = 0.f;
+					float textWidth = 0.f;
+					if (textTransform.Origin.X != 0.f)
+					{
+						const sf::String cUtfString = input.Text;
+						char32_t previousChar = 0;
+						for (char32_t currentChar : cUtfString)
+						{
+							textWidth += textRender.FontPtr->getGlyph(currentChar, textRender.CharSize, false).advance;
+							if (previousChar != 0)
+								textWidth += textRender.FontPtr->getKerning(previousChar, currentChar, textRender.CharSize);
+							previousChar = currentChar;
+						}
+					}
 
+					sf::String textToCursor = input.Text.substr(0, input.CursorIndex);
 					char32_t previousChar = 0;
+					float offsetX = 0.f;
 					for (char32_t currentChar : textToCursor)
 					{
-						const auto& glyph = textRender.FontPtr->getGlyph(currentChar, textRender.CharSize, false);
-						if (previousChar == 0)
-							offsetX = glyph.bounds.position.x;
-						else
+						offsetX += textRender.FontPtr->getGlyph(currentChar, textRender.CharSize, false).advance;
+						if (previousChar != 0)
 							offsetX += textRender.FontPtr->getKerning(previousChar, currentChar, textRender.CharSize);
 						previousChar = currentChar;
-
-						offsetX += glyph.advance;
 					}
-					transform.LocalPosition.X = cTextX + std::round(offsetX);
+
+					const float cOriginOffsetX = textWidth * textTransform.Origin.X;
+					transform.LocalPosition.X = std::round(textTransform.LocalPosition.X + offsetX - cOriginOffsetX) - 1.f;
 					});
 				cursor.TryPatch<Hidden>([&](auto& hidden) {
 					if (!widget.Focus)

@@ -14,6 +14,7 @@
 #include <cmath>
 #include <cfloat>
 #include <cstdint>
+#include <cctype>
 
 GameLayer::GameLayer() noexcept
 	: m_Camera(GetRenderer().GetCamera()), m_ButtonSpeedFactor(1.f)
@@ -87,6 +88,7 @@ void GameLayer::OnUpdate(float deltaTime) noexcept
 	m_Scene.OnUpdate(deltaTime);
 
 	// FIXME: Focus on InputText
+	if (GetWindow().HasFocus())
 	{
 		namespace Keyboard = sf::Keyboard;
 		using Key = Keyboard::Key;
@@ -223,29 +225,34 @@ void GameLayer::InitUIExample() noexcept
 		return false;
 		};
 
-
 	m_Button = BM::UIMaker::CreateButton(m_Scene, BM::UIMaker::UIProps{ .Transform{cWindowSize.Center(), 10.f, 1.f, 0.5f},
 		.Size = cUISize, .Corner = 5.f, .Style{sf::Color::Blue, sf::Color::Red, 2.f} }, onButtonPressed);
-	BM::UIMaker::AddTextChild(m_Button, BM::UIMaker::TextProps{ .Text{font, "Hello World!"},
-		.Style{sf::Color::Green, sf::Color::Black, 1.f}, .Centered = true });
-	BM::UIMaker::AddHoverColor(m_Button);
+	BM::UIMaker::AddTextChild(m_Button, BM::UIMaker::TextProps{ .Transform{BM::UIMaker::Center(cUISize, 0.5f), 1.f, 1.f, 0.5f},
+		.Text{font, "Hello World!"}, .Style{sf::Color::Green, sf::Color::Black, 1.f} });
+	BM::UIMaker::AddHoverColor(m_Button, 0.5f);
+
+	auto text = m_Button.CreateChild(Comp::Transform({ 0.f, 100.f }, 0.f, 1.f, 0.5f));
+	text.Add<Comp::TextRender>(Comp::TextRender{ .FontPtr = font, .Text = "Attached" });
 
 	constexpr float cSpaceAxisX = 25.f;
 	constexpr float cInputX = cUISize.X + cSpaceAxisX;
 
 	m_InputText = BM::UIMaker::CreateInputText(m_Scene, BM::UIMaker::UIProps{
-		.Transform{{cWindowSize.Center().X - cInputX, cWindowSize.Y / 3.f}, 10.f},
+		.Transform{{cWindowSize.Center().X - cInputX, cWindowSize.Y / 3.f}, 10.f, 1.f, 0.f},
 		.Size = cUISize, .Corner = 5.f, .Style{sf::Color::White, sf::Color::Black, 1.f} },
-		BM::UIMaker::TextProps{ .Text{font}, .Style{sf::Color::Black} },
-		Comp::InputText{ .Placeholder = "hello" });
-	auto text = m_InputText.CreateChild(Comp::Transform(BM::Vec2f(0.f, 100.f)));
-
-	text.Add<Comp::TextRender>(font);
+		BM::UIMaker::TextProps{ .Transform{{5.f, BM::UIMaker::Center(cUISize, 0.f).Y}, 1.f, 1.f, {0.f, 0.5f}},
+		.Text{font}, .Style{sf::Color::Black} }, Comp::InputText{ .Placeholder = "hello" });
 	BM::UIMaker::AddHoverColor(m_InputText, 0.9f);
 
 	m_FocusText = m_InputText.CreateChild(Comp::Transform({ cInputX + cSpaceAxisX, cUISize.Center().Y }, 0.f, 1.f, { 0.f, 0.5f }));
 	m_FocusText.Add<Comp::TextRender>(font);
 	m_FocusText.Add<Comp::Style>(sf::Color::Red);
+
+	BM::Entity pinInputText = BM::UIMaker::CreateInputText(m_Scene, BM::UIMaker::UIProps{
+		.Transform{{cWindowSize.X - cUISize.X, 0.f}, 5.f, 0.75f}, .Size = cUISize, .Corner = 5.f, .Style{sf::Color::Magenta} },
+		BM::UIMaker::TextProps{ .Transform{BM::UIMaker::Center(cUISize, 0.f), 1.f, 1.f, 0.5f}, .Text{font},
+		.Style{sf::Color::Black} }, Comp::InputText{ .Placeholder = "PIN", .Policy{isdigit} });
+	BM::UIMaker::AddHoverColor(pinInputText);
 }
 
 bool GameLayer::OnKeyPressed(const BM::EventHandle::KeyPressed& keyPressed) noexcept
@@ -296,20 +303,24 @@ bool GameLayer::OnMousePressed(const BM::EventHandle::MouseButtonPressed& mouseP
 	if (mousePressed.button != sf::Mouse::Button::Right)
 		return false;
 
+	const BM::Vec2f cMouseCoords = GetRenderer().PixelToCoords(mousePressed.position);
 	const float cRadius = static_cast<float>(BM_RANDOM(25, 50));
 
-	BM::Entity entity = m_Scene.Create(BM::Component::Transform(GetRenderer().PixelToCoords(mousePressed.position), 10.f, 1.f, 0.5f));
-	entity.Add<BM::Component::CircleRender>(cRadius);
-	entity.Add<BM::Component::Style>(sf::Color::Transparent, sf::Color::Black, 5.f);
-
-	entity.Add<BM::Component::Widget>(BM::Vec2f(cRadius));
-	entity.Add<BM::Component::Clickable>([&](auto entity, auto event) {
+	BM::Entity circle = m_Scene.Create(BM::Component::Transform(cMouseCoords, 100.f, 1.f, 0.5f));
+	circle.Add<BM::Component::CircleRender>(cRadius);
+	circle.Add<BM::Component::Style>(sf::Color::Transparent, sf::Color::Black, 5.f);
+	circle.Add<BM::Component::Widget>(BM::Vec2f(cRadius * sqrt(2.f)));
+	circle.Add<BM::Component::Clickable>([&](auto entity, auto event) {
 		if (event.button != sf::Mouse::Button::Left)
 			return false;
 
 		m_Scene.Destroy(entity);
 		return true;
 		});
+
+	BM::Entity center = circle.CreateChild(BM::Component::Transform(0.f, 0.f, 1.f, 0.5f));
+	center.Add<BM::Component::CircleRender>(1.f);
+	center.Add<BM::Component::Style>(sf::Color::Red);
 
 	return false;
 }
