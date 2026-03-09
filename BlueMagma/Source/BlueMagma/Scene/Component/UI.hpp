@@ -33,7 +33,7 @@ namespace BM::Component
 		ClickFn OnClick;
 	};
 
-	using PolicyFn = std::function<bool(char)>;
+	using PolicyFn = std::function<bool(char32_t)>;
 	struct InputText
 	{
 		std::string Text = "";

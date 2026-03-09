@@ -162,12 +162,12 @@ namespace BM
 				continue;
 			dispatched = true;
 
-			const char cCharInput = static_cast<char>(textEntered.unicode);
+			const char32_t cUnicodeInput = textEntered.unicode;
 
 			auto& text = input.Text;
 			auto& cursorIndex = input.CursorIndex;
 
-			const bool cIsBackspaceKey = cCharInput == SpecialKey::Backspace;
+			const bool cIsBackspaceKey = cUnicodeInput == SpecialKey::Backspace;
 			if (cIsBackspaceKey)
 				continue;
 
@@ -175,11 +175,11 @@ namespace BM
 			if (cIsOverMaxLimit)
 				continue;
 
-			const bool cIsAgainstPolicy = input.Policy && !input.Policy(cCharInput);
+			const bool cIsAgainstPolicy = input.Policy && !input.Policy(cUnicodeInput);
 			if (cIsAgainstPolicy)
 				continue;
 
-			text.insert(cursorIndex, 1, cCharInput);
+			text.insert(cursorIndex, 1, static_cast<char>(cUnicodeInput));
 			cursorIndex++;
 
 			Entity inputText(&scene, entity);

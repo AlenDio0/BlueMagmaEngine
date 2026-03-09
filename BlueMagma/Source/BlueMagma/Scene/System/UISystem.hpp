@@ -19,7 +19,7 @@ namespace BM
 		void UpdateColor(Scene& scene) noexcept;
 		void UpdateInputText(Scene& scene) noexcept;
 	private:
-		enum SpecialKey : uint32_t { Backspace = 8 };
+		enum SpecialKey : char32_t { Backspace = 8 };
 	private:
 		Timer m_CursorBlinkTimer;
 	};
