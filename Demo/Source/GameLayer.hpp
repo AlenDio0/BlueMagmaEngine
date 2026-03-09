@@ -31,7 +31,9 @@ private:
 	void UpdateMouseRect(BM::Vec2f position) noexcept;
 	std::string FormatStatText(float deltaTime) const noexcept;
 private:
-	BM::Camera2D m_Camera;
+	BM::Camera2D* m_ActiveCameraPtr;
+	BM::Camera2D m_MainCamera;
+	BM::Camera2D m_ButtonCamera;
 
 	BM::Scene m_Scene;
 

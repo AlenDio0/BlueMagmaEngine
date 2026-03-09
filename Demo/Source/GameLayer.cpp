@@ -17,8 +17,12 @@
 #include <cctype>
 
 GameLayer::GameLayer() noexcept
-	: m_Camera(GetRenderer().GetCamera()), m_ButtonSpeedFactor(1.f)
+	: m_ActiveCameraPtr(&m_MainCamera), m_MainCamera(GetRenderer().GetCamera()), m_ButtonCamera(GetRenderer().GetCamera()),
+	m_ButtonSpeedFactor(1.f)
 {
+	m_ButtonCamera.SetZoomFactor(4.f);
+	m_ButtonCamera.SetViewport({ 0.75f, 0.25f, 0.25f, 0.25f });
+
 	m_SoundManager.Add("sound", GetAsset<BM::SoundBuffer>("Generic"));
 }
 
@@ -75,7 +79,8 @@ void GameLayer::OnEvent(BM::Event& event) noexcept
 
 	BM::EventDispatcher dispatcher(event);
 
-	dispatcher.Dispatch<BM::EventHandle::Resized>(BM_EVENT_FN(m_Camera.OnResizeEvent));
+	dispatcher.Dispatch<BM::EventHandle::Resized>(BM_EVENT_FN(m_MainCamera.OnResizeEvent));
+	dispatcher.Dispatch<BM::EventHandle::Resized>(BM_EVENT_FN(m_ButtonCamera.OnResizeEvent));
 
 	dispatcher.Dispatch<BM::EventHandle::KeyPressed>(BM_EVENT_FN(OnKeyPressed));
 	dispatcher.Dispatch<BM::EventHandle::MouseMoved>(BM_EVENT_FN(OnMouseMoved));
@@ -108,9 +113,9 @@ void GameLayer::OnUpdate(float deltaTime) noexcept
 			const bool cLShiftKey = sf::Keyboard::isKeyPressed(Key::LShift);
 
 			constexpr float cSpeed = 500.f;
-			const float cCameraSpeed = (cSpeed * m_Camera.GetZoomFactor() * (cLShiftKey ? 2.f : 1.f)) * deltaTime;
+			const float cCameraSpeed = (cSpeed / m_MainCamera.GetZoomFactor()) * (cLShiftKey ? 2.f : 1.f) * deltaTime;
 			const BM::Vec2f cCameraOffset = direction.Normalized() * cCameraSpeed;
-			m_Camera.Move(cCameraOffset);
+			m_MainCamera.Move(cCameraOffset);
 
 			UpdateMouseRect(GetRenderer().PixelToCoords(sf::Mouse::getPosition(GetWindow().GetHandle())));
 		}
@@ -119,8 +124,8 @@ void GameLayer::OnUpdate(float deltaTime) noexcept
 	if (m_Button)
 	{
 		m_Button.Patch<BM::Component::Transform>([&](auto& transform) {
-			const float cCameraLeft = (m_Camera.GetCenter() - m_Camera.GetSize().Center() * m_Camera.GetZoomFactor()).X;
-			const float cCameraRight = (m_Camera.GetCenter() + m_Camera.GetSize().Center() * m_Camera.GetZoomFactor()).X;
+			const float cCameraLeft = (m_MainCamera.GetCenter() - m_MainCamera.GetSize().Center() / m_MainCamera.GetZoomFactor()).X;
+			const float cCameraRight = (m_MainCamera.GetCenter() + m_MainCamera.GetSize().Center() / m_MainCamera.GetZoomFactor()).X;
 
 			const float cWidth = m_Button.Get<BM::Component::Widget>().Size.X * transform.Scale.X;
 			const float cLeft = cWidth * transform.Origin.X;
@@ -135,6 +140,8 @@ void GameLayer::OnUpdate(float deltaTime) noexcept
 				positionX = cCameraLeft - cRight;
 				m_ButtonSpeedFactor += 0.1f;
 			}
+
+			m_ButtonCamera.SetCenter({ transform.Position.X, transform.Position.Y + 50.f });
 			});
 	}
 
@@ -169,9 +176,17 @@ void GameLayer::OnUpdate(float deltaTime) noexcept
 
 void GameLayer::OnRender() noexcept
 {
-	GetRenderer().SetCamera(m_Camera);
-
+	GetRenderer().SetCamera(m_MainCamera);
 	m_Scene.OnRender();
+
+	if (m_Button)
+	{
+		GetRenderer().SetCamera(m_ButtonCamera);
+		m_Scene.OnRender();
+	}
+
+	if (m_ActiveCameraPtr)
+		GetRenderer().SetCamera(*m_ActiveCameraPtr);
 }
 
 void GameLayer::InitExample() noexcept
@@ -262,7 +277,7 @@ bool GameLayer::OnKeyPressed(const BM::EventHandle::KeyPressed& keyPressed) noex
 		using Key = sf::Keyboard::Key;
 
 	case Key::B:
-		m_Camera = GetRenderer().GetDefaultCamera();
+		m_MainCamera = GetRenderer().GetDefaultCamera();
 		break;
 
 	case Key::T:
@@ -294,6 +309,13 @@ bool GameLayer::OnKeyPressed(const BM::EventHandle::KeyPressed& keyPressed) noex
 bool GameLayer::OnMouseMoved(const BM::EventHandle::MouseMoved& mouseMoved) noexcept
 {
 	UpdateMouseRect(GetRenderer().PixelToCoords(mouseMoved.position));
+
+	if (m_Button && BM::RectFloat(m_ButtonCamera.GetViewport().Position * GetWindow().GetSize(),
+		m_ButtonCamera.GetViewport().Size * GetWindow().GetSize())
+		.Contains(sf::Mouse::getPosition(GetWindow().GetHandle())))
+		m_ActiveCameraPtr = &m_ButtonCamera;
+	else
+		m_ActiveCameraPtr = &m_MainCamera;
 
 	return false;
 }
@@ -327,12 +349,10 @@ bool GameLayer::OnMousePressed(const BM::EventHandle::MouseButtonPressed& mouseP
 
 bool GameLayer::OnMouseScrolled(const BM::EventHandle::MouseWheelScrolled& mouseScrolled) noexcept
 {
-	const float zoomAmount = m_Camera.GetZoomFactor() / 10.f;
-
 	if (mouseScrolled.delta > 0.f)
-		m_Camera.ZoomIn(zoomAmount, 0.1f);
+		m_MainCamera.ZoomIn(1.1f, 10.f);
 	else if (mouseScrolled.delta < 0.f)
-		m_Camera.ZoomOut(zoomAmount, 2.f);
+		m_MainCamera.ZoomOut(0.9f, 0.5f);
 
 	return false;
 }
