@@ -9,7 +9,7 @@ namespace BM
 	template<typename TValue>
 	struct Vec2
 	{
-		TValue X, Y;
+		TValue X{}, Y{};
 
 		constexpr Vec2() noexcept = default;
 		template<typename UValue = TValue>

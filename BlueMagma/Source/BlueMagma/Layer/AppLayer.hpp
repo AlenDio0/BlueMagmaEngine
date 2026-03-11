@@ -14,7 +14,7 @@ namespace BM
 	{
 	public:
 		inline AppLayer() noexcept = default;
-		inline virtual ~AppLayer() noexcept = default;
+		inline virtual ~AppLayer() noexcept override = default;
 	protected:
 		Application& GetApp() const noexcept;
 

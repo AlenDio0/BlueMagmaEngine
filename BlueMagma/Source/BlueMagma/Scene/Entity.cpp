@@ -49,6 +49,8 @@ namespace BM
 			return children;
 
 		const auto& childList = Get<Children>().Handles;
+
+		children.reserve(childList.size());
 		for (auto& child : childList)
 			children.emplace_back(m_ScenePtr, child);
 
