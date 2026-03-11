@@ -1,6 +1,8 @@
 #pragma once
 #include "ISystem.hpp"
 #include "Scene/Component/Base.hpp"
+#include <SFML/Graphics/Sprite.hpp>
+#include <SFML/Graphics/Text.hpp>
 
 namespace BM
 {
