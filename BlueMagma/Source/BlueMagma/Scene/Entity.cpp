@@ -33,7 +33,7 @@ namespace BM
 
 	Entity Entity::CreateChild(const Component::Transform& transform) noexcept
 	{
-		Entity child = m_ScenePtr->Create(transform);
+		Entity child = m_ScenePtr->CreateEntity(transform);
 		child.Add<Parent>(m_Handle);
 
 		AddOrGet<Children>();

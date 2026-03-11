@@ -43,7 +43,7 @@ namespace BM::UIMaker
 	Entity CreateUI(Scene& scene, const UIProps& props) noexcept
 	{
 		BM_CORE_FN();
-		Entity ui = scene.Create(props.Transform);
+		Entity ui = scene.CreateEntity(props.Transform);
 		ui.Add<RectRender>(props.Size, props.Corner);
 		ui.Add<Style>(props.Style);
 		ui.Add<Widget>(props.Size);

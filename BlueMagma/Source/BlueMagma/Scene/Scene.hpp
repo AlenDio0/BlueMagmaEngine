@@ -67,7 +67,7 @@ namespace BM
 		void OnUpdate(float deltaTime) noexcept;
 		void OnRender() noexcept;
 
-		Entity Create(const Component::Transform& transform = {}) noexcept;
+		Entity CreateEntity(const Component::Transform& transform = {}) noexcept;
 		Entity GetEntity(EntityHandle handle) noexcept;
 
 		void Clear() noexcept;

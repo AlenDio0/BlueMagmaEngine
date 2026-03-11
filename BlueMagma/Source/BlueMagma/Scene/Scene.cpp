@@ -57,7 +57,7 @@ namespace BM
 			system.OnRender(*this);
 	}
 
-	Entity Scene::Create(const Component::Transform& transform) noexcept
+	Entity Scene::CreateEntity(const Component::Transform& transform) noexcept
 	{
 		Entity entity{ this, m_Registry.create() };
 		entity.Add<Component::Transform>(transform);

@@ -41,21 +41,21 @@ void GameLayer::OnAttach() noexcept
 	auto font = &GetAsset<BM::Font>("Minecraft");
 	const BM::Vec2f cWindowSize = GetWindow().GetSize();
 
-	m_Background = m_Scene.Create(Transform(BM::Vec2f::Zero(), -1.f));
+	m_Background = m_Scene.CreateEntity(Transform(BM::Vec2f::Zero(), -1.f));
 	m_Background.Add<RectRender>(cWindowSize);
 	m_Background.Add<Style>(sf::Color(0x00FF00A0));
 
-	m_StatText = m_Scene.Create(Transform(BM::Vec2f::Zero(), 3.f));
+	m_StatText = m_Scene.CreateEntity(Transform(BM::Vec2f::Zero(), 3.f));
 	m_StatText.Add<TextRender>(font, FormatStatText(0.1f));
 	m_StatText.Add<Style>(sf::Color::White, sf::Color::Black, 1.f);
 
 	constexpr float cAxisThickness = 2.f;
-	BM::Entity axisX = m_Scene.Create(Transform(cWindowSize.Center(), 5.f, 1.f, 0.5f));
+	BM::Entity axisX = m_Scene.CreateEntity(Transform(cWindowSize.Center(), 5.f, 1.f, 0.5f));
 	axisX.Add<RectRender>(BM::Vec2f(cWindowSize.X, cAxisThickness));
-	BM::Entity axisY = m_Scene.Create(Transform(cWindowSize.Center(), 5.f, 1.f, 0.5f));
+	BM::Entity axisY = m_Scene.CreateEntity(Transform(cWindowSize.Center(), 5.f, 1.f, 0.5f));
 	axisY.Add<RectRender>(BM::Vec2f(cAxisThickness, cWindowSize.Y));
 
-	m_MouseRect = m_Scene.Create(Transform(cWindowSize.Center(), 100.f, 1.f, 0.5f));
+	m_MouseRect = m_Scene.CreateEntity(Transform(cWindowSize.Center(), 100.f, 1.f, 0.5f));
 	m_MouseRect.Add<RectRender>(cWindowSize.Center(), 5.f);
 	m_MouseRect.Add<Style>(sf::Color::Transparent, sf::Color(0xFF000080), 2.f);
 
@@ -207,20 +207,20 @@ void GameLayer::InitExample() noexcept
 
 		const uint8_t cColor = (uint8_t)(cPercentage * 255.f);
 
-		BM::Entity rect = m_Scene.Create(Comp::Transform({ cPosX, cBasePosY }, cPercentage));
+		BM::Entity rect = m_Scene.CreateEntity(Comp::Transform({ cPosX, cBasePosY }, cPercentage));
 		rect.Add<Comp::RectRender>(cBoxSize, 5.f);
 		rect.Add<Comp::Style>(sf::Color(cColor, 0, 0), sf::Color::Black, 2.f);
 
-		BM::Entity circle = m_Scene.Create(Comp::Transform({ cPosX, cPercentage * cBasePosY }, 0.1f + cPercentage));
+		BM::Entity circle = m_Scene.CreateEntity(Comp::Transform({ cPosX, cPercentage * cBasePosY }, 0.1f + cPercentage));
 		circle.Add<Comp::CircleRender>(cBoxSize / 2.f);
 		circle.Add<Comp::Style>(sf::Color(0, cColor, 0), sf::Color::Black, i % 2 ? 0.f : 1.f);
 
-		BM::Entity sprite = m_Scene.Create(Comp::Transform({ cPosX, cBoundSize - (cPercentage * cBasePosY) }, 0.2f + cPercentage,
+		BM::Entity sprite = m_Scene.CreateEntity(Comp::Transform({ cPosX, cBoundSize - (cPercentage * cBasePosY) }, 0.2f + cPercentage,
 			BM::Vec2f(cBoxSize) / texture.getSize()));
 		sprite.Add<Comp::TextureRender>(&texture);
 		sprite.Add<Comp::Style>(sf::Color(cColor, cColor, cColor));
 
-		BM::Entity text = m_Scene.Create(Comp::Transform({ cPosX, cBoundSize - cBasePosY }, 0.3f + cPercentage));
+		BM::Entity text = m_Scene.CreateEntity(Comp::Transform({ cPosX, cBoundSize - cBasePosY }, 0.3f + cPercentage));
 		text.Add<Comp::TextRender>(&GetAsset<BM::Font>("Minecraft"), "O", (uint32_t)cBoxSize);
 		text.Add<Comp::Style>(sf::Color(cColor, 0, cColor), sf::Color::Black, 5.f);
 	}
@@ -328,7 +328,7 @@ bool GameLayer::OnMousePressed(const BM::EventHandle::MouseButtonPressed& mouseP
 	const BM::Vec2f cMouseCoords = GetRenderer().PixelToCoords(mousePressed.position);
 	const float cRadius = static_cast<float>(BM_RANDOM(25, 50));
 
-	BM::Entity circle = m_Scene.Create(BM::Component::Transform(cMouseCoords, 100.f, 1.f, 0.5f));
+	BM::Entity circle = m_Scene.CreateEntity(BM::Component::Transform(cMouseCoords, 100.f, 1.f, 0.5f));
 	circle.Add<BM::Component::CircleRender>(cRadius);
 	circle.Add<BM::Component::Style>(sf::Color::Transparent, sf::Color::Black, 5.f);
 	circle.Add<BM::Component::Widget>(BM::Vec2f(cRadius * sqrt(2.f)));
