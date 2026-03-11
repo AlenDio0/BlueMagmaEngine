@@ -25,26 +25,21 @@ namespace BM
 		template<typename UValue = TValue>
 		constexpr Rect(const UValue& x, const UValue& y, const UValue& width, const UValue& height) noexcept
 			: X(static_cast<TValue>(x)), Y(static_cast<TValue>(y)),
-			Width(static_cast<TValue>(width)), Height(static_cast<TValue>(height)) {
-		}
+			Width(static_cast<TValue>(width)), Height(static_cast<TValue>(height)) {}
 		constexpr Rect(const Vec2<TValue>& position, const Vec2<TValue>& size) noexcept
-			: Position(position), Size(size) {
-		}
+			: Position(position), Size(size) {}
 		template<typename UValue = TValue>
 		constexpr Rect(const Rect<UValue>& rect) noexcept
 			: X(static_cast<TValue>(rect.X)), Y(static_cast<TValue>(rect.Y)),
-			Width(static_cast<TValue>(rect.Width)), Height(static_cast<TValue>(rect.Height)) {
-		}
+			Width(static_cast<TValue>(rect.Width)), Height(static_cast<TValue>(rect.Height)) {}
 		template<typename UValue = TValue>
-		constexpr Rect(const UValue& value) noexcept
+		explicit constexpr Rect(const UValue& value) noexcept
 			: X(static_cast<TValue>(value)), Y(static_cast<TValue>(value)),
-			Width(static_cast<TValue>(value)), Height(static_cast<TValue>(value)) {
-		}
+			Width(static_cast<TValue>(value)), Height(static_cast<TValue>(value)) {}
 
 		template<typename UValue = TValue>
 		constexpr Rect(const sf::Rect<UValue>& rect) noexcept
-			: Position(rect.position), Size(rect.size) {
-		}
+			: Position(rect.position), Size(rect.size) {}
 		template<typename UValue = TValue>
 		constexpr operator sf::Rect<UValue>() const noexcept {
 			return sf::Rect<UValue>(Position, Size);
@@ -92,6 +87,49 @@ namespace BM
 		}
 		constexpr bool operator!=(const TValue& value) const noexcept {
 			return !(*this == value);
+		}
+
+		constexpr Rect operator+(const Rect& rect) const noexcept {
+			return Rect(Position + rect.Position, Size + rect.Size);
+		}
+		constexpr Rect operator-(const Rect& rect) const noexcept {
+			return Rect(Position - rect.Position, Size - rect.Size);
+		}
+		constexpr Rect operator*(const Rect& rect) const noexcept {
+			return Rect(Position * rect.Position, Size * rect.Size);
+		}
+		constexpr Rect operator/(const Rect& rect) const noexcept {
+			return Rect(Position / rect.Position, Size / rect.Size);
+		}
+
+		template<typename UValue = TValue>
+		constexpr Rect operator+(const Vec2<UValue>& vec) const noexcept {
+			return Rect(Position + vec, Size + vec);
+		}
+		template<typename UValue = TValue>
+		constexpr Rect operator-(const Vec2<UValue>& vec) const noexcept {
+			return Rect(Position - vec, Size - vec);
+		}
+		template<typename UValue = TValue>
+		constexpr Rect operator*(const Vec2<UValue>& vec) const noexcept {
+			return Rect(Position * vec, Size * vec);
+		}
+		template<typename UValue = TValue>
+		constexpr Rect operator/(const Vec2<UValue>& vec) const noexcept {
+			return Rect(Position / vec, Size / vec);
+		}
+
+		constexpr Rect operator+(const TValue& value) const noexcept {
+			return Rect(Position + value, Size + value);
+		}
+		constexpr Rect operator-(const TValue& value) const noexcept {
+			return Rect(Position - value, Size - value);
+		}
+		constexpr Rect operator*(const TValue& value) const noexcept {
+			return Rect(Position * value, Size * value);
+		}
+		constexpr Rect operator/(const TValue& value) const noexcept {
+			return Rect(Position / value, Size / value);
 		}
 
 		static constexpr Rect<TValue> Zero() noexcept {

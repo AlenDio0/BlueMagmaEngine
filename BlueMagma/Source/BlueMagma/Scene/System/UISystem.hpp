@@ -1,7 +1,6 @@
 #pragma once
 #include "ISystem.hpp"
 #include "Core/Timer.hpp"
-#include <cstdint>
 
 namespace BM
 {

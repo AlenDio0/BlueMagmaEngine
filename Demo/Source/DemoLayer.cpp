@@ -27,6 +27,7 @@ void DemoLayer::OnEvent(BM::Event& event) noexcept
 
 void DemoLayer::OnRender() noexcept
 {
+	GetRenderer().ResetCamera();
 	GetRenderer().Draw(m_Sprite);
 }
 
@@ -36,10 +37,10 @@ bool DemoLayer::OnKeyPressed(const BM::EventHandle::KeyPressed& keyPressed) noex
 	{
 		using Key = sf::Keyboard::Key;
 
-	case Key::A:
+	case Key::Z:
 		QueueTransitionTo<GameLayer>();
 		break;
-	case Key::B:
+	case Key::X:
 		GetApp().QueuePushLayer<GameLayer>();
 		break;
 	case Key::C:
@@ -54,6 +55,7 @@ bool DemoLayer::OnKeyPressed(const BM::EventHandle::KeyPressed& keyPressed) noex
 
 bool DemoLayer::OnMousePressed(const BM::EventHandle::MouseButtonPressed& mousePressed) noexcept
 {
+	GetRenderer().ResetCamera();
 	m_Sprite.setPosition(GetRenderer().PixelToCoords(mousePressed.position));
 
 	return true;

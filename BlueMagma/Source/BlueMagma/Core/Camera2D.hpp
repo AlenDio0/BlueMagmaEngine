@@ -9,22 +9,23 @@ namespace BM
 	class Camera2D
 	{
 	public:
-		Camera2D(const sf::View& view, float zoomFactor) noexcept;
-		Camera2D(RectFloat rect) noexcept;
-		Camera2D(Vec2f size) noexcept;
+		explicit Camera2D(RectFloat rect) noexcept;
+		explicit Camera2D(Vec2f size) noexcept;
+		Camera2D(const sf::View& view, float zoomFactor = 1.f) noexcept;
 		Camera2D(Vec2f size, Vec2f center, float zoomFactor = 1.f) noexcept;
 
 		bool OnResizeEvent(const EventHandle::Resized& resized) noexcept;
 
 		void SetSize(Vec2f size) noexcept;
+		void SetSizeWindow(Vec2u windowSize) noexcept;
 
 		void SetCenter(Vec2f center) noexcept;
 		void Move(Vec2f offset) noexcept;
 
 		void SetZoomFactor(float zoomFactor) noexcept;
-		void Zoom(float percentage) noexcept;
-		void ZoomIn(float percentage, float min) noexcept;
-		void ZoomOut(float percentage, float max) noexcept;
+		void Zoom(float multiplier) noexcept;
+		void ZoomIn(float amount, float min) noexcept;
+		void ZoomOut(float amount, float max) noexcept;
 
 		void SetViewport(RectFloat viewport) noexcept;
 
@@ -33,6 +34,10 @@ namespace BM
 		float GetZoomFactor() const noexcept;
 		RectFloat GetViewport() const noexcept;
 
+		bool Contains(Vec2f coords) const noexcept;
+		bool Contains(Vec2i point, Vec2u windowSize) const noexcept;
+
+		RectFloat GetBounds() const noexcept;
 		sf::View GetView() const noexcept;
 	private:
 		Vec2f m_Size;

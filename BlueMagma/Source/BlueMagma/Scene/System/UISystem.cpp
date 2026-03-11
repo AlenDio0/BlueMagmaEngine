@@ -249,6 +249,9 @@ namespace BM
 				cursorIndex = cTextSize;
 				resetBlink = true;
 				break;
+
+			default:
+				break;
 			}
 
 			if (resetBlink)

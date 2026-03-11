@@ -20,12 +20,13 @@ namespace BM
 			m_Context.Size, m_Context.Title, m_Context.Style, m_Context.FPSLimit, m_Context.VSync, m_Context.IconPath.string());
 
 		m_Handle = std::make_unique<sf::RenderWindow>();
-		m_Renderer = std::make_unique<Renderer>(*m_Handle);
 
 		m_Handle->create(sf::VideoMode(m_Context.Size), m_Context.Title, m_Context.Style);
 
 		m_Handle->setFramerateLimit(m_Context.FPSLimit);
 		m_Handle->setVerticalSyncEnabled(m_Context.VSync);
+
+		m_Renderer = std::make_unique<Renderer>(*m_Handle);
 
 		if (!m_Context.IconPath.empty())
 		{

@@ -14,21 +14,17 @@ namespace BM
 		constexpr Vec2() noexcept = default;
 		template<typename UValue = TValue>
 		constexpr Vec2(const UValue& x, const UValue& y) noexcept
-			: X(static_cast<TValue>(x)), Y(static_cast<TValue>(y)) {
-		}
+			: X(static_cast<TValue>(x)), Y(static_cast<TValue>(y)) {}
 		template<typename UValue = TValue>
 		constexpr Vec2(const Vec2<UValue>& vec) noexcept
-			: X(static_cast<TValue>(vec.X)), Y(static_cast<TValue>(vec.Y)) {
-		}
+			: X(static_cast<TValue>(vec.X)), Y(static_cast<TValue>(vec.Y)) {}
 		template<typename UValue = TValue>
 		constexpr Vec2(const UValue& value) noexcept
-			: X(static_cast<TValue>(value)), Y(static_cast<TValue>(value)) {
-		}
+			: X(static_cast<TValue>(value)), Y(static_cast<TValue>(value)) {}
 
 		template<typename UValue = TValue>
 		constexpr Vec2(const sf::Vector2<UValue>& vec) noexcept
-			: X(static_cast<TValue>(vec.x)), Y(static_cast<TValue>(vec.y)) {
-		}
+			: X(static_cast<TValue>(vec.x)), Y(static_cast<TValue>(vec.y)) {}
 		template<typename UValue = TValue>
 		constexpr operator sf::Vector2<UValue>() const noexcept {
 			return sf::Vector2<UValue>(static_cast<UValue>(X), static_cast<UValue>(Y));

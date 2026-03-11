@@ -5,9 +5,8 @@
 namespace BM
 {
 	Renderer::Renderer(sf::RenderWindow& handle) noexcept
-		: m_HandlePtr(&handle)
-	{
-	}
+		: m_HandlePtr(&handle), m_Camera(GetDefaultCamera())
+	{}
 
 	void Renderer::Clear(sf::Color color) noexcept
 	{
@@ -34,10 +33,11 @@ namespace BM
 		m_HandlePtr->setView(view);
 	}
 
-	void Renderer::SetCamera(Camera2D camera) noexcept
+	void Renderer::SetCamera(const Camera2D& camera) noexcept
 	{
-		camera.SetCenter(camera.GetCenter().Round());
-		SetView(camera.GetView());
+		m_Camera = camera;
+		m_Camera.SetCenter(m_Camera.GetCenter().Round());
+		SetView(m_Camera.GetView());
 	}
 
 	void Renderer::ResetCamera() noexcept
@@ -50,9 +50,19 @@ namespace BM
 		return m_HandlePtr->mapPixelToCoords(point);
 	}
 
+	Vec2f Renderer::PixelToCoords(Vec2i point, const Camera2D& camera) const noexcept
+	{
+		return m_HandlePtr->mapPixelToCoords(point, camera.GetView());
+	}
+
 	Vec2i Renderer::CoordsToPixel(Vec2f coords) const noexcept
 	{
 		return m_HandlePtr->mapCoordsToPixel(coords);
+	}
+
+	Vec2i Renderer::CoordsToPixel(Vec2f coords, const Camera2D& camera) const noexcept
+	{
+		return m_HandlePtr->mapCoordsToPixel(coords, camera.GetView());
 	}
 
 	Vec2u Renderer::GetSize() const noexcept
@@ -60,15 +70,14 @@ namespace BM
 		return m_HandlePtr->getSize();
 	}
 
-	Camera2D Renderer::GetCamera() const noexcept
+	const Camera2D& Renderer::GetCamera() const noexcept
 	{
-		const sf::View& view = m_HandlePtr->getView();
-		return Camera2D(view, view.getSize().x / GetSize().X);
+		return m_Camera;
 	}
 
 	Camera2D Renderer::GetDefaultCamera() const noexcept
 	{
-		return Camera2D(m_HandlePtr->getDefaultView(), 1.f);
+		return Camera2D(m_HandlePtr->getDefaultView());
 	}
 
 	sf::RenderWindow& Renderer::GetHandle() noexcept

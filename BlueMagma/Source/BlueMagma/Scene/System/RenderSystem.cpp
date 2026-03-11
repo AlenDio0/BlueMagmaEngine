@@ -63,11 +63,49 @@ namespace BM
 
 	using namespace Component;
 
+	static inline sf::Sprite& CreateSprite(const TextureRender& texture, Style style) noexcept {
+		static sf::Sprite sSprite{ Texture::GetDefault() };
+
+		if (!texture.TexturePtr)
+			return sSprite;
+
+		sSprite.setTexture(*texture.TexturePtr, true);
+		if (texture.TextureRect)
+			sSprite.setTextureRect(texture.TextureRect.value());
+		sSprite.setColor(style.FillColor);
+
+		return sSprite;
+	}
+	static inline sf::Text& CreateText(const TextRender& text, Style style) noexcept {
+		static sf::Text sText{ Font::GetDefault() };
+
+		if (!text.FontPtr)
+			return sText;
+
+		sText.setFont(*text.FontPtr);
+		sText.setString(text.Text);
+		sText.setCharacterSize(text.CharSize);
+		sText.setOutlineThickness(style.Outline);
+		sText.setFillColor(style.FillColor);
+		sText.setOutlineColor(style.OutlineColor);
+
+		return sText;
+	}
+
+	static inline bool IsInCameraBounds(RectFloat cameraBounds, const Transform& transform, Vec2f size) noexcept {
+
+		const Vec2f cScaledSize = size * transform.Scale;
+		const RectFloat cEntityBounds{ transform.Position - (transform.Origin * cScaledSize), cScaledSize };
+
+		return cameraBounds.Intersects(cEntityBounds);
+	}
+
 	void RenderSystem::OnRender(Scene& scene) const noexcept
 	{
 		Renderer* renderer = scene.GetRenderer();
 		if (!renderer)
 			return;
+		const RectFloat cCameraBounds = renderer->GetCamera().GetBounds();
 
 		auto view = scene.View<Transform>();
 		for (auto entity : view)
@@ -82,13 +120,27 @@ namespace BM
 				style = *entityStyle;
 
 			if (auto rect = scene.TryGetComponent<RectRender>(entity))
-				DrawRect(*renderer, transform, *rect, style);
+			{
+				if (IsInCameraBounds(cCameraBounds, transform, rect->Size))
+					DrawRect(*renderer, transform, *rect, style);
+			}
 			else if (auto circle = scene.TryGetComponent<CircleRender>(entity))
-				DrawCircle(*renderer, transform, *circle, style);
+			{
+				if (IsInCameraBounds(cCameraBounds, transform, circle->Radius * 2.f))
+					DrawCircle(*renderer, transform, *circle, style);
+			}
 			else if (auto texture = scene.TryGetComponent<TextureRender>(entity))
-				DrawTexture(*renderer, transform, *texture, style);
-			else if (auto text = scene.TryGetComponent<TextRender>(entity))
-				DrawText(*renderer, transform, *text, style);
+			{
+				auto& sprite = CreateSprite(*texture, style);
+				if (IsInCameraBounds(cCameraBounds, transform, sprite.getLocalBounds().size))
+					DrawTexture(*renderer, transform, sprite);
+			}
+			else if (auto textRender = scene.TryGetComponent<TextRender>(entity))
+			{
+				auto& text = CreateText(*textRender, style);
+				if (IsInCameraBounds(cCameraBounds, transform, text.getLocalBounds().size))
+					DrawText(*renderer, transform, text);
+			}
 		}
 	}
 
@@ -179,35 +231,28 @@ namespace BM
 		renderer.Draw(vertices, 6, sf::PrimitiveType::Triangles, states);
 	}
 
-	static inline sf::Sprite s_Sprite{ Texture::GetDefault() };
-	void RenderSystem::DrawTexture(Renderer& renderer, const Transform& transform, const TextureRender& texture, Style style) const noexcept
+	void RenderSystem::DrawTexture(Renderer& renderer, const Component::Transform& transform, const sf::Sprite& sprite) const noexcept
 	{
-		if (!texture.TexturePtr)
-			return;
-
-		s_Sprite.setTexture(*texture.TexturePtr, true);
-		if (texture.TextureRect)
-			s_Sprite.setTextureRect(texture.TextureRect.value());
-		s_Sprite.setColor(style.FillColor);
-
-		RectFloat cBounds = s_Sprite.getLocalBounds();
-		renderer.Draw(s_Sprite, GetRenderStates(transform, cBounds.Size, cBounds.Position));
+		RectFloat cBounds = sprite.getLocalBounds();
+		renderer.Draw(sprite, GetRenderStates(transform, cBounds.Size, cBounds.Position));
 	}
 
-	static inline sf::Text s_Text{ Font::GetDefault() };
-	void RenderSystem::DrawText(Renderer& renderer, const Transform& transform, const TextRender& text, Style style) const noexcept
+	void RenderSystem::DrawTexture(Renderer& renderer, const Transform& transform, const TextureRender& texture, Style style) const noexcept
 	{
-		if (!text.FontPtr)
-			return;
+		auto& sprite = CreateSprite(texture, style);
+		DrawTexture(renderer, transform, sprite);
+	}
 
-		s_Text.setFont(*text.FontPtr);
-		s_Text.setString(text.Text);
-		s_Text.setCharacterSize(text.CharSize);
-		s_Text.setOutlineThickness(style.Outline);
-		s_Text.setFillColor(style.FillColor);
-		s_Text.setOutlineColor(style.OutlineColor);
+	void RenderSystem::DrawText(Renderer& renderer, const Component::Transform& transform, const sf::Text& text) const noexcept
+	{
+		const RectFloat cBounds = text.getLocalBounds();
+		renderer.Draw(text, GetRenderStates(transform, cBounds.Size, cBounds.Position));
+	}
 
-		const RectFloat cBounds = s_Text.getLocalBounds();
-		renderer.Draw(s_Text, GetRenderStates(transform, cBounds.Size, cBounds.Position));
+	void RenderSystem::DrawText(Renderer& renderer, const Transform& transform, const TextRender& textRender, Style style) const noexcept
+	{
+		auto& text = CreateText(textRender, style);
+		DrawText(renderer, transform, text);
+
 	}
 }

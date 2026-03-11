@@ -23,20 +23,23 @@ namespace BM
 			sf::RenderStates states = sf::RenderStates::Default) noexcept;
 
 		void SetView(const sf::View& view) noexcept;
-		void SetCamera(Camera2D camera) noexcept;
+		void SetCamera(const Camera2D& camera) noexcept;
 
 		void ResetCamera() noexcept;
 
 		Vec2f PixelToCoords(Vec2i point) const noexcept;
+		Vec2f PixelToCoords(Vec2i point, const Camera2D& camera) const noexcept;
 		Vec2i CoordsToPixel(Vec2f coords) const noexcept;
+		Vec2i CoordsToPixel(Vec2f coords, const Camera2D& camera) const noexcept;
 
 		Vec2u GetSize() const noexcept;
-		Camera2D GetCamera() const noexcept;
+		const Camera2D& GetCamera() const noexcept;
 		Camera2D GetDefaultCamera() const noexcept;
 
 		sf::RenderWindow& GetHandle() noexcept;
 		operator sf::RenderWindow& () noexcept;
 	private:
 		sf::RenderWindow* m_HandlePtr = nullptr;
+		Camera2D m_Camera;
 	};
 }

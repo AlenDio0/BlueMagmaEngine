@@ -20,8 +20,8 @@ GameLayer::GameLayer() noexcept
 	: m_ActiveCameraPtr(&m_MainCamera), m_MainCamera(GetRenderer().GetCamera()), m_ButtonCamera(GetRenderer().GetCamera()),
 	m_ButtonSpeedFactor(1.f)
 {
-	m_ButtonCamera.SetZoomFactor(4.f);
-	m_ButtonCamera.SetViewport({ 0.75f, 0.25f, 0.25f, 0.25f });
+	m_ButtonCamera.SetViewport({ 0.75f, 0.5f, 0.25f, 0.5f });
+	m_ButtonCamera.SetSizeWindow(GetWindow().GetSize());
 
 	m_SoundManager.Add("sound", GetAsset<BM::SoundBuffer>("Generic"));
 }
@@ -75,6 +75,8 @@ void GameLayer::OnTransition() noexcept
 
 void GameLayer::OnEvent(BM::Event& event) noexcept
 {
+	GetRenderer().SetCamera(*m_ActiveCameraPtr);
+
 	m_Scene.OnEvent(event);
 
 	BM::EventDispatcher dispatcher(event);
@@ -90,6 +92,8 @@ void GameLayer::OnEvent(BM::Event& event) noexcept
 
 void GameLayer::OnUpdate(float deltaTime) noexcept
 {
+	GetRenderer().SetCamera(*m_ActiveCameraPtr);
+
 	m_Scene.OnUpdate(deltaTime);
 
 	// FIXME: Focus on InputText
@@ -141,7 +145,7 @@ void GameLayer::OnUpdate(float deltaTime) noexcept
 				m_ButtonSpeedFactor += 0.1f;
 			}
 
-			m_ButtonCamera.SetCenter({ transform.Position.X, transform.Position.Y + 50.f });
+			m_ButtonCamera.SetCenter(transform.Position);
 			});
 	}
 
@@ -184,9 +188,6 @@ void GameLayer::OnRender() noexcept
 		GetRenderer().SetCamera(m_ButtonCamera);
 		m_Scene.OnRender();
 	}
-
-	if (m_ActiveCameraPtr)
-		GetRenderer().SetCamera(*m_ActiveCameraPtr);
 }
 
 void GameLayer::InitExample() noexcept
@@ -277,6 +278,9 @@ bool GameLayer::OnKeyPressed(const BM::EventHandle::KeyPressed& keyPressed) noex
 		using Key = sf::Keyboard::Key;
 
 	case Key::B:
+		m_MainCamera = BM::Camera2D(GetWindow().GetSize());
+		break;
+	case Key::N:
 		m_MainCamera = GetRenderer().GetDefaultCamera();
 		break;
 
@@ -299,6 +303,16 @@ bool GameLayer::OnKeyPressed(const BM::EventHandle::KeyPressed& keyPressed) noex
 	case Key::O:
 		m_SoundManager.PlayThread("sound");
 		break;
+	case Key::K:
+		m_SoundManager.Stop("sound");
+		break;
+	case Key::Up:
+		m_SoundManager.Get("sound")->setVolume(150.f);
+		break;
+	case Key::Down:
+		m_SoundManager.Get("sound")->setVolume(50.f);
+		break;
+
 	default:
 		return false;
 	}
@@ -308,14 +322,12 @@ bool GameLayer::OnKeyPressed(const BM::EventHandle::KeyPressed& keyPressed) noex
 
 bool GameLayer::OnMouseMoved(const BM::EventHandle::MouseMoved& mouseMoved) noexcept
 {
-	UpdateMouseRect(GetRenderer().PixelToCoords(mouseMoved.position));
-
-	if (m_Button && BM::RectFloat(m_ButtonCamera.GetViewport().Position * GetWindow().GetSize(),
-		m_ButtonCamera.GetViewport().Size * GetWindow().GetSize())
-		.Contains(sf::Mouse::getPosition(GetWindow().GetHandle())))
+	if (m_Button && m_ButtonCamera.Contains(mouseMoved.position, GetWindow().GetSize()))
 		m_ActiveCameraPtr = &m_ButtonCamera;
 	else
 		m_ActiveCameraPtr = &m_MainCamera;
+
+	UpdateMouseRect(GetRenderer().PixelToCoords(mouseMoved.position));
 
 	return false;
 }
@@ -349,10 +361,12 @@ bool GameLayer::OnMousePressed(const BM::EventHandle::MouseButtonPressed& mouseP
 
 bool GameLayer::OnMouseScrolled(const BM::EventHandle::MouseWheelScrolled& mouseScrolled) noexcept
 {
+	const float cZoomAmount = m_MainCamera.GetZoomFactor() * 0.1f;
+
 	if (mouseScrolled.delta > 0.f)
-		m_MainCamera.ZoomIn(1.1f, 10.f);
+		m_MainCamera.ZoomIn(cZoomAmount, 4.f);
 	else if (mouseScrolled.delta < 0.f)
-		m_MainCamera.ZoomOut(0.9f, 0.5f);
+		m_MainCamera.ZoomOut(cZoomAmount, 0.5f);
 
 	return false;
 }

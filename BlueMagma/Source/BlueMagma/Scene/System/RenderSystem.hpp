@@ -16,9 +16,15 @@ namespace BM
 			Component::CircleRender circle, Component::Style style) const noexcept;
 
 		void DrawTexture(Renderer& renderer, const Component::Transform& transform,
+			const sf::Sprite& sprite) const noexcept;
+
+		void DrawTexture(Renderer& renderer, const Component::Transform& transform,
 			const Component::TextureRender& texture, Component::Style style) const noexcept;
 
 		void DrawText(Renderer& renderer, const Component::Transform& transform,
-			const Component::TextRender& text, Component::Style style) const noexcept;
+			const sf::Text& text) const noexcept;
+
+		void DrawText(Renderer& renderer, const Component::Transform& transform,
+			const Component::TextRender& textRender, Component::Style style) const noexcept;
 	};
 }
