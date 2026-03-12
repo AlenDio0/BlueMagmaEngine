@@ -15,6 +15,7 @@
 #include <cfloat>
 #include <cstdint>
 #include <cctype>
+#include <algorithm>
 
 GameLayer::GameLayer() noexcept
 	: m_ActiveCameraPtr(&m_MainCamera), m_MainCamera(GetRenderer().GetCamera()), m_ButtonCamera(GetRenderer().GetCamera()),
@@ -96,8 +97,9 @@ void GameLayer::OnUpdate(float deltaTime) noexcept
 
 	m_Scene.OnUpdate(deltaTime);
 
-	// FIXME: Focus on InputText
-	if (GetWindow().HasFocus())
+	const bool cAnyInputTextFocus = m_Scene.ViewAnyOf<BM::Component::Widget, BM::Component::InputText>(
+		[&](auto entity, const auto& widget, const auto& input) { return widget.Focus; });
+	if (GetWindow().HasFocus() && !cAnyInputTextFocus)
 	{
 		namespace Keyboard = sf::Keyboard;
 		using Key = Keyboard::Key;
@@ -146,6 +148,9 @@ void GameLayer::OnUpdate(float deltaTime) noexcept
 			}
 
 			m_ButtonCamera.SetCenter(transform.Position);
+
+			if (m_ActiveCameraPtr == &m_ButtonCamera)
+				UpdateMouseRect(GetRenderer().PixelToCoords(sf::Mouse::getPosition(GetWindow().GetHandle())));
 			});
 	}
 

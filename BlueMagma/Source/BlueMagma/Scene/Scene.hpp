@@ -95,6 +95,32 @@ namespace BM
 		inline decltype(auto) View() const noexcept {
 			return m_Registry.view<TComp...>();
 		}
+		template<class... TComp, class Func>
+		inline bool ViewAnyOf(Func&& func) const noexcept {
+			auto view = View<TComp...>();
+			bool satisfied = false;
+			view.each([&](auto entity, const auto&... comps) {
+				if (satisfied)
+					return;
+
+				if (func(entity, comps...))
+					satisfied = true;
+				});
+			return satisfied;
+		}
+		template<class... TComp, class Func>
+		inline bool ViewAllOf(Func&& func) const noexcept {
+			auto view = View<TComp...>();
+			bool allSatisfied = true;
+			view.each([&](auto entity, auto&... comps) {
+				if (!allSatisfied)
+					return;
+
+				if (!func(entity, comps...))
+					allSatisfied = false;
+				});
+			return allSatisfied;
+		}
 
 		template<class TComp>
 		inline bool HasCtxComponent() const noexcept {

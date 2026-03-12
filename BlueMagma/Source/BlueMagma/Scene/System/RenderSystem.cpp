@@ -231,7 +231,7 @@ namespace BM
 		renderer.Draw(vertices, 6, sf::PrimitiveType::Triangles, states);
 	}
 
-	void RenderSystem::DrawTexture(Renderer& renderer, const Component::Transform& transform, const sf::Sprite& sprite) const noexcept
+	void RenderSystem::DrawTexture(Renderer& renderer, const Transform& transform, const sf::Sprite& sprite) const noexcept
 	{
 		RectFloat cBounds = sprite.getLocalBounds();
 		renderer.Draw(sprite, GetRenderStates(transform, cBounds.Size, cBounds.Position));
@@ -239,11 +239,11 @@ namespace BM
 
 	void RenderSystem::DrawTexture(Renderer& renderer, const Transform& transform, const TextureRender& texture, Style style) const noexcept
 	{
-		auto& sprite = CreateSprite(texture, style);
+		const auto& sprite = CreateSprite(texture, style);
 		DrawTexture(renderer, transform, sprite);
 	}
 
-	void RenderSystem::DrawText(Renderer& renderer, const Component::Transform& transform, const sf::Text& text) const noexcept
+	void RenderSystem::DrawText(Renderer& renderer, const Transform& transform, const sf::Text& text) const noexcept
 	{
 		const RectFloat cBounds = text.getLocalBounds();
 		renderer.Draw(text, GetRenderStates(transform, cBounds.Size, cBounds.Position));
@@ -251,7 +251,7 @@ namespace BM
 
 	void RenderSystem::DrawText(Renderer& renderer, const Transform& transform, const TextRender& textRender, Style style) const noexcept
 	{
-		auto& text = CreateText(textRender, style);
+		const auto& text = CreateText(textRender, style);
 		DrawText(renderer, transform, text);
 
 	}
