@@ -21,18 +21,13 @@ namespace BM
 
 	bool Camera2D::OnResizeEvent(const EventHandle::Resized& resized) noexcept
 	{
-		SetSizeWindow(resized.size);
+		SetViewport(m_Viewport, resized.size);
 		return false;
 	}
 
 	void Camera2D::SetSize(Vec2f size) noexcept
 	{
 		m_Size = size;
-	}
-
-	void Camera2D::SetSizeWindow(Vec2u windowSize) noexcept
-	{
-		SetSize(m_Viewport.Size * windowSize);
 	}
 
 	void Camera2D::SetCenter(Vec2f center) noexcept
@@ -68,6 +63,12 @@ namespace BM
 	void Camera2D::SetViewport(RectFloat viewport) noexcept
 	{
 		m_Viewport = viewport;
+	}
+
+	void Camera2D::SetViewport(RectFloat viewport, Vec2u windowSize) noexcept
+	{
+		SetViewport(viewport);
+		SetSize(m_Viewport.Size * windowSize);
 	}
 
 	Vec2f Camera2D::GetSize() const noexcept

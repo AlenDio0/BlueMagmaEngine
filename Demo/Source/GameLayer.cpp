@@ -15,14 +15,12 @@
 #include <cfloat>
 #include <cstdint>
 #include <cctype>
-#include <algorithm>
 
 GameLayer::GameLayer() noexcept
 	: m_ActiveCameraPtr(&m_MainCamera), m_MainCamera(GetRenderer().GetCamera()), m_ButtonCamera(GetRenderer().GetCamera()),
 	m_ButtonSpeedFactor(1.f)
 {
-	m_ButtonCamera.SetViewport({ 0.75f, 0.5f, 0.25f, 0.5f });
-	m_ButtonCamera.SetSizeWindow(GetWindow().GetSize());
+	m_ButtonCamera.SetViewport({ 0.75f, 0.5f, 0.25f, 0.5f }, GetWindow().GetSize());
 
 	m_SoundManager.Add("sound", GetAsset<BM::SoundBuffer>("Generic"));
 }

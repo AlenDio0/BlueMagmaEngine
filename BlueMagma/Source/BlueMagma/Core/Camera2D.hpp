@@ -17,7 +17,6 @@ namespace BM
 		bool OnResizeEvent(const EventHandle::Resized& resized) noexcept;
 
 		void SetSize(Vec2f size) noexcept;
-		void SetSizeWindow(Vec2u windowSize) noexcept;
 
 		void SetCenter(Vec2f center) noexcept;
 		void Move(Vec2f offset) noexcept;
@@ -28,6 +27,7 @@ namespace BM
 		void ZoomOut(float amount, float max) noexcept;
 
 		void SetViewport(RectFloat viewport) noexcept;
+		void SetViewport(RectFloat viewport, Vec2u windowSize) noexcept;
 
 		Vec2f GetSize() const noexcept;
 		Vec2f GetCenter() const noexcept;
