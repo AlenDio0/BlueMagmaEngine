@@ -94,7 +94,7 @@ namespace BM
 		bool dispatched = false;
 
 		{
-			auto view = scene.GetRegistry().view<Transform, Widget>();
+			auto view = scene.View<Transform, Widget>();
 			for (auto [entity, transform, widget] : view.each())
 			{
 				bool onMouse = Contains(scene, transform, widget, mousePressed.position);
@@ -104,28 +104,23 @@ namespace BM
 		}
 
 		{
-			auto view = scene.GetRegistry().view<Widget, Clickable>();
+			auto view = scene.View<Widget, Clickable>();
 			for (auto [entity, widget, clickable] : view.each())
 			{
 				const auto& onClick = clickable.OnClick;
-				if (!onClick)
+				if (!widget.Focus || !onClick)
 					continue;
 
-				if (widget.Focus)
-				{
-					dispatched = onClick(Entity(&scene, entity), mousePressed);
-					if (dispatched)
-						return true;
-				}
+				if (onClick(scene.GetEntity(entity), mousePressed))
+					return true;
 			}
 		}
 		{
-			auto view = scene.GetRegistry().view<Widget, InputText>();
+			auto view = scene.View<Widget, InputText>();
 			for (auto [entity, widget, input] : view.each())
 			{
 				if (!widget.Focus)
 					continue;
-				dispatched = true;
 
 				input.CursorIndex = CoordsToCursorIndex(input, PixelToCoords(scene, mousePressed.position).X);
 				Entity cursor = input.CursorChild;
@@ -136,6 +131,8 @@ namespace BM
 						m_CursorBlinkTimer.Restart();
 						});
 				}
+
+				dispatched = true;
 			}
 		}
 
@@ -182,7 +179,7 @@ namespace BM
 			text.insert(cursorIndex, 1, static_cast<char>(cUnicodeInput));
 			cursorIndex++;
 
-			Entity inputText(&scene, entity);
+			Entity inputText = scene.GetEntity(entity);
 			Entity cursor = input.CursorChild;
 			if (cursor)
 			{
@@ -273,12 +270,12 @@ namespace BM
 	void UISystem::UpdateColor(Scene& scene) noexcept
 	{
 		{
-			auto view = scene.GetRegistry().view<Style, Widget, HoverColor>();
+			auto view = scene.View<Style, Widget, HoverColor>();
 			for (auto [entity, style, widget, hover] : view.each())
 				style.FillColor = widget.Hover ? hover.Color : hover.IdleColor;
 		}
 		{
-			auto view = scene.GetRegistry().view<Style, Widget, FocusColor>();
+			auto view = scene.View<Style, Widget, FocusColor>();
 			for (auto [entity, style, widget, focus] : view.each())
 				style.FillColor = widget.Focus ? focus.Color : focus.IdleColor;
 		}
@@ -286,10 +283,10 @@ namespace BM
 
 	void UISystem::UpdateInputText(Scene& scene) noexcept
 	{
-		auto view = scene.GetRegistry().view<Transform, Widget, InputText>();
+		auto view = scene.View<Transform, Widget, InputText>();
 		for (auto [entity, transform, widget, input] : view.each())
 		{
-			Entity inputText(&scene, entity);
+			Entity inputText = scene.GetEntity(entity);
 
 			Entity text = input.TextChild;
 			if (text)

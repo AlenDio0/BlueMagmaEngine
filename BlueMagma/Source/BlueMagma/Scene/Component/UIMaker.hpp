@@ -27,8 +27,6 @@ namespace BM::UIMaker
 	void AddHoverColor(Entity entity, float factor = 0.75f) noexcept;
 
 	Entity CreateUI(Scene& scene, const UIProps& props) noexcept;
-
-	Entity CreateButton(Scene& scene, const UIProps& props, Component::ClickFn onClick = nullptr) noexcept;
-
+	Entity CreateButton(Scene& scene, const UIProps& props, const Component::ClickFn& onClick = nullptr) noexcept;
 	Entity CreateInputText(Scene& scene, const UIProps& baseProps, const TextProps& textProps, Component::InputText input) noexcept;
 }

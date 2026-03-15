@@ -16,6 +16,9 @@ namespace BM
 		Entity(Scene* scene, EntityHandle handle) noexcept;
 		inline ~Entity() noexcept = default;
 
+		Scene* GetScene() noexcept;
+		const Scene* GetScene() const noexcept;
+
 		EntityHandle GetHandle() const noexcept;
 		bool IsValid() const noexcept;
 

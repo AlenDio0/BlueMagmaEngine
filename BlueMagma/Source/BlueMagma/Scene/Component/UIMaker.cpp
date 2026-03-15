@@ -48,20 +48,20 @@ namespace BM::UIMaker
 		ui.Add<Style>(props.Style);
 		ui.Add<Widget>(props.Size);
 
-		BM_CORE_TRACE("Created UI [entity: {}]", ui);
+		BM_CORE_TRACE("Created UI [ui: {}]", ui);
 		return ui;
 	}
 
-	Entity CreateButton(Scene& scene, const UIProps& props, ClickFn onClick) noexcept
+	Entity CreateButton(Scene& scene, const UIProps& props, const ClickFn& onClick) noexcept
 	{
 		Entity button = CreateUI(scene, props);
 		button.Add<Clickable>(onClick);
 
-		BM_CORE_DEBUG("Created Button [entity: {}]", button);
+		BM_CORE_DEBUG("Created Button [button: {}]", button);
 		return button;
 	}
 
-	Entity CreateInputText(Scene& scene, const UIProps& baseProps, const TextProps& textProps, Component::InputText input) noexcept
+	Entity CreateInputText(Scene& scene, const UIProps& baseProps, const TextProps& textProps, InputText input) noexcept
 	{
 		Entity inputText = CreateUI(scene, baseProps);
 		Entity text = AddTextChild(inputText, textProps);
@@ -79,7 +79,7 @@ namespace BM::UIMaker
 		input.CursorChild = cursor;
 		inputText.Add<InputText>(std::move(input));
 
-		BM_CORE_DEBUG("Created InputText [entity: {}]", inputText);
+		BM_CORE_DEBUG("Created InputText [input: {}, text: {}, cursor: {}]", inputText, text, cursor);
 		return inputText;
 	}
 }

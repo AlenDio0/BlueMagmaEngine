@@ -68,6 +68,7 @@ namespace BM
 		void OnRender() noexcept;
 
 		Entity CreateEntity(const Component::Transform& transform = {}) noexcept;
+		Entity CreateEntityWithParent(EntityHandle parent, const Component::Transform& transform = {}) noexcept;
 		Entity GetEntity(EntityHandle handle) noexcept;
 
 		void Clear() noexcept;
@@ -91,6 +92,10 @@ namespace BM
 			return m_Registry.on_update<TComp>();
 		}
 
+		template<class... TComp>
+		inline decltype(auto) View() noexcept {
+			return m_Registry.view<TComp...>();
+		}
 		template<class... TComp>
 		inline decltype(auto) View() const noexcept {
 			return m_Registry.view<TComp...>();

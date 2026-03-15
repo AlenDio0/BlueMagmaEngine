@@ -7,6 +7,16 @@ namespace BM
 		: m_ScenePtr(scene), m_Handle(handle)
 	{}
 
+	Scene* Entity::GetScene() noexcept
+	{
+		return m_ScenePtr;
+	}
+
+	const Scene* Entity::GetScene() const noexcept
+	{
+		return m_ScenePtr;
+	}
+
 	EntityHandle Entity::GetHandle() const noexcept
 	{
 		return m_Handle;

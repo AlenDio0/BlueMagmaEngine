@@ -59,10 +59,18 @@ namespace BM
 
 	Entity Scene::CreateEntity(const Component::Transform& transform) noexcept
 	{
-		Entity entity{ this, m_Registry.create() };
+		Entity entity = GetEntity(m_Registry.create());
 		entity.Add<Component::Transform>(transform);
 
 		return entity;
+	}
+
+	Entity Scene::CreateEntityWithParent(EntityHandle parent, const Component::Transform& transform) noexcept
+	{
+		Entity parentEntity = GetEntity(parent);
+		BM_CORE_ASSERT(parentEntity.IsValid());
+
+		return parentEntity.CreateChild(transform);
 	}
 
 	Entity Scene::GetEntity(EntityHandle handle) noexcept
