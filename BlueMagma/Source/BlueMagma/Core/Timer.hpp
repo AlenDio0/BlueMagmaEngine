@@ -26,7 +26,7 @@ namespace BM
 	class ScopeTimer
 	{
 	public:
-		ScopeTimer(std::string_view message) noexcept;
+		explicit ScopeTimer(std::string_view message) noexcept;
 		~ScopeTimer() noexcept;
 	private:
 		Timer m_Timer;

@@ -29,9 +29,9 @@ namespace BM
 	public:
 		inline Texture()
 			: sf::Texture() {}
-		inline Texture(const AssetPath& path)
+		inline explicit Texture(const AssetPath& path)
 			: sf::Texture(path) {}
-		inline Texture(const sf::Image& image)
+		inline explicit Texture(const sf::Image& image)
 			: sf::Texture(image) {}
 
 		inline static const Texture& GetDefault() noexcept {
@@ -52,7 +52,7 @@ namespace BM
 	public:
 		inline Font()
 			: sf::Font() {}
-		inline Font(const AssetPath& path)
+		inline explicit Font(const AssetPath& path)
 			: sf::Font(path) {}
 
 		inline static const Font& GetDefault() noexcept {
@@ -66,7 +66,7 @@ namespace BM
 	public:
 		inline SoundBuffer()
 			: sf::SoundBuffer() {}
-		inline SoundBuffer(const AssetPath& path)
+		inline explicit SoundBuffer(const AssetPath& path)
 			: sf::SoundBuffer(path) {}
 
 		inline static const SoundBuffer& GetDefault() noexcept {

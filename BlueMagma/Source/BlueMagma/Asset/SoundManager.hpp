@@ -31,7 +31,7 @@ namespace BM
 	private:
 		using milliseconds = std::chrono::milliseconds;
 	public:
-		SoundManager(const SoundContext& context = {}) noexcept;
+		explicit SoundManager(const SoundContext& context = {}) noexcept;
 
 		void SetContext(const SoundContext& context, bool update = true) noexcept;
 		void SetContext(const std::string& key, const SoundContext& context) noexcept;

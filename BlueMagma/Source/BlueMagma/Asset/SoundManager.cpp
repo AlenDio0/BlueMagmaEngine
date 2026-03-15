@@ -6,8 +6,7 @@ namespace BM
 {
 	SoundManager::SoundManager(const SoundContext& context) noexcept
 		: m_Context(context)
-	{
-	}
+	{}
 
 	void SoundManager::SetContext(const SoundContext& context, bool update) noexcept
 	{

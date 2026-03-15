@@ -13,7 +13,7 @@ namespace BM
 	class Renderer
 	{
 	public:
-		Renderer(sf::RenderWindow& handle) noexcept;
+		explicit Renderer(sf::RenderWindow& handle) noexcept;
 
 		void Clear(sf::Color color = sf::Color::Black) noexcept;
 		void Display() noexcept;

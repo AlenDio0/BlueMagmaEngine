@@ -1,13 +1,11 @@
 #include "bmpch.hpp"
 #include "Window.hpp"
-#include <SFML/Graphics/Image.hpp>
 
 namespace BM
 {
 	Window::Window(const WindowContext& context) noexcept
 		: m_Context(context)
-	{
-	}
+	{}
 
 	Window::~Window() noexcept
 	{

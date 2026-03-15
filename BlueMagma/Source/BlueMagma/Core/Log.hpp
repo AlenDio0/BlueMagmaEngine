@@ -35,17 +35,6 @@ namespace BM
 			size_t MaxFiles = 0;
 			size_t MaxSize = BM_MB(5);
 			bool RotateOnOpen = true;
-
-			inline FileContext() noexcept = default;
-			inline FileContext(std::string_view name) noexcept
-				: Name(name) {
-			}
-			inline FileContext(std::string_view name, size_t maxFiles) noexcept
-				: Name(name), MaxFiles(maxFiles) {
-			}
-			inline FileContext(std::string_view name, size_t maxFiles, size_t maxSize, bool rotateOnOpen = true) noexcept
-				: Name(name), MaxFiles(maxFiles), MaxSize(maxSize), RotateOnOpen(rotateOnOpen) {
-			}
 		};
 	public:
 		inline Log() noexcept = delete;

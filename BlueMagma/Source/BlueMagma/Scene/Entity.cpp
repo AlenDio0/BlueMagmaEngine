@@ -5,8 +5,7 @@ namespace BM
 {
 	Entity::Entity(Scene* scene, EntityHandle handle) noexcept
 		: m_ScenePtr(scene), m_Handle(handle)
-	{
-	}
+	{}
 
 	EntityHandle Entity::GetHandle() const noexcept
 	{

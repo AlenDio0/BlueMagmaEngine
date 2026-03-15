@@ -1,6 +1,5 @@
 #pragma once
 #include "Base/EventDispatcher.hpp"
-#include "Base/Renderer.hpp"
 #include <functional>
 
 namespace BM

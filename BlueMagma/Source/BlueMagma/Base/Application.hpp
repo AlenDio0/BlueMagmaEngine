@@ -18,7 +18,7 @@ namespace BM
 	class Application
 	{
 	public:
-		Application(const ApplicationContext& context = {}) noexcept;
+		explicit Application(const ApplicationContext& context = {}) noexcept;
 		~Application() noexcept;
 
 		static Application& Get() noexcept;

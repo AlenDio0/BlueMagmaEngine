@@ -30,7 +30,7 @@ namespace BM
 	class Window
 	{
 	public:
-		Window(const WindowContext& context = {}) noexcept;
+		explicit Window(const WindowContext& context = {}) noexcept;
 		~Window() noexcept;
 
 		void Create() noexcept;

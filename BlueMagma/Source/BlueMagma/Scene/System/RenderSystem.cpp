@@ -1,14 +1,6 @@
 #include "bmpch.hpp"
 #include "RenderSystem.hpp"
 #include "Scene/Scene.hpp"
-#include <SFML/Graphics/Shader.hpp>
-#include <SFML/Graphics/Glsl.hpp>
-#include <SFML/Graphics/BlendMode.hpp>
-#include <SFML/Graphics/RenderStates.hpp>
-#include <SFML/Graphics/RectangleShape.hpp>
-#include <SFML/Graphics/CircleShape.hpp>
-#include <SFML/Graphics/Sprite.hpp>
-#include <SFML/Graphics/Text.hpp>
 
 namespace BM
 {

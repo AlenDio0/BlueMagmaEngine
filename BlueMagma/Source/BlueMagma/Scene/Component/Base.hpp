@@ -23,8 +23,7 @@ namespace BM::Component
 
 		inline Transform(Vec2f position = { 0.f }, float z = 0.f, Vec2f scale = { 1.f }, Vec2f origin = { 0.f }) noexcept
 			: LocalPosition(position), LocalZ(z), LocalScale(scale), Origin(origin),
-			Position(position), Z(z), Scale(scale) {
-		}
+			Position(position), Z(z), Scale(scale) {}
 	};
 
 	struct Hidden
