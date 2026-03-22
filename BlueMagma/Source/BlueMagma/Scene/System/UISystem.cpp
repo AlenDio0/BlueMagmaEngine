@@ -35,11 +35,28 @@ namespace BM
 	}
 
 	static inline bool Contains(Scene& scene, const Transform& transform, const Widget& widget, Vec2i point) noexcept {
-		const Vec2f cPosition = transform.Position - (widget.Size * transform.Scale * transform.Origin);
-		const Vec2f cSize = widget.Size * transform.Scale;
+		const Vec2f cScaledSize = widget.Size * transform.Scale;
+		const Vec2f cTopLeft = transform.Position - (cScaledSize * transform.Origin);
 
 		const Vec2f cCoords = PixelToCoords(scene, point);
-		return RectFloat(cPosition, cSize).Contains(cCoords);
+
+		switch (widget.Shape)
+		{
+			using Shape = Widget::ShapeType;
+
+		case Shape::Rect:
+			return RectFloat(cTopLeft, cScaledSize).Contains(cCoords);
+		case Shape::Circle:
+		{
+			const Vec2f cCenter = cTopLeft + cScaledSize.Center();
+			const float cDistance = (cCoords - cCenter).Length();
+			const float cRadius = cScaledSize.X / 2.f;
+			return cDistance <= cRadius;
+		}
+
+		default:
+			return false;
+		}
 	}
 
 	static inline size_t CoordsToCursorIndex(InputText& input, float coordsX) noexcept {

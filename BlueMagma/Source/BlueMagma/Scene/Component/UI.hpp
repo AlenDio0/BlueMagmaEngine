@@ -4,12 +4,16 @@
 #include "Base/EventDispatcher.hpp"
 #include <functional>
 #include <string>
+#include <cstdint>
 
 namespace BM::Component
 {
 	struct Widget
 	{
+		enum ShapeType : uint8_t { Rect, Circle };
+
 		Vec2f Size{};
+		ShapeType Shape = ShapeType::Rect;
 
 		bool Focus = false;
 		bool Hover = false;

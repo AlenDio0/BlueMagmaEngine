@@ -44,9 +44,19 @@ namespace BM::UIMaker
 	{
 		BM_CORE_FN();
 		Entity ui = scene.CreateEntity(props.Transform);
-		ui.Add<RectRender>(props.Size, props.Corner);
+		ui.Add<Widget>(props.Size, props.Shape);
 		ui.Add<Style>(props.Style);
-		ui.Add<Widget>(props.Size);
+
+		switch (props.Shape)
+		{
+			using ShapeType = Widget::ShapeType;
+
+		case ShapeType::Rect:
+			ui.Add<RectRender>(props.Size, props.Corner);
+			break;
+		case ShapeType::Circle:
+			ui.Add<CircleRender>(props.Size.X / 2.f);
+		}
 
 		BM_CORE_TRACE("Created UI [ui: {}]", ui);
 		return ui;

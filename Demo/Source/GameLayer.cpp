@@ -45,7 +45,7 @@ void GameLayer::OnAttach() noexcept
 	m_Background.Add<Style>(sf::Color(0x00FF00A0));
 
 	m_StatText = m_Scene.CreateEntity(Transform(BM::Vec2f::Zero(), 3.f));
-	m_StatText.Add<TextRender>(font, FormatStatText(0.1f));
+	m_StatText.Add<TextRender>(font, FormatStatText(0.f));
 	m_StatText.Add<Style>(sf::Color::White, sf::Color::Black, 1.f);
 
 	constexpr float cAxisThickness = 2.f;
@@ -114,7 +114,7 @@ void GameLayer::OnUpdate(float deltaTime) noexcept
 
 		if (direction != 0.f)
 		{
-			const bool cLShiftKey = sf::Keyboard::isKeyPressed(Key::LShift);
+			const bool cLShiftKey = Keyboard::isKeyPressed(Key::LShift);
 
 			constexpr float cSpeed = 500.f;
 			const float cCameraSpeed = (cSpeed / m_MainCamera.GetZoomFactor()) * (cLShiftKey ? 2.f : 1.f) * deltaTime;
@@ -238,15 +238,14 @@ void GameLayer::InitUIExample() noexcept
 	const BM::Vec2f cWindowSize = GetWindow().GetSize();
 	constexpr BM::Vec2f cUISize(200.f, 40.f);
 
-	auto onButtonPressed = [&](auto entity, auto event) {
-		BM_INFO("Button pressed");
-		m_Scene.Destroy(entity);
-		return false;
-		};
-
-	m_Button = BM::UIMaker::CreateButton(m_Scene, BM::UIMaker::UIProps{ .Transform{cWindowSize.Center(), 10.f, 1.f, 0.5f},
-		.Size = cUISize, .Corner = 5.f, .Style{sf::Color::Blue, sf::Color::Red, 2.f} }, onButtonPressed);
-	BM::UIMaker::AddTextChild(m_Button, BM::UIMaker::TextProps{ .Transform{BM::UIMaker::Center(cUISize, 0.5f), 1.f, 1.f, 0.5f},
+	m_Button = BM::UIMaker::CreateButton(m_Scene, { .Transform{cWindowSize.Center(), 10.f, 1.f, 0.5f},
+		.Size = cUISize, .Corner = 5.f, .Style{sf::Color::Blue, sf::Color::Red, 2.f} },
+		[&](auto entity, auto event) {
+			BM_INFO("Button pressed");
+			m_Scene.Destroy(entity);
+			return false;
+		});
+	BM::UIMaker::AddTextChild(m_Button, { .Transform{BM::UIMaker::Center(cUISize, 0.5f), 1.f, 1.f, 0.5f},
 		.Text{font, "Hello World!"}, .Style{sf::Color::Green, sf::Color::Black, 1.f} });
 	BM::UIMaker::AddHoverColor(m_Button, 0.5f);
 
@@ -256,21 +255,21 @@ void GameLayer::InitUIExample() noexcept
 	constexpr float cSpaceAxisX = 25.f;
 	constexpr float cInputX = cUISize.X + cSpaceAxisX;
 
-	m_InputText = BM::UIMaker::CreateInputText(m_Scene, BM::UIMaker::UIProps{
+	m_InputText = BM::UIMaker::CreateInputText(m_Scene, {
 		.Transform{{cWindowSize.Center().X - cInputX, cWindowSize.Y / 3.f}, 10.f, 1.f, 0.f},
 		.Size = cUISize, .Corner = 5.f, .Style{sf::Color::White, sf::Color::Black, 1.f} },
-		BM::UIMaker::TextProps{ .Transform{{5.f, BM::UIMaker::Center(cUISize, 0.f).Y}, 1.f, 1.f, {0.f, 0.5f}},
-		.Text{font}, .Style{sf::Color::Black} }, Comp::InputText{ .Placeholder = "hello" });
+		{ .Transform{{5.f, BM::UIMaker::Center(cUISize, 0.f).Y}, 1.f, 1.f, {0.f, 0.5f}},
+		.Text{font}, .Style{sf::Color::Black} }, { .Placeholder = "hello" });
 	BM::UIMaker::AddHoverColor(m_InputText, 0.9f);
 
 	m_FocusText = m_InputText.CreateChild(Comp::Transform({ cInputX + cSpaceAxisX, cUISize.Center().Y }, 0.f, 1.f, { 0.f, 0.5f }));
 	m_FocusText.Add<Comp::TextRender>(font);
 	m_FocusText.Add<Comp::Style>(sf::Color::Red);
 
-	BM::Entity pinInputText = BM::UIMaker::CreateInputText(m_Scene, BM::UIMaker::UIProps{
-		.Transform{{cWindowSize.X - cUISize.X, 0.f}, 5.f, 0.75f}, .Size = cUISize, .Corner = 5.f, .Style{sf::Color::Magenta} },
-		BM::UIMaker::TextProps{ .Transform{BM::UIMaker::Center(cUISize, 0.f), 1.f, 1.f, 0.5f}, .Text{font},
-		.Style{sf::Color::Black} }, Comp::InputText{ .Placeholder = "PIN", .Policy{isdigit} });
+	BM::Entity pinInputText = BM::UIMaker::CreateInputText(m_Scene, { .Transform{{cWindowSize.X - 50.f, 50.f}, 5.f, 0.75f, {1.f, 0.f}},
+		.Size = cUISize, .Corner = 5.f, .Style{sf::Color::Magenta} },
+		{ .Transform{BM::UIMaker::Center(cUISize, {1.f, 0.f}), 1.f, 1.f, 0.5f}, .Text{font}, .Style{sf::Color::Black} },
+		{ .Placeholder = "PIN", .Policy{isdigit} });
 	BM::UIMaker::AddHoverColor(pinInputText);
 }
 
@@ -280,21 +279,24 @@ bool GameLayer::OnKeyPressed(const BM::EventHandle::KeyPressed& keyPressed) noex
 	{
 		using Key = sf::Keyboard::Key;
 
-	case Key::B:
-		m_MainCamera = BM::Camera2D(GetWindow().GetSize());
+	case Key::G:
+		QueueTransitionTo<GameLayer>();
 		break;
-	case Key::N:
-		m_MainCamera = GetRenderer().GetDefaultCamera();
-		break;
-
 	case Key::T:
 		QueueTransitionTo<DemoLayer>();
 		break;
 	case Key::Y:
 		GetApp().QueuePushLayer<DemoLayer>();
 		break;
-	case Key::U:
+	case Key::H:
 		QueueRemoveLayer();
+		break;
+
+	case Key::B:
+		m_MainCamera = BM::Camera2D(GetWindow().GetSize());
+		break;
+	case Key::N:
+		m_MainCamera = GetRenderer().GetDefaultCamera();
 		break;
 
 	case Key::P:
@@ -330,6 +332,7 @@ bool GameLayer::OnMouseMoved(const BM::EventHandle::MouseMoved& mouseMoved) noex
 	else
 		m_ActiveCameraPtr = &m_MainCamera;
 
+	GetRenderer().SetCamera(*m_ActiveCameraPtr);
 	UpdateMouseRect(GetRenderer().PixelToCoords(mouseMoved.position));
 
 	return false;
@@ -342,17 +345,16 @@ bool GameLayer::OnMousePressed(const BM::EventHandle::MouseButtonPressed& mouseP
 
 	const BM::Vec2f cMouseCoords = GetRenderer().PixelToCoords(mousePressed.position);
 	const float cRadius = static_cast<float>(BM_RANDOM(25, 50));
+	using ShapeType = BM::Component::Widget::ShapeType;
 
-	BM::Entity circle = m_Scene.CreateEntity(BM::Component::Transform(cMouseCoords, 100.f, 1.f, 0.5f));
-	circle.Add<BM::Component::CircleRender>(cRadius);
-	circle.Add<BM::Component::Style>(sf::Color::Transparent, sf::Color::Black, 5.f);
-	circle.Add<BM::Component::Widget>(BM::Vec2f(cRadius * sqrt(2.f)));
-	circle.Add<BM::Component::Clickable>([&](auto entity, auto event) {
-		if (event.button != sf::Mouse::Button::Left)
-			return false;
+	BM::Entity circle = BM::UIMaker::CreateButton(m_Scene, { .Transform{cMouseCoords, 100.f, 1.f, 0.5f},
+		.Size{cRadius * 2.f}, .Shape{ShapeType::Circle}, .Style{sf::Color::Transparent, sf::Color::Black, 5.f} },
+		[&](auto entity, auto event) {
+			if (event.button != sf::Mouse::Button::Left)
+				return false;
 
-		m_Scene.Destroy(entity);
-		return true;
+			m_Scene.Destroy(entity);
+			return true;
 		});
 
 	BM::Entity center = circle.CreateChild(BM::Component::Transform(0.f, 0.f, 1.f, 0.5f));
@@ -370,6 +372,8 @@ bool GameLayer::OnMouseScrolled(const BM::EventHandle::MouseWheelScrolled& mouse
 		m_MainCamera.ZoomIn(cZoomAmount, 4.f);
 	else if (mouseScrolled.delta < 0.f)
 		m_MainCamera.ZoomOut(cZoomAmount, 0.5f);
+
+	UpdateMouseRect(GetRenderer().PixelToCoords(mouseScrolled.position));
 
 	return false;
 }

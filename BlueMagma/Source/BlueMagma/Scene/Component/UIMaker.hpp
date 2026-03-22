@@ -11,6 +11,7 @@ namespace BM::UIMaker
 	{
 		Component::Transform Transform;
 		Vec2f Size;
+		Component::Widget::ShapeType Shape;
 		float Corner;
 		Component::Style Style;
 	};
