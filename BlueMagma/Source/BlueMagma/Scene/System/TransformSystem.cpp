@@ -1,64 +1,73 @@
 #include "bmpch.hpp"
 #include "TransformSystem.hpp"
-#include "Scene/Entity.hpp"
 #include "Scene/Scene.hpp"
-#include <entt/entt.hpp>
+#include <entt/entity/fwd.hpp>
 
 namespace BM
 {
-	static inline void SetTrue(bool& b) noexcept {
+	using namespace Component;
+
+	static inline void SetTrue(bool& b) noexcept
+	{
 		b = true;
+	}
+
+	static inline void SetNeedUpdate(Registry& registry, EntityHandle entity) noexcept
+	{
+		auto& transform = registry.get<Transform>(entity);
+		transform.CachedUpdated = false;
 	}
 
 	void TransformSystem::OnAttach(Scene& scene) noexcept
 	{
-		using Transform = Component::Transform;
-		scene.OnConstruct<Transform>().connect<SetTrue>(m_UpdatedZ);
-		scene.OnUpdate<Transform>().connect<SetTrue>(m_UpdatedZ);
+		scene.OnConstruct<Transform>().connect<SetTrue>(m_CachedUpdatedZ);
+		scene.OnUpdate<Transform>().connect<SetTrue>(m_CachedUpdatedZ);
+		scene.OnUpdate<Transform>().connect<SetNeedUpdate>();
 	}
 
 	void TransformSystem::OnUpdate(Scene& scene, float deltaTime) noexcept
 	{
-		UpdateTransform(scene);
-		UpdateChildren(scene);
+		static constexpr Transform::GlobalSpace sRootGlobal{ .Position{0.f}, .Scale{1.f}, .Z = 0.f };
+
+		auto view = scene.GetRegistry().view<Transform>(entt::exclude<Parent>);
+		for (auto entity : view)
+			UpdateTransformAndChildren(scene.GetEntity(entity), sRootGlobal, true);
 
 		UpdateSortByZ(scene);
 	}
 
-	void TransformSystem::UpdateTransform(Scene& scene) noexcept
+	void TransformSystem::UpdateTransformAndChildren(Entity entity, const Transform::GlobalSpace& parentGlobal, bool updated) noexcept
 	{
-		auto view = scene.GetRegistry().view<Component::Transform>(entt::exclude<Parent>);
-		for (auto [entity, transform] : view.each())
+		auto& transform = entity.GetScene()->GetRegistry().get<Transform>(entity);
+		auto& global = transform.Global;
+
+		if (!transform.CachedUpdated || !updated)
 		{
-			transform.Position = transform.LocalPosition;
-			transform.Z = transform.LocalZ;
-			transform.Scale = transform.LocalScale;
+			const auto& local = transform.Local;
+
+			global.Position = parentGlobal.Position + (local.State.Position * parentGlobal.Scale);
+			global.Scale = parentGlobal.Scale * local.State.Scale;
+			global.Z = parentGlobal.Z + local.Z;
 		}
+
+		auto children = entity.GetChildren<Transform>();
+		for (auto child : children)
+		{
+			if (child)
+				UpdateTransformAndChildren(child, global, transform.CachedUpdated);
+		}
+
+		transform.CachedUpdated = true;
 	}
 
 	void TransformSystem::UpdateSortByZ(Scene& scene) noexcept
 	{
-		if (m_UpdatedZ)
+		if (m_CachedUpdatedZ)
 		{
-			scene.GetRegistry().sort<Component::Transform>([](const auto& left, const auto& right) {
-				return left.Z < right.Z; });
+			scene.GetRegistry().sort<Transform>([](const auto& left, const auto& right) {
+				return left.Global.Z < right.Global.Z; });
 
-			m_UpdatedZ = false;
-		}
-	}
-
-	void TransformSystem::UpdateChildren(Scene& scene) noexcept
-	{
-		auto children = scene.GetRegistry().view<Component::Transform, Parent>();
-		for (auto [child, transform, parent] : children.each())
-		{
-			if (!scene.IsValid(parent.Handle))
-				continue;
-			const auto& cParentTransform = scene.GetRegistry().get<Component::Transform>(parent.Handle);
-
-			transform.Position = cParentTransform.Position + (transform.LocalPosition * cParentTransform.Scale);
-			transform.Z = cParentTransform.Z + transform.LocalZ;
-			transform.Scale = cParentTransform.Scale * transform.LocalScale;
+			m_CachedUpdatedZ = false;
 		}
 	}
 }

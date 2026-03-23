@@ -57,7 +57,7 @@ namespace BM
 			system.OnRender(*this);
 	}
 
-	Entity Scene::CreateEntity(const Component::Transform& transform) noexcept
+	Entity Scene::CreateEntity(const Component::Transform::LocalSpace& transform) noexcept
 	{
 		Entity entity = GetEntity(m_Registry.create());
 		entity.Add<Component::Transform>(transform);
@@ -65,7 +65,7 @@ namespace BM
 		return entity;
 	}
 
-	Entity Scene::CreateEntityWithParent(EntityHandle parent, const Component::Transform& transform) noexcept
+	Entity Scene::CreateEntityWithParent(EntityHandle parent, const Component::Transform::LocalSpace& transform) noexcept
 	{
 		Entity parentEntity = GetEntity(parent);
 		BM_CORE_ASSERT(parentEntity.IsValid());

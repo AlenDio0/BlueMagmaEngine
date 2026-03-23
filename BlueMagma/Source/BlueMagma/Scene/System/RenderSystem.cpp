@@ -85,9 +85,8 @@ namespace BM
 	}
 
 	static inline bool IsInCameraBounds(RectFloat cameraBounds, const Transform& transform, Vec2f size) noexcept {
-
-		const Vec2f cScaledSize = size * transform.Scale;
-		const RectFloat cEntityBounds{ transform.Position - (transform.Origin * cScaledSize), cScaledSize };
+		const Vec2f cScaledSize = size * transform.Global.Scale;
+		const RectFloat cEntityBounds{ transform.Global.Position - (transform.Local.State.Origin * cScaledSize), cScaledSize };
 
 		return cameraBounds.Intersects(cEntityBounds);
 	}
@@ -140,9 +139,9 @@ namespace BM
 	{
 		sf::RenderStates states;
 		return states.transform
-			.translate(transform.Position)
-			.scale(transform.Scale)
-			.translate((offset + (transform.Origin * size)).Round() * -1.f);
+			.translate(transform.Global.Position)
+			.scale(transform.Global.Scale)
+			.translate((offset + (transform.Local.State.Origin * size)).Round() * -1.f);
 	}
 
 	static inline sf::RectangleShape s_Rect;

@@ -35,28 +35,28 @@ void GameLayer::OnAttach() noexcept
 	m_Scene.AddSystem<BM::UISystem>();
 	m_Scene.AddSystem<BM::RenderSystem>();
 
-	using namespace BM::Component;
+	namespace Comp = BM::Component;
 
 	auto font = &GetAsset<BM::Font>("Minecraft");
 	const BM::Vec2f cWindowSize = GetWindow().GetSize();
 
-	m_Background = m_Scene.CreateEntity(Transform(BM::Vec2f::Zero(), -1.f));
-	m_Background.Add<RectRender>(cWindowSize);
-	m_Background.Add<Style>(sf::Color(0x00FF00A0));
+	m_Background = m_Scene.CreateEntity({ .State{.Position = BM::Vec2f::Zero()}, .Z = -1.f });
+	m_Background.Add<Comp::RectRender>(cWindowSize);
+	m_Background.Add<Comp::Style>(sf::Color(0x00FF00A0));
 
-	m_StatText = m_Scene.CreateEntity(Transform(BM::Vec2f::Zero(), 3.f));
-	m_StatText.Add<TextRender>(font, FormatStatText(0.f));
-	m_StatText.Add<Style>(sf::Color::White, sf::Color::Black, 1.f);
+	m_StatText = m_Scene.CreateEntity({ .State{.Position = BM::Vec2f::Zero()}, .Z = 3.f });
+	m_StatText.Add<Comp::TextRender>(font, FormatStatText(0.f));
+	m_StatText.Add<Comp::Style>(sf::Color::White, sf::Color::Black, 1.f);
 
 	constexpr float cAxisThickness = 2.f;
-	BM::Entity axisX = m_Scene.CreateEntity(Transform(cWindowSize.Center(), 5.f, 1.f, 0.5f));
-	axisX.Add<RectRender>(BM::Vec2f(cWindowSize.X, cAxisThickness));
-	BM::Entity axisY = m_Scene.CreateEntity(Transform(cWindowSize.Center(), 5.f, 1.f, 0.5f));
-	axisY.Add<RectRender>(BM::Vec2f(cAxisThickness, cWindowSize.Y));
+	BM::Entity axisX = m_Scene.CreateEntity({ .State{.Position = cWindowSize.Center(), .Origin{0.5f}}, .Z = 5.f });
+	axisX.Add<Comp::RectRender>(BM::Vec2f(cWindowSize.X, cAxisThickness));
+	BM::Entity axisY = m_Scene.CreateEntity({ .State{.Position = cWindowSize.Center(), .Origin{0.5f}}, .Z = 5.f });
+	axisY.Add<Comp::RectRender>(BM::Vec2f(cAxisThickness, cWindowSize.Y));
 
-	m_MouseRect = m_Scene.CreateEntity(Transform(cWindowSize.Center(), 100.f, 1.f, 0.5f));
-	m_MouseRect.Add<RectRender>(cWindowSize.Center(), 5.f);
-	m_MouseRect.Add<Style>(sf::Color::Transparent, sf::Color(0xFF000080), 2.f);
+	m_MouseRect = m_Scene.CreateEntity({ .State{.Position = cWindowSize.Center(), .Origin{0.5f}}, .Z = 100.f });
+	m_MouseRect.Add<Comp::RectRender>(cWindowSize.Center(), 5.f);
+	m_MouseRect.Add<Comp::Style>(sf::Color::Transparent, sf::Color(0xFF000080), 2.f);
 
 	//InitExample();
 	InitUIExample();
@@ -131,12 +131,12 @@ void GameLayer::OnUpdate(float deltaTime) noexcept
 			const float cCameraLeft = (m_MainCamera.GetCenter() - m_MainCamera.GetSize().Center() / m_MainCamera.GetZoomFactor()).X;
 			const float cCameraRight = (m_MainCamera.GetCenter() + m_MainCamera.GetSize().Center() / m_MainCamera.GetZoomFactor()).X;
 
-			const float cWidth = m_Button.Get<BM::Component::Widget>().Size.X * transform.Scale.X;
-			const float cLeft = cWidth * transform.Origin.X;
-			const float cRight = cWidth * (1.f - transform.Origin.X);
+			const float cWidth = m_Button.Get<BM::Component::Widget>().Size.X * transform.Global.Scale.X;
+			const float cLeft = cWidth * transform.Local.State.Origin.X;
+			const float cRight = cWidth * (1.f - transform.Local.State.Origin.X);
 
 			constexpr float cSpeed = 300.f;
-			float& positionX = transform.LocalPosition.X;
+			float& positionX = transform.Local.State.Position.X;
 			positionX += cSpeed * m_ButtonSpeedFactor * deltaTime;
 
 			if (positionX - cLeft >= cCameraRight)
@@ -145,7 +145,7 @@ void GameLayer::OnUpdate(float deltaTime) noexcept
 				m_ButtonSpeedFactor += 0.1f;
 			}
 
-			m_ButtonCamera.SetCenter(transform.Position);
+			m_ButtonCamera.SetCenter(transform.Global.Position);
 
 			if (m_ActiveCameraPtr == &m_ButtonCamera)
 				UpdateMouseRect(GetRenderer().PixelToCoords(sf::Mouse::getPosition(GetWindow().GetHandle())));
@@ -164,14 +164,6 @@ void GameLayer::OnUpdate(float deltaTime) noexcept
 			});
 	}
 
-	if (m_Background && m_SwitchTimer.AsSeconds() >= 1.f)
-	{
-		m_SwitchTimer.Restart();
-		m_Background.Patch<BM::Component::Transform>([](auto& transform) {
-			float& positionZ = transform.LocalZ;
-			positionZ = positionZ == -1.f ? 2.f : -1.f;
-			});
-	}
 	if (m_StatText && m_StatTimer.AsSeconds() >= 0.5f)
 	{
 		m_StatTimer.Restart();
@@ -211,20 +203,20 @@ void GameLayer::InitExample() noexcept
 
 		const uint8_t cColor = (uint8_t)(cPercentage * 255.f);
 
-		BM::Entity rect = m_Scene.CreateEntity(Comp::Transform({ cPosX, cBasePosY }, cPercentage));
+		BM::Entity rect = m_Scene.CreateEntity({ .State{.Position{cPosX, cBasePosY}}, .Z = cPercentage });
 		rect.Add<Comp::RectRender>(cBoxSize, 5.f);
 		rect.Add<Comp::Style>(sf::Color(cColor, 0, 0), sf::Color::Black, 2.f);
 
-		BM::Entity circle = m_Scene.CreateEntity(Comp::Transform({ cPosX, cPercentage * cBasePosY }, 0.1f + cPercentage));
+		BM::Entity circle = m_Scene.CreateEntity({ .State{.Position{cPosX, cPercentage * cBasePosY}},.Z = 0.1f + cPercentage });
 		circle.Add<Comp::CircleRender>(cBoxSize / 2.f);
 		circle.Add<Comp::Style>(sf::Color(0, cColor, 0), sf::Color::Black, i % 2 ? 0.f : 1.f);
 
-		BM::Entity sprite = m_Scene.CreateEntity(Comp::Transform({ cPosX, cBoundSize - (cPercentage * cBasePosY) }, 0.2f + cPercentage,
-			BM::Vec2f(cBoxSize) / texture.getSize()));
+		BM::Entity sprite = m_Scene.CreateEntity({ .State{.Position{cPosX, cBoundSize - (cPercentage * cBasePosY)},
+			.Scale{BM::Vec2f(cBoxSize) / texture.getSize()}}, .Z = 0.2f + cPercentage, });
 		sprite.Add<Comp::TextureRender>(&texture);
 		sprite.Add<Comp::Style>(sf::Color(cColor, cColor, cColor));
 
-		BM::Entity text = m_Scene.CreateEntity(Comp::Transform({ cPosX, cBoundSize - cBasePosY }, 0.3f + cPercentage));
+		BM::Entity text = m_Scene.CreateEntity({ .State{.Position{cPosX, cBoundSize - cBasePosY}}, .Z = 0.3f + cPercentage });
 		text.Add<Comp::TextRender>(&GetAsset<BM::Font>("Minecraft"), "O", (uint32_t)cBoxSize);
 		text.Add<Comp::Style>(sf::Color(cColor, 0, cColor), sf::Color::Black, 5.f);
 	}
@@ -238,38 +230,40 @@ void GameLayer::InitUIExample() noexcept
 	const BM::Vec2f cWindowSize = GetWindow().GetSize();
 	constexpr BM::Vec2f cUISize(200.f, 40.f);
 
-	m_Button = BM::UIMaker::CreateButton(m_Scene, { .Transform{cWindowSize.Center(), 10.f, 1.f, 0.5f},
+	m_Button = BM::UIMaker::CreateButton(m_Scene, { .Transform{.State{.Position = cWindowSize.Center(), .Origin{0.5f}}, .Z = 10.f},
 		.Size = cUISize, .Corner = 5.f, .Style{sf::Color::Blue, sf::Color::Red, 2.f} },
 		[&](auto entity, auto event) {
 			BM_INFO("Button pressed");
 			m_Scene.Destroy(entity);
 			return false;
 		});
-	BM::UIMaker::AddTextChild(m_Button, { .Transform{BM::UIMaker::Center(cUISize, 0.5f), 1.f, 1.f, 0.5f},
-		.Text{font, "Hello World!"}, .Style{sf::Color::Green, sf::Color::Black, 1.f} });
+	BM::UIMaker::AddTextChild(m_Button, { .Transform{.State{.Position = BM::UIMaker::Center(cUISize, 0.5f), .Origin{0.5f}},
+		.Z = 1.f}, .Text{font, "Hello World!"}, .Style{sf::Color::Green, sf::Color::Black, 1.f} });
 	BM::UIMaker::AddHoverColor(m_Button, 0.5f);
 
-	auto text = m_Button.CreateChild(Comp::Transform({ 0.f, 100.f }, 0.f, 1.f, 0.5f));
+	auto text = m_Button.CreateChild({ .State{.Position{0.f, 100.f}, .Origin{0.5f}} });
 	text.Add<Comp::TextRender>(Comp::TextRender{ .FontPtr = font, .Text = "Attached" });
 
 	constexpr float cSpaceAxisX = 25.f;
 	constexpr float cInputX = cUISize.X + cSpaceAxisX;
 
-	m_InputText = BM::UIMaker::CreateInputText(m_Scene, {
-		.Transform{{cWindowSize.Center().X - cInputX, cWindowSize.Y / 3.f}, 10.f, 1.f, 0.f},
+	m_InputText = BM::UIMaker::CreateInputText(m_Scene,
+		{ .Transform{.State{.Position{cWindowSize.Center().X - cInputX, cWindowSize.Y / 3.f}}, .Z = 10.f},
 		.Size = cUISize, .Corner = 5.f, .Style{sf::Color::White, sf::Color::Black, 1.f} },
-		{ .Transform{{5.f, BM::UIMaker::Center(cUISize, 0.f).Y}, 1.f, 1.f, {0.f, 0.5f}},
-		.Text{font}, .Style{sf::Color::Black} }, { .Placeholder = "hello" });
+		{ .Transform{.State{.Position{5.f, BM::UIMaker::Center(cUISize, 0.f).Y}, .Origin{0.f, 0.5f}}, .Z = 1.f },
+		.Text{ font }, .Style{ sf::Color::Black }
+		}, { .Placeholder = "hello" });
 	BM::UIMaker::AddHoverColor(m_InputText, 0.9f);
 
-	m_FocusText = m_InputText.CreateChild(Comp::Transform({ cInputX + cSpaceAxisX, cUISize.Center().Y }, 0.f, 1.f, { 0.f, 0.5f }));
+	m_FocusText = m_InputText.CreateChild({ .State{.Position{cInputX + cSpaceAxisX, cUISize.Center().Y}, .Origin{0.f, 0.5f}} });
 	m_FocusText.Add<Comp::TextRender>(font);
 	m_FocusText.Add<Comp::Style>(sf::Color::Red);
 
-	BM::Entity pinInputText = BM::UIMaker::CreateInputText(m_Scene, { .Transform{{cWindowSize.X - 50.f, 50.f}, 5.f, 0.75f, {1.f, 0.f}},
+	BM::Entity pinInputText = BM::UIMaker::CreateInputText(m_Scene,
+		{ .Transform{.State{.Position{cWindowSize.X - 50.f, 50.f}, .Scale{0.75f}, .Origin{1.f, 0.f}}, .Z = 5.f},
 		.Size = cUISize, .Corner = 5.f, .Style{sf::Color::Magenta} },
-		{ .Transform{BM::UIMaker::Center(cUISize, {1.f, 0.f}), 1.f, 1.f, 0.5f}, .Text{font}, .Style{sf::Color::Black} },
-		{ .Placeholder = "PIN", .Policy{isdigit} });
+		{ .Transform{.State{.Position = BM::UIMaker::Center(cUISize, {1.f, 0.f}), .Origin{0.5f}}, .Z = 1.f},
+		.Text{font}, .Style{sf::Color::Black} }, { .Placeholder = "PIN", .Policy{isdigit} });
 	BM::UIMaker::AddHoverColor(pinInputText);
 }
 
@@ -347,8 +341,9 @@ bool GameLayer::OnMousePressed(const BM::EventHandle::MouseButtonPressed& mouseP
 	const float cRadius = static_cast<float>(BM_RANDOM(25, 50));
 	using ShapeType = BM::Component::Widget::ShapeType;
 
-	BM::Entity circle = BM::UIMaker::CreateButton(m_Scene, { .Transform{cMouseCoords, 100.f, 1.f, 0.5f},
-		.Size{cRadius * 2.f}, .Shape{ShapeType::Circle}, .Style{sf::Color::Transparent, sf::Color::Black, 5.f} },
+	BM::Entity circle = BM::UIMaker::CreateButton(m_Scene,
+		{ .Transform{.State{.Position = cMouseCoords, .Origin{0.5f}}, .Z = 100.f}, .Size{cRadius * 2.f},
+		.Shape{ShapeType::Circle}, .Style{sf::Color::Transparent, sf::Color::Black, 5.f} },
 		[&](auto entity, auto event) {
 			if (event.button != sf::Mouse::Button::Left)
 				return false;
@@ -357,7 +352,7 @@ bool GameLayer::OnMousePressed(const BM::EventHandle::MouseButtonPressed& mouseP
 			return true;
 		});
 
-	BM::Entity center = circle.CreateChild(BM::Component::Transform(0.f, 0.f, 1.f, 0.5f));
+	BM::Entity center = circle.CreateChild({ .State{.Origin{0.5f}} });
 	center.Add<BM::Component::CircleRender>(1.f);
 	center.Add<BM::Component::Style>(sf::Color::Red);
 
@@ -383,7 +378,7 @@ void GameLayer::UpdateMouseRect(BM::Vec2f position) noexcept
 	if (m_MouseRect)
 	{
 		m_MouseRect.Patch<BM::Component::RectRender>([&](auto& rect) {
-			const BM::Vec2f cPosition = m_MouseRect.Get<BM::Component::Transform>().Position;
+			const BM::Vec2f cPosition = m_MouseRect.Get<BM::Component::Transform>().Global.Position;
 			rect.Size = (position - cPosition) * 2.f;
 			auto& [x, y] = rect.Size;
 			x = std::abs(x);

@@ -40,7 +40,7 @@ namespace BM
 		return IsValid();
 	}
 
-	Entity Entity::CreateChild(const Component::Transform& transform) noexcept
+	Entity Entity::CreateChild(const Component::Transform::LocalSpace& transform) noexcept
 	{
 		Entity child = m_ScenePtr->CreateEntity(transform);
 		child.Add<Parent>(m_Handle);

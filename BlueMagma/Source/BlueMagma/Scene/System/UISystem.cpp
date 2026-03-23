@@ -35,8 +35,8 @@ namespace BM
 	}
 
 	static inline bool Contains(Scene& scene, const Transform& transform, const Widget& widget, Vec2i point) noexcept {
-		const Vec2f cScaledSize = widget.Size * transform.Scale;
-		const Vec2f cTopLeft = transform.Position - (cScaledSize * transform.Origin);
+		const Vec2f cScaledSize = widget.Size * transform.Global.Scale;
+		const Vec2f cTopLeft = transform.Global.Position - (cScaledSize * transform.Local.State.Origin);
 
 		const Vec2f cCoords = PixelToCoords(scene, point);
 
@@ -72,7 +72,7 @@ namespace BM
 		const sf::String cUtfText = input.Text;
 
 		float textWidth = 0.f;
-		if (textTransform->Origin.X != 0.f)
+		if (textTransform->Local.State.Origin.X != 0.f)
 		{
 			char32_t previousChar = 0;
 			for (char32_t currentChar : cUtfText)
@@ -83,8 +83,8 @@ namespace BM
 				previousChar = currentChar;
 			}
 		}
-		const float cMousePivotX = (coordsX - textTransform->Position.X) / textTransform->Scale.X;
-		const float cOriginOffset = textWidth * textTransform->Origin.X;
+		const float cMousePivotX = (coordsX - textTransform->Global.Position.X) / textTransform->Global.Scale.X;
+		const float cOriginOffset = textWidth * textTransform->Local.State.Origin.X;
 		const float cRelativeMouseX = cMousePivotX + cOriginOffset;
 
 		char32_t previousChar = 0;
@@ -326,7 +326,7 @@ namespace BM
 						return;
 
 					float textWidth = 0.f;
-					if (textTransform.Origin.X != 0.f)
+					if (textTransform.Local.State.Origin.X != 0.f)
 					{
 						const sf::String cUtfString = input.Text;
 						char32_t previousChar = 0;
@@ -350,8 +350,8 @@ namespace BM
 						previousChar = currentChar;
 					}
 
-					const float cOriginOffsetX = textWidth * textTransform.Origin.X;
-					transform.LocalPosition.X = std::round(textTransform.LocalPosition.X + offsetX - cOriginOffsetX) - 1.f;
+					const float cOriginOffsetX = textWidth * textTransform.Local.State.Origin.X;
+					transform.Local.State.Position.X = std::round(textTransform.Local.State.Position.X + offsetX - cOriginOffsetX) - 1.f;
 					});
 				cursor.TryPatch<Hidden>([&](auto& hidden) {
 					if (!widget.Focus)

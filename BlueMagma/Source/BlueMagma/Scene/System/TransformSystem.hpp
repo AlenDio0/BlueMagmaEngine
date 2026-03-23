@@ -1,5 +1,7 @@
 #pragma once
 #include "ISystem.hpp"
+#include "Scene/Entity.hpp"
+#include "Scene/Component/Base.hpp"
 
 namespace BM
 {
@@ -10,10 +12,9 @@ namespace BM
 
 		virtual void OnUpdate(Scene& scene, float deltaTime) noexcept override;
 	private:
-		void UpdateTransform(Scene& scene) noexcept;
+		void UpdateTransformAndChildren(Entity entity, const Component::Transform::GlobalSpace& parentGlobal, bool updated) noexcept;
 		void UpdateSortByZ(Scene& scene) noexcept;
-		void UpdateChildren(Scene& scene) noexcept;
 	private:
-		bool m_UpdatedZ = true;
+		bool m_CachedUpdatedZ = true;
 	};
 }

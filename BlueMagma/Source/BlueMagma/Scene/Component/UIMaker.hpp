@@ -9,7 +9,7 @@ namespace BM::UIMaker
 {
 	struct UIProps
 	{
-		Component::Transform Transform;
+		Component::Transform::LocalSpace Transform;
 		Vec2f Size;
 		Component::Widget::ShapeType Shape;
 		float Corner;
@@ -17,7 +17,7 @@ namespace BM::UIMaker
 	};
 	struct TextProps
 	{
-		Component::Transform Transform;
+		Component::Transform::LocalSpace Transform;
 		Component::TextRender Text;
 		Component::Style Style;
 	};

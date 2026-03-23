@@ -1,5 +1,6 @@
 #pragma once
 #include "Core/Vec2.hpp"
+#include "Core/Transform2D.hpp"
 #include "Asset/Asset.hpp"
 #include "Core/Rect.hpp"
 #include <SFML/Graphics/Color.hpp>
@@ -11,19 +12,20 @@ namespace BM::Component
 {
 	struct Transform
 	{
-		Vec2f LocalPosition;
-		float LocalZ;
-		Vec2f LocalScale;
-		Vec2f Origin;
+		struct LocalSpace
+		{
+			Transform2D State{};
+			float Z = 0.f;
+		} Local;
 
-		Vec2f Position;
-		float Z;
-		Vec2f Scale;
-		// TODO: Vec3 so that _Z is integrated with LocalPosition
+		struct GlobalSpace
+		{
+			Vec2f Position{ 0.f };
+			Vec2f Scale{ 1.f };
+			float Z = 0.f;
+		} Global;
 
-		inline Transform(Vec2f position = { 0.f }, float z = 0.f, Vec2f scale = { 1.f }, Vec2f origin = { 0.f }) noexcept
-			: LocalPosition(position), LocalZ(z), LocalScale(scale), Origin(origin),
-			Position(position), Z(z), Scale(scale) {}
+		bool CachedUpdated = false;
 	};
 
 	struct Hidden

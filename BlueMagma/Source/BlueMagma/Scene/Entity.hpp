@@ -25,7 +25,7 @@ namespace BM
 		operator EntityHandle() const noexcept;
 		operator bool() const noexcept;
 
-		Entity CreateChild(const Component::Transform& transform = {}) noexcept;
+		Entity CreateChild(const Component::Transform::LocalSpace& transform = {}) noexcept;
 
 		std::vector<Entity> GetChildren() noexcept;
 		template<class... TComp>

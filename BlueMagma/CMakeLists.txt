@@ -9,6 +9,7 @@ set(SOURCES
     Source/BlueMagma/Core/Assert.hpp
     Source/BlueMagma/Core/Vec2.hpp
     Source/BlueMagma/Core/Rect.hpp
+    Source/BlueMagma/Core/Transform2D.hpp
     Source/BlueMagma/Core/Random.hpp
     Source/BlueMagma/Core/Random.cpp
     Source/BlueMagma/Core/Timer.hpp

@@ -76,9 +76,9 @@ namespace BM::UIMaker
 		Entity inputText = CreateUI(scene, baseProps);
 		Entity text = AddTextChild(inputText, textProps);
 
-		Transform cursorTransform = textProps.Transform;
-		cursorTransform.Origin = 0.5f;
-		cursorTransform.LocalZ += 1.f;
+		auto cursorTransform = textProps.Transform;
+		cursorTransform.State.Origin = 0.5f;
+		cursorTransform.Z += 1.f;
 
 		Entity cursor = inputText.CreateChild(cursorTransform);
 		cursor.Add<RectRender>(Vec2f(1.f, static_cast<float>(textProps.Text.CharSize) * 1.1f));
