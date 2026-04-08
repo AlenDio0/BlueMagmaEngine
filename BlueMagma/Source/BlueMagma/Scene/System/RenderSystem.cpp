@@ -13,19 +13,24 @@ namespace BM
 			uniform vec4 uOutlineColor;
 
 			void main() {
-				vec2 pixelCoord = gl_TexCoord[0].xy * uSize;
+				vec2 pixelCoord = gl_TexCoord[0].xy - 0.5;
 				vec2 center = uSize * 0.5;
 
-				vec2 centerDistance = abs(pixelCoord - center);
-				vec2 cornerOffset = centerDistance - (center - uCorner);
+				vec2 fullSize = uSize + 4.0;
+				vec2 cornerOffset = abs(pixelCoord * fullSize) - center + uCorner;
+				
+				float distance = length(max(cornerOffset, 0.0)) + min(max(cornerOffset.x, cornerOffset.y), 0.0) - uCorner;
 
-				float edgeDistance = length(max(cornerOffset, 0.0)) + min(max(cornerOffset.x, cornerOffset.y), 0.0) - uCorner;
+				float alpha = 1.0 - smoothstep(0.0, 1.0, distance);
+				if (alpha <= 0.0)
+					discard;
 
-				float alpha = 1.0 - smoothstep(0.0, 1.0, edgeDistance);
-				float outlineFactor = smoothstep(uOutline - 0.5, uOutline + 0.5, edgeDistance);
-
-				vec4 fillColor = gl_Color;
-				vec4 finalColor = mix(fillColor, uOutlineColor, outlineFactor);
+				vec4 finalColor = gl_Color;
+				if (uOutline > 0.0)
+				{
+					float outlineFactor = smoothstep(-uOutline - 1.0, -uOutline, distance);
+					finalColor = mix(gl_Color, uOutlineColor, outlineFactor);
+				}
 
 				gl_FragColor = vec4(finalColor.rgb, finalColor.a * alpha);
 			})";
@@ -35,16 +40,21 @@ namespace BM
 			uniform vec4 uOutlineColor;
 
 			void main() {
-				vec2 pixelCoord = gl_TexCoord[0].xy - vec2(0.5);
+				vec2 pixelCoord = gl_TexCoord[0].xy - 0.5;
 
-				float centerDistance = length(pixelCoord) * (uRadius * 2.0);
-				float edgeDistance = centerDistance - uRadius;
+				float fullRadius = uRadius + 4.0;
+				float distance = (length(pixelCoord) * fullRadius * 2.0) - uRadius;
 
-				float alpha = 1.0 - smoothstep(0.0, 1.0, edgeDistance);
-				float outlineFactor = smoothstep(uOutline - 0.5, uOutline + 0.5, edgeDistance);
+				float alpha = 1.0 - smoothstep(0.0, 1.0, distance);
+				if (alpha <= 0.0)
+					discard;
 
-				vec4 fillColor = gl_Color;
-				vec4 finalColor = mix(fillColor, uOutlineColor, outlineFactor);
+				vec4 finalColor = gl_Color;
+				if (uOutline > 0.0)
+				{
+					float outlineFactor = smoothstep(-uOutline - 1.0, -uOutline, distance);
+					finalColor = mix(gl_Color, uOutlineColor, outlineFactor);
+				}
 
 				gl_FragColor = vec4(finalColor.rgb, finalColor.a * alpha);
 			})";
@@ -144,26 +154,15 @@ namespace BM
 			.translate((offset + (transform.Local.State.Origin * size)).Round() * -1.f);
 	}
 
-	static inline sf::RectangleShape s_Rect;
 	void RenderSystem::DrawRect(Renderer& renderer, const Transform& transform, RectRender rect, Style style) const noexcept
 	{
 		const Vec2f cSize = rect.Size;
 		auto states = GetRenderStates(transform, cSize);
 
-		if (rect.Corner <= 0.f && style.Outline == 0.f)
-		{
-			s_Rect.setSize(cSize);
-			s_Rect.setFillColor(style.FillColor);
-			s_Rect.setOutlineThickness(0.f);
-
-			renderer.Draw(s_Rect, states);
-			return;
-		}
-
 		auto& shader = Shader::s_RectShader;
 		shader.setUniform("uSize", sf::Glsl::Vec2(cSize));
 		shader.setUniform("uCorner", rect.Corner);
-		shader.setUniform("uOutline", -std::abs(style.Outline));
+		shader.setUniform("uOutline", std::abs(style.Outline));
 		shader.setUniform("uOutlineColor", sf::Glsl::Vec4(style.OutlineColor));
 
 		sf::Vertex vertices[6];
@@ -183,26 +182,15 @@ namespace BM
 		renderer.Draw(vertices, 6, sf::PrimitiveType::Triangles, states);
 	}
 
-	static inline sf::CircleShape s_Circle;
 	void RenderSystem::DrawCircle(Renderer& renderer, const Transform& transform, CircleRender circle, Style style) const noexcept
 	{
 		const float cRadius = circle.Radius;
 		const float cDiameter = cRadius * 2.f;
 		auto states = GetRenderStates(transform, cDiameter);
 
-		if (style.Outline == 0.f)
-		{
-			s_Circle.setRadius(cRadius);
-			s_Circle.setFillColor(style.FillColor);
-			s_Circle.setOutlineThickness(0.f);
-
-			renderer.Draw(s_Circle, states);
-			return;
-		}
-
 		auto& shader = Shader::s_CircleShader;
 		shader.setUniform("uRadius", cRadius);
-		shader.setUniform("uOutline", -std::abs(style.Outline));
+		shader.setUniform("uOutline", std::abs(style.Outline));
 		shader.setUniform("uOutlineColor", sf::Glsl::Vec4(style.OutlineColor));
 
 		sf::Vertex vertices[6];

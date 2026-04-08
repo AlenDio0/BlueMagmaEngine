@@ -205,11 +205,11 @@ void GameLayer::InitExample() noexcept
 
 		BM::Entity rect = m_Scene.CreateEntity({ .State{.Position{cPosX, cBasePosY}}, .Z = cPercentage });
 		rect.Add<Comp::RectRender>(cBoxSize, 5.f);
-		rect.Add<Comp::Style>(sf::Color(cColor, 0, 0), sf::Color::Black, 2.f);
+		rect.Add<Comp::Style>(sf::Color(cColor, 0, 0), sf::Color::Black, i % 2 ? 0.f : 2.f);
 
 		BM::Entity circle = m_Scene.CreateEntity({ .State{.Position{cPosX, cPercentage * cBasePosY}},.Z = 0.1f + cPercentage });
 		circle.Add<Comp::CircleRender>(cBoxSize / 2.f);
-		circle.Add<Comp::Style>(sf::Color(0, cColor, 0), sf::Color::Black, i % 2 ? 0.f : 1.f);
+		circle.Add<Comp::Style>(sf::Color(0, cColor, 0), sf::Color::Black, i % 2 == 0 ? 0.f : 1.f);
 
 		BM::Entity sprite = m_Scene.CreateEntity({ .State{.Position{cPosX, cBoundSize - (cPercentage * cBasePosY)},
 			.Scale{BM::Vec2f(cBoxSize) / texture.getSize()}}, .Z = 0.2f + cPercentage, });
@@ -338,22 +338,24 @@ bool GameLayer::OnMousePressed(const BM::EventHandle::MouseButtonPressed& mouseP
 		return false;
 
 	const BM::Vec2f cMouseCoords = GetRenderer().PixelToCoords(mousePressed.position);
-	const float cRadius = static_cast<float>(BM_RANDOM(25, 50));
+	const float cRadius = static_cast<float>(BM_RANDOM(10, 30)) * 5.f;
 	using ShapeType = BM::Component::Widget::ShapeType;
 
-	BM::Entity circle = BM::UIMaker::CreateButton(m_Scene,
-		{ .Transform{.State{.Position = cMouseCoords, .Origin{0.5f}}, .Z = 100.f}, .Size{cRadius * 2.f},
-		.Shape{ShapeType::Circle}, .Style{sf::Color::Transparent, sf::Color::Black, 5.f} },
-		[&](auto entity, auto event) {
-			if (event.button != sf::Mouse::Button::Left)
-				return false;
+	auto onCirclePressed = [&](auto entity, auto event) {
+		if (event.button != sf::Mouse::Button::Left)
+			return false;
 
-			m_Scene.Destroy(entity);
-			return true;
-		});
+		m_Scene.Destroy(entity);
+		return true;
+		};
+
+	BM::Entity circle = BM::UIMaker::CreateButton(m_Scene,
+		{ .Transform{.State{.Position = cMouseCoords, .Origin{0.5f}}, .Z = 100.f},
+		.Size{cRadius * 2.f}, .Shape{ShapeType::Circle},
+		.Style{sf::Color::Transparent, sf::Color(BM_RANDOM(), BM_RANDOM(), BM_RANDOM()), 10.f} }, onCirclePressed);
 
 	BM::Entity center = circle.CreateChild({ .State{.Origin{0.5f}} });
-	center.Add<BM::Component::CircleRender>(1.f);
+	center.Add<BM::Component::CircleRender>(5.f);
 	center.Add<BM::Component::Style>(sf::Color::Red);
 
 	return false;
@@ -364,7 +366,7 @@ bool GameLayer::OnMouseScrolled(const BM::EventHandle::MouseWheelScrolled& mouse
 	const float cZoomAmount = m_MainCamera.GetZoomFactor() * 0.1f;
 
 	if (mouseScrolled.delta > 0.f)
-		m_MainCamera.ZoomIn(cZoomAmount, 4.f);
+		m_MainCamera.ZoomIn(cZoomAmount, 20.f);
 	else if (mouseScrolled.delta < 0.f)
 		m_MainCamera.ZoomOut(cZoomAmount, 0.5f);
 

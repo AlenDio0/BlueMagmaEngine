@@ -21,7 +21,9 @@ namespace BM
 	void TransformSystem::OnAttach(Scene& scene) noexcept
 	{
 		scene.OnConstruct<Transform>().connect<SetTrue>(m_CachedUpdatedZ);
+		scene.OnDestroy<Transform>().connect<SetTrue>(m_CachedUpdatedZ);
 		scene.OnUpdate<Transform>().connect<SetTrue>(m_CachedUpdatedZ);
+
 		scene.OnUpdate<Transform>().connect<SetNeedUpdate>();
 	}
 
