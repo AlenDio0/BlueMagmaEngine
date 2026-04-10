@@ -14,7 +14,7 @@ namespace BM
 		explicit Camera2D(const sf::View& view, float zoomFactor = 1.f) noexcept;
 		Camera2D(Vec2f size, Vec2f center, float zoomFactor = 1.f) noexcept;
 
-		bool OnResizeEvent(const EventHandle::Resized& resized) noexcept;
+		bool OnViewportResizeEvent(const EventHandle::Resized& resized) noexcept;
 
 		void SetSize(Vec2f size) noexcept;
 

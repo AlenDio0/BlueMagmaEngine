@@ -33,9 +33,9 @@ namespace BM::UIMaker
 		}
 
 		sf::Color hoverColor = style->FillColor;
-		hoverColor.r = static_cast<uint32_t>(hoverColor.r * factor);
-		hoverColor.g = static_cast<uint32_t>(hoverColor.g * factor);
-		hoverColor.b = static_cast<uint32_t>(hoverColor.b * factor);
+		hoverColor.r = static_cast<uint8_t>(hoverColor.r * factor);
+		hoverColor.g = static_cast<uint8_t>(hoverColor.g * factor);
+		hoverColor.b = static_cast<uint8_t>(hoverColor.b * factor);
 
 		entity.Add<HoverColor>(style->FillColor, hoverColor);
 	}

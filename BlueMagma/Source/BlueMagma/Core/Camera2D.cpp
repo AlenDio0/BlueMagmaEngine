@@ -19,7 +19,7 @@ namespace BM
 		: m_Size(size), m_Center(center), m_ZoomFactor(zoomFactor), m_Viewport(0.f, 0.f, 1.f, 1.f)
 	{}
 
-	bool Camera2D::OnResizeEvent(const EventHandle::Resized& resized) noexcept
+	bool Camera2D::OnViewportResizeEvent(const EventHandle::Resized& resized) noexcept
 	{
 		SetViewport(m_Viewport, resized.size);
 		return false;

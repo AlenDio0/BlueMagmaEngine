@@ -10,6 +10,7 @@
 #include <Scene/Component/UIMaker.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Window/Keyboard.hpp>
+#include <SFML/Window/Cursor.hpp>
 #include <format>
 #include <cmath>
 #include <cfloat>
@@ -23,32 +24,32 @@ GameLayer::GameLayer() noexcept
 	m_ButtonCamera.SetViewport({ 0.75f, 0.5f, 0.25f, 0.5f }, GetWindow().GetSize());
 
 	m_SoundManager.Add("sound", GetAsset<BM::SoundBuffer>("Generic"));
-}
-
-void GameLayer::OnAttach() noexcept
-{
-	BM_FN();
 
 	m_Scene.AttachRenderer(GetRenderer());
 
 	m_Scene.AddSystem<BM::TransformSystem>();
 	m_Scene.AddSystem<BM::UISystem>();
 	m_Scene.AddSystem<BM::RenderSystem>();
+}
+
+void GameLayer::OnAttach() noexcept
+{
+	BM_FN();
 
 	namespace Comp = BM::Component;
 
 	auto font = &GetAsset<BM::Font>("Minecraft");
 	const BM::Vec2f cWindowSize = GetWindow().GetSize();
 
-	m_Background = m_Scene.CreateEntity({ .State{.Position = BM::Vec2f::Zero()}, .Z = -1.f });
+	m_Background = m_Scene.CreateEntity({ .State{.Position{0.f}}, .Z = -1.f });
 	m_Background.Add<Comp::RectRender>(cWindowSize);
 	m_Background.Add<Comp::Style>(sf::Color(0x00FF00A0));
 
-	m_StatText = m_Scene.CreateEntity({ .State{.Position = BM::Vec2f::Zero()}, .Z = 3.f });
+	m_StatText = m_Scene.CreateEntity({ .State{.Position{0.f}}, .Z = 3.f });
 	m_StatText.Add<Comp::TextRender>(font, FormatStatText(0.f));
 	m_StatText.Add<Comp::Style>(sf::Color::White, sf::Color::Black, 1.f);
 
-	constexpr float cAxisThickness = 2.f;
+	constexpr float cAxisThickness = 3.f;
 	BM::Entity axisX = m_Scene.CreateEntity({ .State{.Position = cWindowSize.Center(), .Origin{0.5f}}, .Z = 5.f });
 	axisX.Add<Comp::RectRender>(BM::Vec2f(cWindowSize.X, cAxisThickness));
 	BM::Entity axisY = m_Scene.CreateEntity({ .State{.Position = cWindowSize.Center(), .Origin{0.5f}}, .Z = 5.f });
@@ -56,7 +57,7 @@ void GameLayer::OnAttach() noexcept
 
 	m_MouseRect = m_Scene.CreateEntity({ .State{.Position = cWindowSize.Center(), .Origin{0.5f}}, .Z = 100.f });
 	m_MouseRect.Add<Comp::RectRender>(cWindowSize.Center(), 5.f);
-	m_MouseRect.Add<Comp::Style>(sf::Color::Transparent, sf::Color(0xFF000080), 2.f);
+	m_MouseRect.Add<Comp::Style>(sf::Color::Transparent, sf::Color(0xFF000060), 5.f);
 
 	//InitExample();
 	InitUIExample();
@@ -80,8 +81,8 @@ void GameLayer::OnEvent(BM::Event& event) noexcept
 
 	BM::EventDispatcher dispatcher(event);
 
-	dispatcher.Dispatch<BM::EventHandle::Resized>(BM_EVENT_FN(m_MainCamera.OnResizeEvent));
-	dispatcher.Dispatch<BM::EventHandle::Resized>(BM_EVENT_FN(m_ButtonCamera.OnResizeEvent));
+	dispatcher.Dispatch<BM::EventHandle::Resized>(BM_EVENT_FN(m_MainCamera.OnViewportResizeEvent));
+	dispatcher.Dispatch<BM::EventHandle::Resized>(BM_EVENT_FN(m_ButtonCamera.OnViewportResizeEvent));
 
 	dispatcher.Dispatch<BM::EventHandle::KeyPressed>(BM_EVENT_FN(OnKeyPressed));
 	dispatcher.Dispatch<BM::EventHandle::MouseMoved>(BM_EVENT_FN(OnMouseMoved));
@@ -117,19 +118,20 @@ void GameLayer::OnUpdate(float deltaTime) noexcept
 			const bool cLShiftKey = Keyboard::isKeyPressed(Key::LShift);
 
 			constexpr float cSpeed = 500.f;
-			const float cCameraSpeed = (cSpeed / m_MainCamera.GetZoomFactor()) * (cLShiftKey ? 2.f : 1.f) * deltaTime;
+			const float cCameraSpeed = (cSpeed / m_MainCamera.GetZoomFactor()) * (cLShiftKey ? 5.f : 1.f) * deltaTime;
 			const BM::Vec2f cCameraOffset = direction.Normalized() * cCameraSpeed;
 			m_MainCamera.Move(cCameraOffset);
 
-			UpdateMouseRect(GetRenderer().PixelToCoords(sf::Mouse::getPosition(GetWindow().GetHandle())));
+			UpdateMouseRect(GetWindow().GetMousePosition());
 		}
 	}
 
 	if (m_Button)
 	{
 		m_Button.Patch<BM::Component::Transform>([&](auto& transform) {
-			const float cCameraLeft = (m_MainCamera.GetCenter() - m_MainCamera.GetSize().Center() / m_MainCamera.GetZoomFactor()).X;
-			const float cCameraRight = (m_MainCamera.GetCenter() + m_MainCamera.GetSize().Center() / m_MainCamera.GetZoomFactor()).X;
+			const BM::RectFloat cCameraBounds = m_MainCamera.GetBounds();
+			const float cCameraLeft = cCameraBounds.Min().X;
+			const float cCameraRight = cCameraBounds.Max().X;
 
 			const float cWidth = m_Button.Get<BM::Component::Widget>().Size.X * transform.Global.Scale.X;
 			const float cLeft = cWidth * transform.Local.State.Origin.X;
@@ -146,10 +148,10 @@ void GameLayer::OnUpdate(float deltaTime) noexcept
 			}
 
 			m_ButtonCamera.SetCenter(transform.Global.Position);
-
-			if (m_ActiveCameraPtr == &m_ButtonCamera)
-				UpdateMouseRect(GetRenderer().PixelToCoords(sf::Mouse::getPosition(GetWindow().GetHandle())));
 			});
+
+		if (m_ActiveCameraPtr == &m_ButtonCamera)
+			UpdateMouseRect(GetWindow().GetMousePosition());
 	}
 
 	if (m_FocusText && m_InputText)
@@ -326,8 +328,13 @@ bool GameLayer::OnMouseMoved(const BM::EventHandle::MouseMoved& mouseMoved) noex
 	else
 		m_ActiveCameraPtr = &m_MainCamera;
 
+	const bool cIsAnyClickableHover = m_Scene.ViewAnyOf<BM::Component::Widget, BM::Component::Clickable>(
+		[](auto entity, const auto& widget, const auto& clickable) { return widget.Hover; });
+	GetWindow().GetHandle().setMouseCursor(sf::Cursor::createFromSystem(
+		cIsAnyClickableHover ? sf::Cursor::Type::Hand : sf::Cursor::Type::Arrow).value());
+
 	GetRenderer().SetCamera(*m_ActiveCameraPtr);
-	UpdateMouseRect(GetRenderer().PixelToCoords(mouseMoved.position));
+	UpdateMouseRect(mouseMoved.position);
 
 	return false;
 }
@@ -349,10 +356,11 @@ bool GameLayer::OnMousePressed(const BM::EventHandle::MouseButtonPressed& mouseP
 		return true;
 		};
 
+	const sf::Color cRandomColor{ (static_cast<uint32_t>(BM_RANDOM()) << 8) | 0xFF };
 	BM::Entity circle = BM::UIMaker::CreateButton(m_Scene,
 		{ .Transform{.State{.Position = cMouseCoords, .Origin{0.5f}}, .Z = 100.f},
 		.Size{cRadius * 2.f}, .Shape{ShapeType::Circle},
-		.Style{sf::Color::Transparent, sf::Color(BM_RANDOM(), BM_RANDOM(), BM_RANDOM()), 10.f} }, onCirclePressed);
+		.Style{sf::Color::Transparent, cRandomColor, 10.f} }, onCirclePressed);
 
 	BM::Entity center = circle.CreateChild({ .State{.Origin{0.5f}} });
 	center.Add<BM::Component::CircleRender>(5.f);
@@ -363,28 +371,35 @@ bool GameLayer::OnMousePressed(const BM::EventHandle::MouseButtonPressed& mouseP
 
 bool GameLayer::OnMouseScrolled(const BM::EventHandle::MouseWheelScrolled& mouseScrolled) noexcept
 {
-	const float cZoomAmount = m_MainCamera.GetZoomFactor() * 0.1f;
+	const BM::Vec2i cMousePosition = mouseScrolled.position;
+	const BM::Vec2f cMouseBeforeZoom = GetRenderer().PixelToCoords(cMousePosition);
 
+	const float cZoomAmount = m_MainCamera.GetZoomFactor() / 10.f;
 	if (mouseScrolled.delta > 0.f)
 		m_MainCamera.ZoomIn(cZoomAmount, 20.f);
 	else if (mouseScrolled.delta < 0.f)
 		m_MainCamera.ZoomOut(cZoomAmount, 0.5f);
+	const BM::Vec2f cMouseAfterZoom = GetRenderer().PixelToCoords(cMousePosition, m_MainCamera);
 
-	UpdateMouseRect(GetRenderer().PixelToCoords(mouseScrolled.position));
+	m_MainCamera.Move(cMouseBeforeZoom - cMouseAfterZoom);
+
+	UpdateMouseRect(cMousePosition);
 
 	return false;
 }
 
-void GameLayer::UpdateMouseRect(BM::Vec2f position) noexcept
+void GameLayer::UpdateMouseRect(BM::Vec2i point) noexcept
 {
 	if (m_MouseRect)
 	{
+		if (!m_ActiveCameraPtr->Contains(point, GetWindow().GetSize()))
+			return;
+
 		m_MouseRect.Patch<BM::Component::RectRender>([&](auto& rect) {
+			const BM::Vec2f cCoords = GetRenderer().PixelToCoords(point);
 			const BM::Vec2f cPosition = m_MouseRect.Get<BM::Component::Transform>().Global.Position;
-			rect.Size = (position - cPosition) * 2.f;
-			auto& [x, y] = rect.Size;
-			x = std::abs(x);
-			y = std::abs(y);
+
+			rect.Size = (cCoords - cPosition).Absolute() * 2.f;
 			});
 	}
 }

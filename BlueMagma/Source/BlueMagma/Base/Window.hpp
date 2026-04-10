@@ -43,8 +43,12 @@ namespace BM
 		bool SetActive(bool active) noexcept;
 		void RequestFocus() noexcept;
 
+		void SetMousePosition(Vec2i point) noexcept;
+
 		bool IsOpen() const noexcept;
 		bool HasFocus() const noexcept;
+
+		Vec2i GetMousePosition() const noexcept;
 
 		const WindowContext& GetContext() const noexcept;
 		Vec2u GetSize() const noexcept;

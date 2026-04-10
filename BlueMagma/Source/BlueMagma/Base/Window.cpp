@@ -1,5 +1,6 @@
 #include "bmpch.hpp"
 #include "Window.hpp"
+#include <SFML/Window/Mouse.hpp>
 
 namespace BM
 {
@@ -45,7 +46,6 @@ namespace BM
 		m_Renderer.reset();
 		m_Handle.reset();
 
-
 		BM_CORE_INFO("Window destroyed");
 	}
 
@@ -80,6 +80,11 @@ namespace BM
 		m_Handle->requestFocus();
 	}
 
+	void Window::SetMousePosition(Vec2i point) noexcept
+	{
+		sf::Mouse::setPosition(point, *m_Handle);
+	}
+
 	bool Window::IsOpen() const noexcept
 	{
 		return m_Handle && m_Handle->isOpen();
@@ -88,6 +93,11 @@ namespace BM
 	bool Window::HasFocus() const noexcept
 	{
 		return m_Handle->hasFocus();
+	}
+
+	Vec2i Window::GetMousePosition() const noexcept
+	{
+		return sf::Mouse::getPosition(*m_Handle);
 	}
 
 	const WindowContext& Window::GetContext() const noexcept
