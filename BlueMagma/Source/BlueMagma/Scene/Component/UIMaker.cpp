@@ -22,22 +22,29 @@ namespace BM::UIMaker
 		return text;
 	}
 
-	void AddHoverColor(Entity entity, float factor) noexcept
+	void AddWidgetColor(Entity entity, float hoverFactor, float focusFactor) noexcept
 	{
 		BM_CORE_FN("entity: {}", entity);
 		auto style = entity.TryGet<Style>();
 		if (!style)
 		{
-			BM_CORE_WARN("Cannot add an HoverColor without Style [entity: {}]", entity);
+			BM_CORE_WARN("Cannot calculate Component::WidgetColor factor without Component::Style [entity: {}]", entity);
 			return;
 		}
 
 		sf::Color hoverColor = style->FillColor;
-		hoverColor.r = static_cast<uint8_t>(hoverColor.r * factor);
-		hoverColor.g = static_cast<uint8_t>(hoverColor.g * factor);
-		hoverColor.b = static_cast<uint8_t>(hoverColor.b * factor);
+		hoverColor.r = static_cast<uint8_t>(hoverColor.r * hoverFactor);
+		hoverColor.g = static_cast<uint8_t>(hoverColor.g * hoverFactor);
+		hoverColor.b = static_cast<uint8_t>(hoverColor.b * hoverFactor);
 
-		entity.Add<HoverColor>(style->FillColor, hoverColor);
+		sf::Color focusColor = style->FillColor;
+		focusColor.r = static_cast<uint8_t>(focusColor.r * focusFactor);
+		focusColor.g = static_cast<uint8_t>(focusColor.g * focusFactor);
+		focusColor.b = static_cast<uint8_t>(focusColor.b * focusFactor);
+
+		auto& widgetColor = entity.AddOrGet<WidgetColor>(style->FillColor, hoverColor, focusColor);
+		widgetColor.HoverColor = hoverColor;
+		widgetColor.FocusColor = focusColor;
 	}
 
 	Entity CreateUI(Scene& scene, const UIProps& props) noexcept
@@ -81,7 +88,7 @@ namespace BM::UIMaker
 		cursorTransform.Z += 1.f;
 
 		Entity cursor = inputText.CreateChild(cursorTransform);
-		cursor.Add<RectRender>(Vec2f(1.f, static_cast<float>(textProps.Text.CharSize) * 1.1f));
+		cursor.Add<RectRender>(Vec2f(2.f, static_cast<float>(textProps.Text.CharSize) * 1.1f));
 		cursor.Add<Style>(textProps.Style);
 		cursor.Add<Hidden>();
 

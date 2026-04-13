@@ -2,9 +2,11 @@
 #include "Scene/Entity.hpp"
 #include "Core/Vec2.hpp"
 #include "Base/EventDispatcher.hpp"
+#include <SFML/Graphics/Color.hpp>
 #include <functional>
 #include <string>
 #include <cstdint>
+#include <cctype>
 
 namespace BM::Component
 {
@@ -19,16 +21,11 @@ namespace BM::Component
 		bool Hover = false;
 	};
 
-	struct HoverColor
+	struct WidgetColor
 	{
 		sf::Color IdleColor = sf::Color::White;
-		sf::Color Color = sf::Color(0xFFFFFFA0);
-	};
-
-	struct FocusColor
-	{
-		sf::Color IdleColor = sf::Color::White;
-		sf::Color Color = sf::Color(0xFFFFFFA0);
+		sf::Color HoverColor = sf::Color::White;
+		sf::Color FocusColor = sf::Color::White;
 	};
 
 	using ClickFn = std::function<bool(Entity, EventHandle::MouseButtonPressed)>;
@@ -46,7 +43,7 @@ namespace BM::Component
 		size_t CursorIndex = 0;
 		size_t MaxLength = 0xFFFFFFFFFFFFFFFFull;
 
-		PolicyFn Policy;
+		PolicyFn Policy{ isprint };
 
 		Entity TextChild{};
 		Entity CursorChild{};

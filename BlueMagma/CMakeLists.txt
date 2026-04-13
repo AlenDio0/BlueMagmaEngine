@@ -35,16 +35,24 @@ set(SOURCES
     Source/BlueMagma/Asset/SoundManager.cpp
     Source/BlueMagma/Scene/Scene.hpp
     Source/BlueMagma/Scene/Scene.cpp
+    Source/BlueMagma/Scene/EntityHandle.hpp
+    Source/BlueMagma/Scene/Entity.hpp
+    Source/BlueMagma/Scene/Entity.cpp
     Source/BlueMagma/Scene/System/ISystem.hpp
     Source/BlueMagma/Scene/System/TransformSystem.hpp
     Source/BlueMagma/Scene/System/TransformSystem.cpp
     Source/BlueMagma/Scene/System/RenderSystem.hpp
     Source/BlueMagma/Scene/System/RenderSystem.cpp
-    Source/BlueMagma/Scene/System/UISystem.hpp
-    Source/BlueMagma/Scene/System/UISystem.cpp
-    Source/BlueMagma/Scene/EntityHandle.hpp
-    Source/BlueMagma/Scene/Entity.hpp
-    Source/BlueMagma/Scene/Entity.cpp
+    Source/BlueMagma/Scene/System/UI/WidgetSystem.hpp
+    Source/BlueMagma/Scene/System/UI/WidgetSystem.cpp
+    Source/BlueMagma/Scene/System/UI/WidgetColorSystem.hpp
+    Source/BlueMagma/Scene/System/UI/WidgetColorSystem.cpp
+    Source/BlueMagma/Scene/System/UI/ClickableSystem.hpp
+    Source/BlueMagma/Scene/System/UI/ClickableSystem.cpp
+    Source/BlueMagma/Scene/System/UI/InputTextSystem.hpp
+    Source/BlueMagma/Scene/System/UI/InputTextSystem.cpp
+    Source/BlueMagma/Scene/System/UI/UISystem.hpp
+    Source/BlueMagma/Scene/System/UI/UISystem.cpp
     Source/BlueMagma/Scene/Component/Base.hpp
     Source/BlueMagma/Scene/Component/UI.hpp
     Source/BlueMagma/Scene/Component/UIMaker.hpp

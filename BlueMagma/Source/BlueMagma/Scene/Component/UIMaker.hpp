@@ -25,7 +25,7 @@ namespace BM::UIMaker
 	Vec2f Center(Vec2f size, Vec2f origin) noexcept;
 
 	Entity AddTextChild(Entity entity, const TextProps& props) noexcept;
-	void AddHoverColor(Entity entity, float factor = 0.75f) noexcept;
+	void AddWidgetColor(Entity entity, float hoverFactor = 0.9f, float focusFactor = 0.9f) noexcept;
 
 	Entity CreateUI(Scene& scene, const UIProps& props) noexcept;
 	Entity CreateButton(Scene& scene, const UIProps& props, const Component::ClickFn& onClick = nullptr) noexcept;

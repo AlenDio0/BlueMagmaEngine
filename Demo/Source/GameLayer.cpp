@@ -6,7 +6,7 @@
 #include <Scene/Entity.hpp>
 #include <Scene/System/TransformSystem.hpp>
 #include <Scene/System/RenderSystem.hpp>
-#include <Scene/System/UISystem.hpp>
+#include <Scene/System/UI/UISystem.hpp>
 #include <Scene/Component/UIMaker.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Window/Keyboard.hpp>
@@ -27,8 +27,8 @@ GameLayer::GameLayer() noexcept
 
 	m_Scene.AttachRenderer(GetRenderer());
 
-	m_Scene.AddSystem<BM::TransformSystem>();
-	m_Scene.AddSystem<BM::UISystem>();
+	m_Scene.AddSystem<BM::TransformSystem>(100);
+	m_Scene.AddSystem<BM::UISystem>(200);
 	m_Scene.AddSystem<BM::RenderSystem>();
 }
 
@@ -61,6 +61,9 @@ void GameLayer::OnAttach() noexcept
 
 	//InitExample();
 	InitUIExample();
+
+	m_Scene.OnDestroy<Comp::Widget>().connect<&GameLayer::UpdateMouseCursor>(this);
+	m_Scene.OnUpdate<Comp::Widget>().connect<&GameLayer::UpdateMouseCursor>(this);
 }
 
 void GameLayer::OnDetach() noexcept
@@ -103,17 +106,17 @@ void GameLayer::OnUpdate(float deltaTime) noexcept
 		namespace Keyboard = sf::Keyboard;
 		using Key = Keyboard::Key;
 
-		BM::Vec2f direction(0.f, 0.f);
+		BM::Vec2f direction{ 0.f };
 		if (Keyboard::isKeyPressed(Key::W))
-			direction.Y -= 1.f;
+			direction += BM::Vec2f::Up();
 		if (Keyboard::isKeyPressed(Key::S))
-			direction.Y += 1.f;
+			direction += BM::Vec2f::Down();
 		if (Keyboard::isKeyPressed(Key::A))
-			direction.X -= 1.f;
+			direction += BM::Vec2f::Left();
 		if (Keyboard::isKeyPressed(Key::D))
-			direction.X += 1.f;
+			direction += BM::Vec2f::Right();
 
-		if (direction != 0.f)
+		if (direction != BM::Vec2f::Zero())
 		{
 			const bool cLShiftKey = Keyboard::isKeyPressed(Key::LShift);
 
@@ -129,7 +132,7 @@ void GameLayer::OnUpdate(float deltaTime) noexcept
 	if (m_Button)
 	{
 		m_Button.Patch<BM::Component::Transform>([&](auto& transform) {
-			const BM::RectFloat cCameraBounds = m_MainCamera.GetBounds();
+			const BM::RectFloat cCameraBounds = m_ActiveCameraPtr->GetBounds();
 			const float cCameraLeft = cCameraBounds.Min().X;
 			const float cCameraRight = cCameraBounds.Max().X;
 
@@ -156,17 +159,17 @@ void GameLayer::OnUpdate(float deltaTime) noexcept
 
 	if (m_FocusText && m_InputText)
 	{
-		bool focus = m_InputText.Get<BM::Component::Widget>().Focus;
+		const bool cFocus = m_InputText.Get<BM::Component::Widget>().Focus;
 
 		m_FocusText.Patch<BM::Component::TextRender>([&](auto& text) {
-			text.Text = std::format("Focus: {}", focus);
+			text.Text = std::format("Focus: {}", cFocus);
 			});
 		m_FocusText.Patch<BM::Component::Style>([&](auto& style) {
-			style.FillColor = focus ? sf::Color::Green : sf::Color::Red;
+			style.FillColor = cFocus ? sf::Color::Green : sf::Color::Red;
 			});
 	}
 
-	if (m_StatText && m_StatTimer.AsSeconds() >= 0.5f)
+	if (m_StatText && m_StatTimer.AsSeconds() >= 0.3f)
 	{
 		m_StatTimer.Restart();
 		m_StatText.Patch<BM::Component::TextRender>([&](auto& text) {
@@ -232,41 +235,57 @@ void GameLayer::InitUIExample() noexcept
 	const BM::Vec2f cWindowSize = GetWindow().GetSize();
 	constexpr BM::Vec2f cUISize(200.f, 40.f);
 
-	m_Button = BM::UIMaker::CreateButton(m_Scene, { .Transform{.State{.Position = cWindowSize.Center(), .Origin{0.5f}}, .Z = 10.f},
-		.Size = cUISize, .Corner = 5.f, .Style{sf::Color::Blue, sf::Color::Red, 2.f} },
+	m_Button = BM::UIMaker::CreateButton(m_Scene,
+		{ .Transform{.State{.Position = cWindowSize.Center(), .Origin{0.5f}}, .Z = 10.f}, .Size = cUISize,
+		.Corner = 5.f, .Style{sf::Color::Blue, sf::Color::Red, 2.f} },
 		[&](auto entity, auto event) {
 			BM_INFO("Button pressed");
 			m_Scene.Destroy(entity);
 			return false;
 		});
-	BM::UIMaker::AddTextChild(m_Button, { .Transform{.State{.Position = BM::UIMaker::Center(cUISize, 0.5f), .Origin{0.5f}},
-		.Z = 1.f}, .Text{font, "Hello World!"}, .Style{sf::Color::Green, sf::Color::Black, 1.f} });
-	BM::UIMaker::AddHoverColor(m_Button, 0.5f);
+	BM::UIMaker::AddTextChild(m_Button,
+		{ .Transform{.State{.Position = BM::UIMaker::Center(cUISize, 0.5f), .Origin{0.5f}}, .Z = 1.f},
+		.Text{font, "Hello World!"}, .Style{sf::Color::Green, sf::Color::Black, 1.f} });
+	BM::UIMaker::AddWidgetColor(m_Button, 0.5f, 1.f);
 
 	auto text = m_Button.CreateChild({ .State{.Position{0.f, 100.f}, .Origin{0.5f}} });
 	text.Add<Comp::TextRender>(Comp::TextRender{ .FontPtr = font, .Text = "Attached" });
+
+	auto testButton = BM::UIMaker::CreateButton(m_Scene,
+		{ .Transform{.State{.Position{cWindowSize.Center().X, cWindowSize.Center().Y + 100.f}, .Scale{3.f, 1.f}, .Origin{0.5f}},
+		.Z = 10.f}, .Size{80.f}, .Shape = Comp::Widget::ShapeType::Circle, .Style{sf::Color::Cyan, sf::Color::Yellow, 1.f} },
+		[&](auto entity, auto event) {
+			static size_t pressedCount = 0;
+			pressedCount++;
+			BM_INFO("Test Button pressed {} times", pressedCount);
+			return false;
+		});
+	BM::UIMaker::AddTextChild(testButton,
+		{ .Transform{.State{.Position = BM::UIMaker::Center(cUISize, 0.5f), .Scale{1.f / 3.f, 1.f}, .Origin{0.5f}},
+		.Z = 1.f}, .Text{font, "PRESS ME"}, .Style{sf::Color::White, sf::Color::Black, 1.f} });
+
 
 	constexpr float cSpaceAxisX = 25.f;
 	constexpr float cInputX = cUISize.X + cSpaceAxisX;
 
 	m_InputText = BM::UIMaker::CreateInputText(m_Scene,
-		{ .Transform{.State{.Position{cWindowSize.Center().X - cInputX, cWindowSize.Y / 3.f}}, .Z = 10.f},
-		.Size = cUISize, .Corner = 5.f, .Style{sf::Color::White, sf::Color::Black, 1.f} },
-		{ .Transform{.State{.Position{5.f, BM::UIMaker::Center(cUISize, 0.f).Y}, .Origin{0.f, 0.5f}}, .Z = 1.f },
+		{ .Transform{.State{.Position{cWindowSize.Center().X - cInputX, cWindowSize.Y / 3.f}},
+		.Z = 10.f}, .Size = cUISize, .Corner = 5.f, .Style{sf::Color::White, sf::Color::Black, 1.f} },
+		{ .Transform{.State{.Position{10.f, BM::UIMaker::Center(cUISize, 0.f).Y}, .Origin{0.f, 0.5f}}, .Z = 1.f },
 		.Text{ font }, .Style{ sf::Color::Black }
 		}, { .Placeholder = "hello" });
-	BM::UIMaker::AddHoverColor(m_InputText, 0.9f);
+	BM::UIMaker::AddWidgetColor(m_InputText, 0.7f, 0.85f);
 
 	m_FocusText = m_InputText.CreateChild({ .State{.Position{cInputX + cSpaceAxisX, cUISize.Center().Y}, .Origin{0.f, 0.5f}} });
 	m_FocusText.Add<Comp::TextRender>(font);
 	m_FocusText.Add<Comp::Style>(sf::Color::Red);
 
 	BM::Entity pinInputText = BM::UIMaker::CreateInputText(m_Scene,
-		{ .Transform{.State{.Position{cWindowSize.X - 50.f, 50.f}, .Scale{0.75f}, .Origin{1.f, 0.f}}, .Z = 5.f},
-		.Size = cUISize, .Corner = 5.f, .Style{sf::Color::Magenta} },
+		{ .Transform{.State{.Position{cWindowSize.Center().X - cInputX, cWindowSize.Y / 3.f}, .Scale{0.9f}, .Origin{0.9f, 0.f}},
+		.Z = 1.f}, .Size = cUISize, .Corner = 5.f, .Style{sf::Color::Magenta} },
 		{ .Transform{.State{.Position = BM::UIMaker::Center(cUISize, {1.f, 0.f}), .Origin{0.5f}}, .Z = 1.f},
 		.Text{font}, .Style{sf::Color::Black} }, { .Placeholder = "PIN", .Policy{isdigit} });
-	BM::UIMaker::AddHoverColor(pinInputText);
+	BM::UIMaker::AddWidgetColor(pinInputText, 0.75f, 1.f);
 }
 
 bool GameLayer::OnKeyPressed(const BM::EventHandle::KeyPressed& keyPressed) noexcept
@@ -328,11 +347,6 @@ bool GameLayer::OnMouseMoved(const BM::EventHandle::MouseMoved& mouseMoved) noex
 	else
 		m_ActiveCameraPtr = &m_MainCamera;
 
-	const bool cIsAnyClickableHover = m_Scene.ViewAnyOf<BM::Component::Widget, BM::Component::Clickable>(
-		[](auto entity, const auto& widget, const auto& clickable) { return widget.Hover; });
-	GetWindow().GetHandle().setMouseCursor(sf::Cursor::createFromSystem(
-		cIsAnyClickableHover ? sf::Cursor::Type::Hand : sf::Cursor::Type::Arrow).value());
-
 	GetRenderer().SetCamera(*m_ActiveCameraPtr);
 	UpdateMouseRect(mouseMoved.position);
 
@@ -346,7 +360,6 @@ bool GameLayer::OnMousePressed(const BM::EventHandle::MouseButtonPressed& mouseP
 
 	const BM::Vec2f cMouseCoords = GetRenderer().PixelToCoords(mousePressed.position);
 	const float cRadius = static_cast<float>(BM_RANDOM(10, 30)) * 5.f;
-	using ShapeType = BM::Component::Widget::ShapeType;
 
 	auto onCirclePressed = [&](auto entity, auto event) {
 		if (event.button != sf::Mouse::Button::Left)
@@ -359,7 +372,7 @@ bool GameLayer::OnMousePressed(const BM::EventHandle::MouseButtonPressed& mouseP
 	const sf::Color cRandomColor{ (static_cast<uint32_t>(BM_RANDOM()) << 8) | 0xFF };
 	BM::Entity circle = BM::UIMaker::CreateButton(m_Scene,
 		{ .Transform{.State{.Position = cMouseCoords, .Origin{0.5f}}, .Z = 100.f},
-		.Size{cRadius * 2.f}, .Shape{ShapeType::Circle},
+		.Size{cRadius * 2.f}, .Shape{BM::Component::Widget::ShapeType::Circle},
 		.Style{sf::Color::Transparent, cRandomColor, 10.f} }, onCirclePressed);
 
 	BM::Entity center = circle.CreateChild({ .State{.Origin{0.5f}} });
@@ -386,6 +399,19 @@ bool GameLayer::OnMouseScrolled(const BM::EventHandle::MouseWheelScrolled& mouse
 	UpdateMouseRect(cMousePosition);
 
 	return false;
+}
+
+void GameLayer::UpdateMouseCursor() noexcept
+{
+	namespace Comp = BM::Component;
+
+	const bool cIsAnyClickableHover = m_Scene.ViewAnyOf<BM::Component::Widget, BM::Component::Clickable>(
+		[](auto entity, const auto& widget, const auto& clickable) { return widget.Hover; });
+	const bool cIsAnyInputTextHover = m_Scene.ViewAnyOf<BM::Component::Widget, BM::Component::InputText>(
+		[](auto entity, const auto& widget, const auto& clickable) { return widget.Hover; });
+
+	GetWindow().GetHandle().setMouseCursor(sf::Cursor::createFromSystem(cIsAnyClickableHover || cIsAnyInputTextHover ?
+		sf::Cursor::Type::Hand : sf::Cursor::Type::Arrow).value());
 }
 
 void GameLayer::UpdateMouseRect(BM::Vec2i point) noexcept
