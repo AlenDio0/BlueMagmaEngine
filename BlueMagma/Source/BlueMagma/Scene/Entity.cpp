@@ -54,7 +54,7 @@ namespace BM
 	std::vector<Entity> Entity::GetChildren() noexcept
 	{
 		std::vector<Entity> children;
-		if (!Has<Children>())
+		if (!HasAll<Children>())
 			return children;
 
 		const auto& childList = Get<Children>().Handles;

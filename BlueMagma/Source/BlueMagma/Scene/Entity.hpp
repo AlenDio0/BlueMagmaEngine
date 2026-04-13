@@ -35,7 +35,7 @@ namespace BM
 			auto childList = GetChildren();
 			for (auto& child : childList)
 			{
-				if (child.Has<TComp...>())
+				if (child.HasAll<TComp...>())
 					children.push_back(child);
 			}
 
@@ -43,8 +43,12 @@ namespace BM
 		}
 
 		template<class... TComp>
-		inline bool Has() const noexcept {
-			return m_ScenePtr->HasComponent<TComp...>(m_Handle);
+		inline bool HasAll() const noexcept {
+			return m_ScenePtr->HasAllComponent<TComp...>(m_Handle);
+		}
+		template<class... TComp>
+		inline bool HasAny() const noexcept {
+			return m_ScenePtr->HasAnyComponent<TComp...>(m_Handle);
 		}
 		template<class TComp>
 		inline decltype(auto) Get() const noexcept {
@@ -60,7 +64,7 @@ namespace BM
 		}
 		template<class TComp, class... Funcs>
 		inline decltype(auto) TryPatch(Funcs&&... funcs) noexcept {
-			if (Has<TComp>())
+			if (HasAll<TComp>())
 				Patch<TComp>(std::forward<Funcs>(funcs)...);
 		}
 		template<class TComp, class... Funcs>
