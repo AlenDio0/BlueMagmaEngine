@@ -30,23 +30,17 @@ namespace BM
 			return sf::Vector2<UValue>(static_cast<UValue>(X), static_cast<UValue>(Y));
 		}
 
-		constexpr TValue Area() const noexcept {
-			return X * Y;
-		}
 		constexpr Vec2<float> Center() const noexcept {
 			return Vec2<float>(*this) / 2.f;
-		}
-		constexpr TValue SquaredLength() const noexcept {
-			return (X * X) + (Y * Y);
-		}
-		constexpr TValue Length() const noexcept {
-			return sqrt(SquaredLength());
 		}
 		constexpr Vec2 Normalized() const noexcept {
 			if (*this == Zero())
 				return Zero();
 
 			return *this / Length();
+		}
+		constexpr Vec2 Squared() const noexcept {
+			return (*this) * (*this);
 		}
 		constexpr Vec2 Round() const noexcept {
 			return Vec2(std::round(X), std::round(Y));
@@ -61,8 +55,26 @@ namespace BM
 			return Vec2(Y, -X);
 		}
 
+		constexpr TValue Sum() const noexcept {
+			return X + Y;
+		}
+		constexpr TValue Area() const noexcept {
+			return X * Y;
+		}
+
+		constexpr TValue Dot(const Vec2& vec) const noexcept {
+			return Vec2(*this * vec).Sum();
+		}
+
+		constexpr TValue SquaredLength() const noexcept {
+			return Squared().Sum();
+		}
+		constexpr TValue Length() const noexcept {
+			return sqrt(SquaredLength());
+		}
+
 		constexpr TValue SquaredDistance(const Vec2& vec) const noexcept {
-			return ((X - vec.X) * (X - vec.X)) + ((Y - vec.Y) * (Y - vec.Y));
+			return Vec2(*this - vec).Squared().Sum();
 		}
 		constexpr TValue Distance(const Vec2& vec) const noexcept {
 			return sqrt(SquaredDistance(vec));
@@ -142,21 +154,21 @@ namespace BM
 			return *this;
 		}
 
-		static constexpr Vec2<TValue> Zero() noexcept {
-			return Vec2<TValue>(0);
+		static constexpr Vec2 Zero() noexcept {
+			return Vec2(0);
 		};
 
-		static constexpr Vec2<TValue> Up() noexcept {
-			return Vec2<TValue>(0, -1);
+		static constexpr Vec2 Up() noexcept {
+			return Vec2(0, -1);
 		};
-		static constexpr Vec2<TValue> Down() noexcept {
-			return Vec2<TValue>(0, 1);
+		static constexpr Vec2 Down() noexcept {
+			return Vec2(0, 1);
 		};
-		static constexpr Vec2<TValue> Left() noexcept {
-			return Vec2<TValue>(-1, 0);
+		static constexpr Vec2 Left() noexcept {
+			return Vec2(-1, 0);
 		};
-		static constexpr Vec2<TValue> Right() noexcept {
-			return Vec2<TValue>(1, 0);
+		static constexpr Vec2 Right() noexcept {
+			return Vec2(1, 0);
 		};
 	};
 
