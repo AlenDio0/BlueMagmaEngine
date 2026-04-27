@@ -22,6 +22,7 @@ namespace BM::Component
 		{
 			Vec2f Position{ 0.f };
 			Vec2f Scale{ 1.f };
+			float Rotation = 0.f;
 			float Z = 0.f;
 		} Global;
 

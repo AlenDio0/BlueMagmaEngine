@@ -144,6 +144,21 @@ void GameLayer::OnUpdate(float deltaTime) noexcept
 			float& positionX = transform.Local.State.Position.X;
 			positionX += cSpeed * m_ButtonSpeedFactor * deltaTime;
 
+			static BM::Timer sRotationTimer;
+			static float sRotationVelocity = 1.f;
+			static float sRotationSpeedPercentage = 1.01f;
+
+			float& rotation = transform.Local.State.Rotation;
+
+			sRotationVelocity *= sRotationSpeedPercentage;
+			rotation += sRotationVelocity * deltaTime;
+			if (sRotationVelocity > 36000.f)
+				sRotationSpeedPercentage = 0.99f;
+			else if (sRotationVelocity < 10.f)
+				sRotationSpeedPercentage = 1.01f;
+
+			sRotationTimer.Restart();
+
 			if (positionX - cLeft >= cCameraRight)
 			{
 				positionX = cCameraLeft - cRight;
@@ -195,7 +210,7 @@ void GameLayer::InitExample() noexcept
 	namespace Comp = BM::Component;
 
 	const BM::Texture& texture = GetAsset<BM::Texture>("Cat");
-	constexpr float cBoxSize = 25.f;
+	constexpr float cBoxSize = 50.f;
 	const float cBoundSize = GetWindow().GetSize().Y - cBoxSize;
 
 	const uint32_t cSize = (uint32_t)((float)GetWindow().GetSize().X / cBoxSize);
@@ -208,16 +223,17 @@ void GameLayer::InitExample() noexcept
 
 		const uint8_t cColor = (uint8_t)(cPercentage * 255.f);
 
-		BM::Entity rect = m_Scene.CreateEntity({ .State{.Position{cPosX, cBasePosY}}, .Z = cPercentage });
+		BM::Entity rect = m_Scene.CreateEntity({ .State{.Position{cPosX, cBasePosY}, .Rotation = 45.f}, .Z = cPercentage });
 		rect.Add<Comp::RectRender>(cBoxSize, 5.f);
 		rect.Add<Comp::Style>(sf::Color(cColor, 0, 0), sf::Color::Black, i % 2 ? 0.f : 2.f);
 
-		BM::Entity circle = m_Scene.CreateEntity({ .State{.Position{cPosX, cPercentage * cBasePosY}},.Z = 0.1f + cPercentage });
+		BM::Entity circle = m_Scene.CreateEntity({ .State{.Position{cPosX, cPercentage * cBasePosY}},
+			.Z = 0.1f + cPercentage });
 		circle.Add<Comp::CircleRender>(cBoxSize / 2.f);
 		circle.Add<Comp::Style>(sf::Color(0, cColor, 0), sf::Color::Black, i % 2 == 0 ? 0.f : 1.f);
 
 		BM::Entity sprite = m_Scene.CreateEntity({ .State{.Position{cPosX, cBoundSize - (cPercentage * cBasePosY)},
-			.Scale{BM::Vec2f(cBoxSize) / texture.getSize()}}, .Z = 0.2f + cPercentage, });
+			.Scale{BM::Vec2f(cBoxSize) / texture.getSize()}, .Rotation = -45.f}, .Z = 0.2f + cPercentage, });
 		sprite.Add<Comp::TextureRender>(&texture);
 		sprite.Add<Comp::Style>(sf::Color(cColor, cColor, cColor));
 
@@ -252,18 +268,20 @@ void GameLayer::InitUIExample() noexcept
 	text.Add<Comp::TextRender>(Comp::TextRender{ .FontPtr = font, .Text = "Attached" });
 
 	auto testButton = BM::UIMaker::CreateButton(m_Scene,
-		{ .Transform{.State{.Position{cWindowSize.Center().X, cWindowSize.Center().Y + 100.f}, .Scale{3.f, 1.f}, .Origin{0.5f}},
-		.Z = 10.f}, .Size{80.f}, .Shape = Comp::Widget::ShapeType::Circle, .Style{sf::Color::Cyan, sf::Color::Yellow, 1.f} },
-		[&](auto entity, auto event) {
-			static size_t pressedCount = 0;
-			pressedCount++;
-			BM_INFO("Test Button pressed {} times", pressedCount);
+		{ .Transform{.State{.Position{cWindowSize.Center().X, cWindowSize.Y - 200.f}, .Scale{3.f, 2.f}, .Origin{0.1f, 0.5f},
+		.Rotation{90.f}}, .Z = 10.f}, .Size{80.f}, .Shape = Comp::Widget::ShapeType::Circle,
+		.Style{sf::Color::Cyan, sf::Color::Yellow, 1.f} }, [&](BM::Entity entity, auto event) {
+			static size_t sPressedCount = 0;
+			sPressedCount++;
+			BM_INFO("Test Button pressed {} times", sPressedCount);
+
+			entity.Patch<Comp::Transform>([&](auto& transform) { transform.Local.State.Rotation += 10.f; });
+
 			return false;
 		});
 	BM::UIMaker::AddTextChild(testButton,
-		{ .Transform{.State{.Position = BM::UIMaker::Center(cUISize, 0.5f), .Scale{1.f / 3.f, 1.f}, .Origin{0.5f}},
+		{ .Transform{.State{.Position = BM::UIMaker::Center(80.f, {0.1f, 0.5f}), .Scale{1.5f / 3.f, 1.5f / 2.f}, .Origin{0.5f}},
 		.Z = 1.f}, .Text{font, "PRESS ME"}, .Style{sf::Color::White, sf::Color::Black, 1.f} });
-
 
 	constexpr float cSpaceAxisX = 25.f;
 	constexpr float cInputX = cUISize.X + cSpaceAxisX;
@@ -272,8 +290,7 @@ void GameLayer::InitUIExample() noexcept
 		{ .Transform{.State{.Position{cWindowSize.Center().X - cInputX, cWindowSize.Y / 3.f}},
 		.Z = 10.f}, .Size = cUISize, .Corner = 5.f, .Style{sf::Color::White, sf::Color::Black, 1.f} },
 		{ .Transform{.State{.Position{10.f, BM::UIMaker::Center(cUISize, 0.f).Y}, .Origin{0.f, 0.5f}}, .Z = 1.f },
-		.Text{ font }, .Style{ sf::Color::Black }
-		}, { .Placeholder = "hello" });
+		.Text{ font }, .Style{ sf::Color::Black } }, { .Placeholder = "hello" });
 	BM::UIMaker::AddWidgetColor(m_InputText, 0.7f, 0.85f);
 
 	m_FocusText = m_InputText.CreateChild({ .State{.Position{cInputX + cSpaceAxisX, cUISize.Center().Y}, .Origin{0.f, 0.5f}} });

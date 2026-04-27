@@ -1,6 +1,7 @@
 #include "bmpch.hpp"
 #include "RenderSystem.hpp"
 #include "Scene/Scene.hpp"
+#include "Core/Transform2D.hpp"
 
 namespace BM
 {
@@ -16,7 +17,7 @@ namespace BM
 				vec2 pixelCoord = gl_TexCoord[0].xy - 0.5;
 				vec2 center = uSize * 0.5;
 
-				vec2 fullSize = uSize + 4.0;
+				vec2 fullSize = uSize + 1.0;
 				vec2 cornerOffset = abs(pixelCoord * fullSize) - center + uCorner;
 				
 				float distance = length(max(cornerOffset, 0.0)) + min(max(cornerOffset.x, cornerOffset.y), 0.0) - uCorner;
@@ -42,7 +43,7 @@ namespace BM
 			void main() {
 				vec2 pixelCoord = gl_TexCoord[0].xy - 0.5;
 
-				float fullRadius = uRadius + 4.0;
+				float fullRadius = uRadius + 1.0;
 				float distance = (length(pixelCoord) * fullRadius * 2.0) - uRadius;
 
 				float alpha = 1.0 - smoothstep(0.0, 1.0, distance);
@@ -95,10 +96,14 @@ namespace BM
 	}
 
 	static inline bool IsInCameraBounds(RectFloat cameraBounds, const Transform& transform, Vec2f size) noexcept {
-		const Vec2f cScaledSize = size * transform.Global.Scale;
-		const RectFloat cEntityBounds{ transform.Global.Position - (transform.Local.State.Origin * cScaledSize), cScaledSize };
+		const auto& [position, scale, rotation, z] = transform.Global;
+		const auto& origin = transform.Local.State.Origin;
 
-		return cameraBounds.Intersects(cEntityBounds);
+		const RectFloat cEntityBounds{ {0.f}, size };
+		const auto cMatrix = Transform2D::ToMatrix({ position, scale, origin, rotation }, cEntityBounds);
+		const RectFloat cLocalCameraBounds = cMatrix.getInverse().transformRect(cameraBounds);
+
+		return cLocalCameraBounds.Intersects(cEntityBounds);
 	}
 
 	void RenderSystem::OnRender(Scene& scene) const noexcept
@@ -147,11 +152,10 @@ namespace BM
 
 	static inline sf::RenderStates GetRenderStates(const Transform& transform, Vec2f size, Vec2f offset = { 0.f })
 	{
-		sf::RenderStates states;
-		return states.transform
-			.translate(transform.Global.Position)
-			.scale(transform.Global.Scale)
-			.translate((offset + (transform.Local.State.Origin * size)).Round() * -1.f);
+		const auto& [position, scale, rotation, z] = transform.Global;
+		const auto& origin = transform.Local.State.Origin;
+
+		return sf::RenderStates{ Transform2D::ToMatrix({position, scale, origin, rotation}, {offset, size}) };
 	}
 
 	void RenderSystem::DrawRect(Renderer& renderer, const Transform& transform, RectRender rect, Style style) const noexcept
@@ -232,6 +236,5 @@ namespace BM
 	{
 		const auto& text = CreateText(textRender, style);
 		DrawText(renderer, transform, text);
-
 	}
 }

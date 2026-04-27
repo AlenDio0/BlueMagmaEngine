@@ -35,25 +35,28 @@ namespace BM::UI
 
 	bool WidgetSystem::Contains(Registry& registry, const Transform& transform, const Widget& widget, Vec2i point) noexcept
 	{
-		const Vec2f cScaledSize = widget.Size * transform.Global.Scale;
-		const Vec2f cTopLeft = transform.Global.Position - (cScaledSize * transform.Local.State.Origin);
+		const auto& origin = transform.Local.State.Origin;
+		const auto& [position, scale, rotation, z] = transform.Global;
+		const Vec2f cSize = widget.Size;
 
 		Vec2f coords = point;
 		if (auto renderer = registry.ctx().get<Renderer*>())
 			coords = renderer->PixelToCoords(point);
+
+		const auto cMatrix = Transform2D::ToMatrix({ position, scale, origin, rotation }, { {0.f}, cSize });
+		const Vec2f cPosition = cMatrix.getInverse().transformPoint(coords);
 
 		switch (widget.Shape)
 		{
 			using Shape = Widget::ShapeType;
 
 		case Shape::Rect:
-			return RectFloat(cTopLeft, cScaledSize).Contains(coords);
+			return (cPosition.X >= 0.f && cPosition.X <= cSize.X) && (cPosition.Y >= 0.f && cPosition.Y <= cSize.Y);
 		case Shape::Circle:
 		{
-			const Vec2f cSemiSize = cScaledSize / 2.f;
-			const Vec2f cDistance = coords - (cTopLeft + cSemiSize);
+			const Vec2f cSemiAxes = cSize / 2.f;
 
-			return (cDistance.Squared() / cSemiSize.Squared()).Sum() <= 0.95f;
+			return ((cPosition - cSemiAxes).Squared() / cSemiAxes.Squared()).Sum() <= 1.f;
 		}
 
 		default:

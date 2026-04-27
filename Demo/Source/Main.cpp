@@ -1,6 +1,6 @@
 #include <BlueMagma.hpp>
 #include <BlueMagma/Core/Timer.hpp>
-#include "DemoLayer.hpp"
+#include "GameLayer.hpp"
 #include <chrono>
 
 static inline void InitLog(BM::Log::Level level, BM::Log::Level flushOn) noexcept {
@@ -32,7 +32,7 @@ int main(int argc, char* argv[])
 	if (!application.GetAssets().LoadYaml("Config/LoadAsset.yml"))
 		BM_ERROR("Couldn't load Asset Yaml");
 
-	application.QueuePushLayer<DemoLayer>();
+	application.QueuePushLayer<GameLayer>();
 	application.Run();
 
 	return 0;
