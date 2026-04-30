@@ -17,7 +17,7 @@ namespace BM
 				vec2 pixelCoord = gl_TexCoord[0].xy - 0.5;
 				vec2 center = uSize * 0.5;
 
-				vec2 fullSize = uSize + 1.0;
+				vec2 fullSize = uSize + 2.0;
 				vec2 cornerOffset = abs(pixelCoord * fullSize) - center + uCorner;
 				
 				float distance = length(max(cornerOffset, 0.0)) + min(max(cornerOffset.x, cornerOffset.y), 0.0) - uCorner;
@@ -66,36 +66,221 @@ namespace BM
 
 	using namespace Component;
 
-	static inline sf::Sprite& CreateSprite(const TextureRender& texture, Style style) noexcept {
-		static sf::Sprite sSprite{ Texture::GetDefault() };
+	static inline sf::Text CreateText(const TextRender& textRender, Style style) noexcept
+	{
+		sf::Text text{ Font::GetDefault() };
 
-		if (!texture.TexturePtr)
-			return sSprite;
+		if (!textRender.FontPtr)
+			return text;
 
-		sSprite.setTexture(*texture.TexturePtr, true);
-		if (texture.TextureRect)
-			sSprite.setTextureRect(texture.TextureRect.value());
-		sSprite.setColor(style.FillColor);
+		text.setFont(*textRender.FontPtr);
+		text.setString(textRender.Text);
+		text.setCharacterSize(textRender.CharSize);
+		text.setOutlineThickness(style.Outline);
+		text.setFillColor(style.FillColor);
+		text.setOutlineColor(style.OutlineColor);
 
-		return sSprite;
-	}
-	static inline sf::Text& CreateText(const TextRender& text, Style style) noexcept {
-		static sf::Text sText{ Font::GetDefault() };
-
-		if (!text.FontPtr)
-			return sText;
-
-		sText.setFont(*text.FontPtr);
-		sText.setString(text.Text);
-		sText.setCharacterSize(text.CharSize);
-		sText.setOutlineThickness(style.Outline);
-		sText.setFillColor(style.FillColor);
-		sText.setOutlineColor(style.OutlineColor);
-
-		return sText;
+		return text;
 	}
 
-	static inline bool IsInCameraBounds(RectFloat cameraBounds, const Transform& transform, Vec2f size) noexcept {
+	static inline RenderCommand BuildRenderCommand(const Transform& transform, auto& render, Vec2f size, const Style& style) noexcept
+	{
+		using TRenderComp = std::decay_t<decltype(render)>;
+
+		const auto cColor = style.FillColor;
+		RenderCommand command{
+			.Z = transform.Global.Z,
+			.Outline = std::abs(style.Outline),
+			.OutlineColor = style.OutlineColor
+		};
+
+		Vec2f offset{ 0.f };
+		Vec2f min{ 0.f }, max{ 1.f };
+
+		if constexpr (std::is_same_v<TRenderComp, RectRender>)
+		{
+			command.Data = RenderCommand::RectData{
+				.Size = size, .Corner = render.Corner
+			};
+		}
+		else if constexpr (std::is_same_v<TRenderComp, CircleRender>)
+		{
+			command.Data = RenderCommand::CircleData{
+				.Radius = render.Radius
+			};
+		}
+		else if constexpr (std::is_same_v<TRenderComp, TextureRender>)
+		{
+			command.Data = RenderCommand::TextureData{
+				.Ptr = render.TexturePtr
+			};
+
+			const RectInt cTextureRect = render.TextureRect ? render.TextureRect.value() : RectInt({ 0, 0 }, size);
+			offset = cTextureRect.Position;
+			min = cTextureRect.Min();
+			max = cTextureRect.Max();
+
+			return command;
+		}
+		else if constexpr (std::is_same_v<TRenderComp, TextRender>)
+		{
+			sf::Text text = CreateText(render, style);
+			const RectFloat cBounds = text.getLocalBounds();
+
+			command.Data = RenderCommand::TextData{
+				.TextCopy = std::move(text),
+				.Matrix = RenderSystem::GetRenderStates(transform, cBounds.Size, cBounds.Position).transform
+			};
+
+			return command;
+		}
+
+		const auto cMatrix = RenderSystem::GetRenderStates(transform, size, offset).transform;
+		command.Quad[0] = { cMatrix.transformPoint(Vec2f(0.f)),			cColor,	min };
+		command.Quad[1] = { cMatrix.transformPoint(Vec2f(size.X, 0.f)),	cColor,	{max.X, min.Y} };
+		command.Quad[2] = { cMatrix.transformPoint(size),				cColor,	max };
+		command.Quad[3] = { cMatrix.transformPoint(Vec2f(0.f)),			cColor, min };
+		command.Quad[4] = { cMatrix.transformPoint(size),				cColor,	max };
+		command.Quad[5] = { cMatrix.transformPoint(Vec2f(0.f, size.Y)),	cColor, {min.X, max.Y} };
+
+		return command;
+	}
+
+	template<typename TRenderComp>
+	static inline Vec2f GetRenderSize(const TRenderComp& render) noexcept
+	{
+		if constexpr (std::is_same_v<TRenderComp, RectRender>)
+			return render.Size;
+		else if constexpr (std::is_same_v<TRenderComp, CircleRender>)
+			return Vec2f(render.Radius * 2.f);
+		else if constexpr (std::is_same_v<TRenderComp, TextureRender>)
+			return Vec2f(render.TexturePtr->getSize());
+		else if constexpr (std::is_same_v<TRenderComp, TextRender>)
+		{
+			sf::Text text = CreateText(render, {});
+			return text.getLocalBounds().size;
+		}
+	}
+
+	template<typename TRenderComp>
+	static inline void CollectRenderCommands(Scene& scene, RectFloat cameraBounds, std::vector<RenderCommand>& commands) noexcept
+	{
+		scene.View<Transform, TRenderComp>().each([&](auto entity, const auto& transform, const auto& render) {
+			auto hidden = scene.TryGetComponent<Hidden>(entity);
+			if (hidden && !hidden->Visible)
+				return;
+
+			const Vec2f cSize = GetRenderSize<TRenderComp>(render);
+			if (!RenderSystem::IsInCameraBounds(cameraBounds, transform, cSize))
+				return;
+
+			Style style{};
+			if (auto eStyle = scene.TryGetComponent<Style>(entity))
+				style = *eStyle;
+
+			commands.push_back(BuildRenderCommand(transform, render, cSize, style));
+			});
+	}
+
+	void RenderSystem::OnRender(Scene& scene) const noexcept
+	{
+		Renderer* renderer = scene.GetRenderer();
+		if (!renderer)
+			return;
+		const RectFloat cCameraBounds = renderer->GetCamera().GetBounds();
+
+		static std::vector<RenderCommand> sRenderCommands;
+		sRenderCommands.clear();
+		sRenderCommands.reserve(scene.View<Transform>().size());
+
+		CollectRenderCommands<RectRender>(scene, cCameraBounds, sRenderCommands);
+		CollectRenderCommands<CircleRender>(scene, cCameraBounds, sRenderCommands);
+		CollectRenderCommands<TextureRender>(scene, cCameraBounds, sRenderCommands);
+		CollectRenderCommands<TextRender>(scene, cCameraBounds, sRenderCommands);
+
+		std::ranges::stable_sort(sRenderCommands, [](const auto& left, const auto& right) {
+			return left.Z < right.Z; });
+
+		DrawRenderCommands(*renderer, sRenderCommands);
+	}
+
+	void RenderSystem::DrawRenderCommands(Renderer& renderer, const std::vector<RenderCommand>& commands) noexcept
+	{
+		static std::vector<sf::Vertex> sBatch;
+		sBatch.clear();
+
+		const RenderCommand* batchKey = nullptr;
+		for (const auto& command : commands)
+		{
+			if (command.Is<RenderCommand::TextData>())
+			{
+				FlushBatch(renderer, sBatch, batchKey);
+
+				const auto& textData = command.Get<RenderCommand::TextData>();
+				sf::RenderStates states;
+				states.blendMode = sf::BlendAlpha;
+				states.transform = textData.Matrix;
+
+				renderer.Draw(textData.TextCopy, states);
+				continue;
+			}
+
+			if (batchKey && !HasSameUniform(command, *batchKey))
+				FlushBatch(renderer, sBatch, batchKey);
+
+			if (!batchKey)
+				batchKey = &command;
+
+			sBatch.append_range(command.Quad);
+		}
+		FlushBatch(renderer, sBatch, batchKey);
+	}
+
+	void RenderSystem::FlushBatch(Renderer& renderer, std::vector<sf::Vertex>& batch, const RenderCommand*& keyPtr) noexcept
+	{
+		if (batch.empty() || !keyPtr)
+			return;
+
+		sf::RenderStates states;
+		states.blendMode = sf::BlendAlpha;
+		states.shader = GetRenderShader(*keyPtr);
+		if (keyPtr->Is<RenderCommand::TextureData>())
+			states.texture = keyPtr->Get<RenderCommand::TextureData>().Ptr;
+
+		renderer.Draw(batch.data(), batch.size(), sf::PrimitiveType::Triangles, states);
+
+		batch.clear();
+		keyPtr = nullptr;
+	}
+
+	bool RenderSystem::HasSameUniform(const RenderCommand& left, const RenderCommand& right) noexcept
+	{
+		if (left.Outline != right.Outline)
+			return false;
+		if (left.OutlineColor != right.OutlineColor)
+			return false;
+
+		return std::visit([](const auto& left, const auto& right) {
+			using TLeft = std::decay_t<decltype(left)>;
+			using TRight = std::decay_t<decltype(right)>;
+
+			if constexpr (!std::is_same_v<TLeft, TRight>)
+				return false;
+			else if constexpr (std::is_same_v<TLeft, RenderCommand::RectData>)
+				return left.Size == right.Size && left.Corner == right.Corner;
+			else if constexpr (std::is_same_v<TLeft, RenderCommand::CircleData>)
+				return left.Radius == right.Radius;
+			else if constexpr (std::is_same_v<TLeft, RenderCommand::TextureData>)
+				return left.Ptr == right.Ptr;
+			else if constexpr (std::is_same_v<TLeft, RenderCommand::TextData>)
+				return false;
+
+			return false;
+			}, left.Data, right.Data);
+	}
+
+	bool RenderSystem::IsInCameraBounds(RectFloat cameraBounds, const Transform& transform, Vec2f size) noexcept
+	{
 		const auto& [position, scale, rotation, z] = transform.Global;
 		const auto& origin = transform.Local.State.Origin;
 
@@ -106,51 +291,7 @@ namespace BM
 		return cLocalCameraBounds.Intersects(cEntityBounds);
 	}
 
-	void RenderSystem::OnRender(Scene& scene) const noexcept
-	{
-		Renderer* renderer = scene.GetRenderer();
-		if (!renderer)
-			return;
-		const RectFloat cCameraBounds = renderer->GetCamera().GetBounds();
-
-		auto view = scene.View<Transform>();
-		for (auto entity : view)
-		{
-			auto hidden = scene.TryGetComponent<Hidden>(entity);
-			if (hidden && !hidden->Visible)
-				continue;
-
-			const Transform& transform = view.get<Transform>(entity);
-			Style style{};
-			if (auto entityStyle = scene.TryGetComponent<Style>(entity))
-				style = *entityStyle;
-
-			if (auto rect = scene.TryGetComponent<RectRender>(entity))
-			{
-				if (IsInCameraBounds(cCameraBounds, transform, rect->Size))
-					DrawRect(*renderer, transform, *rect, style);
-			}
-			else if (auto circle = scene.TryGetComponent<CircleRender>(entity))
-			{
-				if (IsInCameraBounds(cCameraBounds, transform, circle->Radius * 2.f))
-					DrawCircle(*renderer, transform, *circle, style);
-			}
-			else if (auto texture = scene.TryGetComponent<TextureRender>(entity))
-			{
-				auto& sprite = CreateSprite(*texture, style);
-				if (IsInCameraBounds(cCameraBounds, transform, sprite.getLocalBounds().size))
-					DrawTexture(*renderer, transform, sprite);
-			}
-			else if (auto textRender = scene.TryGetComponent<TextRender>(entity))
-			{
-				auto& text = CreateText(*textRender, style);
-				if (IsInCameraBounds(cCameraBounds, transform, text.getLocalBounds().size))
-					DrawText(*renderer, transform, text);
-			}
-		}
-	}
-
-	static inline sf::RenderStates GetRenderStates(const Transform& transform, Vec2f size, Vec2f offset = { 0.f })
+	sf::RenderStates RenderSystem::GetRenderStates(const Transform& transform, Vec2f size, Vec2f offset) noexcept
 	{
 		const auto& [position, scale, rotation, z] = transform.Global;
 		const auto& origin = transform.Local.State.Origin;
@@ -158,83 +299,28 @@ namespace BM
 		return sf::RenderStates{ Transform2D::ToMatrix({position, scale, origin, rotation}, {offset, size}) };
 	}
 
-	void RenderSystem::DrawRect(Renderer& renderer, const Transform& transform, RectRender rect, Style style) const noexcept
+	sf::Shader* RenderSystem::GetRenderShader(const RenderCommand& command) noexcept
 	{
-		const Vec2f cSize = rect.Size;
-		auto states = GetRenderStates(transform, cSize);
+		return std::visit([&](const auto& data) -> sf::Shader* {
+			using TData = std::decay_t<decltype(data)>;
 
-		auto& shader = Shader::s_RectShader;
-		shader.setUniform("uSize", sf::Glsl::Vec2(cSize));
-		shader.setUniform("uCorner", rect.Corner);
-		shader.setUniform("uOutline", std::abs(style.Outline));
-		shader.setUniform("uOutlineColor", sf::Glsl::Vec4(style.OutlineColor));
+			if constexpr (std::is_same_v<TData, RenderCommand::RectData>) {
+				auto& shader = Shader::s_RectShader;
+				shader.setUniform("uSize", sf::Glsl::Vec2(data.Size));
+				shader.setUniform("uCorner", data.Corner);
+				shader.setUniform("uOutline", command.Outline);
+				shader.setUniform("uOutlineColor", sf::Glsl::Vec4(command.OutlineColor));
+				return &shader;
+			}
+			else if constexpr (std::is_same_v<TData, RenderCommand::CircleData>) {
+				auto& shader = Shader::s_CircleShader;
+				shader.setUniform("uRadius", data.Radius);
+				shader.setUniform("uOutline", command.Outline);
+				shader.setUniform("uOutlineColor", sf::Glsl::Vec4(command.OutlineColor));
+				return &shader;
+			}
 
-		sf::Vertex vertices[6];
-		const Vec2f cTopL(0.f, 0.f), cTopR(cSize.X, 0.f), cBottomR(cSize.X, cSize.Y), cBottomL(0.f, cSize.Y);
-		const sf::Color cColor = style.FillColor;
-
-		vertices[0] = sf::Vertex(cTopL, cColor, Vec2f(0.f, 0.f));
-		vertices[1] = sf::Vertex(cTopR, cColor, Vec2f(1.f, 0.f));
-		vertices[2] = sf::Vertex(cBottomR, cColor, Vec2f(1.f, 1.f));
-		vertices[3] = sf::Vertex(cTopL, cColor, Vec2f(0.f, 0.f));
-		vertices[4] = sf::Vertex(cBottomR, cColor, Vec2f(1.f, 1.f));
-		vertices[5] = sf::Vertex(cBottomL, cColor, Vec2f(0.f, 1.f));
-
-		states.shader = &shader;
-		states.blendMode = sf::BlendAlpha;
-
-		renderer.Draw(vertices, 6, sf::PrimitiveType::Triangles, states);
-	}
-
-	void RenderSystem::DrawCircle(Renderer& renderer, const Transform& transform, CircleRender circle, Style style) const noexcept
-	{
-		const float cRadius = circle.Radius;
-		const float cDiameter = cRadius * 2.f;
-		auto states = GetRenderStates(transform, cDiameter);
-
-		auto& shader = Shader::s_CircleShader;
-		shader.setUniform("uRadius", cRadius);
-		shader.setUniform("uOutline", std::abs(style.Outline));
-		shader.setUniform("uOutlineColor", sf::Glsl::Vec4(style.OutlineColor));
-
-		sf::Vertex vertices[6];
-		const Vec2f cTopL(0.f, 0.f), cTopR(cDiameter, 0.f), cBottomR(cDiameter, cDiameter), cBottomL(0.f, cDiameter);
-		const sf::Color cColor = style.FillColor;
-
-		vertices[0] = sf::Vertex(cTopL, cColor, Vec2f(0.f, 0.f));
-		vertices[1] = sf::Vertex(cTopR, cColor, Vec2f(1.f, 0.f));
-		vertices[2] = sf::Vertex(cBottomR, cColor, Vec2f(1.f, 1.f));
-		vertices[3] = sf::Vertex(cTopL, cColor, Vec2f(0.f, 0.f));
-		vertices[4] = sf::Vertex(cBottomR, cColor, Vec2f(1.f, 1.f));
-		vertices[5] = sf::Vertex(cBottomL, cColor, Vec2f(0.f, 1.f));
-
-		states.shader = &shader;
-		states.blendMode = sf::BlendAlpha;
-
-		renderer.Draw(vertices, 6, sf::PrimitiveType::Triangles, states);
-	}
-
-	void RenderSystem::DrawTexture(Renderer& renderer, const Transform& transform, const sf::Sprite& sprite) const noexcept
-	{
-		RectFloat cBounds = sprite.getLocalBounds();
-		renderer.Draw(sprite, GetRenderStates(transform, cBounds.Size, cBounds.Position));
-	}
-
-	void RenderSystem::DrawTexture(Renderer& renderer, const Transform& transform, const TextureRender& texture, Style style) const noexcept
-	{
-		const auto& sprite = CreateSprite(texture, style);
-		DrawTexture(renderer, transform, sprite);
-	}
-
-	void RenderSystem::DrawText(Renderer& renderer, const Transform& transform, const sf::Text& text) const noexcept
-	{
-		const RectFloat cBounds = text.getLocalBounds();
-		renderer.Draw(text, GetRenderStates(transform, cBounds.Size, cBounds.Position));
-	}
-
-	void RenderSystem::DrawText(Renderer& renderer, const Transform& transform, const TextRender& textRender, Style style) const noexcept
-	{
-		const auto& text = CreateText(textRender, style);
-		DrawText(renderer, transform, text);
+			return nullptr;
+			}, command.Data);
 	}
 }

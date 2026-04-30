@@ -144,26 +144,17 @@ void GameLayer::OnUpdate(float deltaTime) noexcept
 			float& positionX = transform.Local.State.Position.X;
 			positionX += cSpeed * m_ButtonSpeedFactor * deltaTime;
 
-			static BM::Timer sRotationTimer;
-			static float sRotationVelocity = 1.f;
-			static float sRotationSpeedPercentage = 1.01f;
-
-			float& rotation = transform.Local.State.Rotation;
-
-			sRotationVelocity *= sRotationSpeedPercentage;
-			rotation += sRotationVelocity * deltaTime;
-			if (sRotationVelocity > 36000.f)
-				sRotationSpeedPercentage = 0.99f;
-			else if (sRotationVelocity < 10.f)
-				sRotationSpeedPercentage = 1.01f;
-
-			sRotationTimer.Restart();
-
 			if (positionX - cLeft >= cCameraRight)
 			{
 				positionX = cCameraLeft - cRight;
 				m_ButtonSpeedFactor += 0.1f;
 			}
+
+			constexpr float cRotationSpeed = 30.f;
+			float& rotation = transform.Local.State.Rotation;
+
+			const size_t cRotationCount = (size_t)(rotation / 360.f);
+			rotation += (cRotationSpeed * (float)(cRotationCount + 1ull)) * deltaTime;
 
 			m_ButtonCamera.SetCenter(transform.Global.Position);
 			});
@@ -223,21 +214,20 @@ void GameLayer::InitExample() noexcept
 
 		const uint8_t cColor = (uint8_t)(cPercentage * 255.f);
 
-		BM::Entity rect = m_Scene.CreateEntity({ .State{.Position{cPosX, cBasePosY}, .Rotation = 45.f}, .Z = cPercentage });
+		BM::Entity rect = m_Scene.CreateEntity({ .State{.Position{cPosX, cBasePosY}, .Rotation = 45.f}, .Z = 0.f });
 		rect.Add<Comp::RectRender>(cBoxSize, 5.f);
 		rect.Add<Comp::Style>(sf::Color(cColor, 0, 0), sf::Color::Black, i % 2 ? 0.f : 2.f);
 
-		BM::Entity circle = m_Scene.CreateEntity({ .State{.Position{cPosX, cPercentage * cBasePosY}},
-			.Z = 0.1f + cPercentage });
+		BM::Entity circle = m_Scene.CreateEntity({ .State{.Position{cPosX, cPercentage * cBasePosY}}, .Z = 0.1f });
 		circle.Add<Comp::CircleRender>(cBoxSize / 2.f);
 		circle.Add<Comp::Style>(sf::Color(0, cColor, 0), sf::Color::Black, i % 2 == 0 ? 0.f : 1.f);
 
 		BM::Entity sprite = m_Scene.CreateEntity({ .State{.Position{cPosX, cBoundSize - (cPercentage * cBasePosY)},
-			.Scale{BM::Vec2f(cBoxSize) / texture.getSize()}, .Rotation = -45.f}, .Z = 0.2f + cPercentage, });
+			.Scale{BM::Vec2f(cBoxSize) / texture.getSize()}, .Rotation = -45.f}, .Z = 0.2f, });
 		sprite.Add<Comp::TextureRender>(&texture);
 		sprite.Add<Comp::Style>(sf::Color(cColor, cColor, cColor));
 
-		BM::Entity text = m_Scene.CreateEntity({ .State{.Position{cPosX, cBoundSize - cBasePosY}}, .Z = 0.3f + cPercentage });
+		BM::Entity text = m_Scene.CreateEntity({ .State{.Position{cPosX, cBoundSize - cBasePosY}}, .Z = 0.3f });
 		text.Add<Comp::TextRender>(&GetAsset<BM::Font>("Minecraft"), "O", (uint32_t)cBoxSize);
 		text.Add<Comp::Style>(sf::Color(cColor, 0, cColor), sf::Color::Black, 5.f);
 	}
@@ -376,7 +366,7 @@ bool GameLayer::OnMousePressed(const BM::EventHandle::MouseButtonPressed& mouseP
 		return false;
 
 	const BM::Vec2f cMouseCoords = GetRenderer().PixelToCoords(mousePressed.position);
-	const float cRadius = static_cast<float>(BM_RANDOM(10, 30)) * 5.f;
+	const float cRadius = static_cast<float>(BM_RANDOM(50, 100));
 
 	auto onCirclePressed = [&](auto entity, auto event) {
 		if (event.button != sf::Mouse::Button::Left)
@@ -387,8 +377,11 @@ bool GameLayer::OnMousePressed(const BM::EventHandle::MouseButtonPressed& mouseP
 		};
 
 	const sf::Color cRandomColor{ (static_cast<uint32_t>(BM_RANDOM()) << 8) | 0xFF };
+	static float sPositionZ = 100.f;
+	sPositionZ += 1.f;
+
 	BM::Entity circle = BM::UIMaker::CreateButton(m_Scene,
-		{ .Transform{.State{.Position = cMouseCoords, .Origin{0.5f}}, .Z = 100.f},
+		{ .Transform{.State{.Position = cMouseCoords, .Origin{0.5f}}, .Z = sPositionZ},
 		.Size{cRadius * 2.f}, .Shape{BM::Component::Widget::ShapeType::Circle},
 		.Style{sf::Color::Transparent, cRandomColor, 10.f} }, onCirclePressed);
 
