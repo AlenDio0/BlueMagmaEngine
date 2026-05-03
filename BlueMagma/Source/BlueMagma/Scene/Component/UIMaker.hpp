@@ -4,6 +4,7 @@
 #include "Base.hpp"
 #include "UI.hpp"
 #include "Core/Vec2.hpp"
+#include <optional>
 
 namespace BM::UIMaker
 {
@@ -13,13 +14,15 @@ namespace BM::UIMaker
 		Vec2f Size;
 		Component::Widget::ShapeType Shape;
 		float Corner;
-		Component::Style Style;
+		Component::ColorMaterial Color;
+		std::optional<Component::Outline> Outline;
 	};
 	struct TextProps
 	{
 		Component::Transform::LocalSpace Transform;
 		Component::TextRender Text;
-		Component::Style Style;
+		Component::ColorMaterial Color;
+		std::optional<Component::Outline> Outline;
 	};
 
 	Vec2f Center(Vec2f size, Vec2f origin) noexcept;

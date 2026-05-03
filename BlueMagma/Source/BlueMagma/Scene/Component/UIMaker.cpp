@@ -17,7 +17,9 @@ namespace BM::UIMaker
 
 		Entity text = entity.CreateChild(props.Transform);
 		text.Add<TextRender>(props.Text);
-		text.Add<Style>(props.Style);
+		text.Add<ColorMaterial>(props.Color);
+		if (props.Outline)
+			text.Add<Outline>(props.Outline.value());
 
 		return text;
 	}
@@ -25,24 +27,19 @@ namespace BM::UIMaker
 	void AddWidgetColor(Entity entity, float hoverFactor, float focusFactor) noexcept
 	{
 		BM_CORE_FN("entity: {}", entity);
-		auto style = entity.TryGet<Style>();
-		if (!style)
-		{
-			BM_CORE_WARN("Cannot calculate Component::WidgetColor factor without Component::Style [entity: {}]", entity);
-			return;
-		}
+		const sf::Color cColor = entity.AddOrGet<ColorMaterial>().Color;
 
-		sf::Color hoverColor = style->FillColor;
+		sf::Color hoverColor = cColor;
 		hoverColor.r = static_cast<uint8_t>(hoverColor.r * hoverFactor);
 		hoverColor.g = static_cast<uint8_t>(hoverColor.g * hoverFactor);
 		hoverColor.b = static_cast<uint8_t>(hoverColor.b * hoverFactor);
 
-		sf::Color focusColor = style->FillColor;
+		sf::Color focusColor = cColor;
 		focusColor.r = static_cast<uint8_t>(focusColor.r * focusFactor);
 		focusColor.g = static_cast<uint8_t>(focusColor.g * focusFactor);
 		focusColor.b = static_cast<uint8_t>(focusColor.b * focusFactor);
 
-		auto& widgetColor = entity.AddOrGet<WidgetColor>(style->FillColor, hoverColor, focusColor);
+		auto& widgetColor = entity.AddOrGet<WidgetColor>(cColor, hoverColor, focusColor);
 		widgetColor.HoverColor = hoverColor;
 		widgetColor.FocusColor = focusColor;
 	}
@@ -52,17 +49,19 @@ namespace BM::UIMaker
 		BM_CORE_FN();
 		Entity ui = scene.CreateEntity(props.Transform);
 		ui.Add<Widget>(props.Size, props.Shape);
-		ui.Add<Style>(props.Style);
+		ui.Add<ColorMaterial>(props.Color);
+		if (props.Outline)
+			ui.Add<Outline>(props.Outline.value());
 
 		switch (props.Shape)
 		{
 			using ShapeType = Widget::ShapeType;
 
 		case ShapeType::Rect:
-			ui.Add<RectRender>(props.Size, props.Corner);
+			ui.Add<RectShape>(props.Size, props.Corner);
 			break;
 		case ShapeType::Circle:
-			ui.Add<CircleRender>(props.Size.X / 2.f);
+			ui.Add<CircleShape>(props.Size.X / 2.f);
 		}
 
 		BM_CORE_TRACE("Created UI [ui: {}]", ui);
@@ -88,8 +87,10 @@ namespace BM::UIMaker
 		cursorTransform.Z += 1.f;
 
 		Entity cursor = inputText.CreateChild(cursorTransform);
-		cursor.Add<RectRender>(Vec2f(2.f, static_cast<float>(textProps.Text.CharSize) * 1.1f));
-		cursor.Add<Style>(textProps.Style);
+		cursor.Add<RectShape>(Vec2f(2.f, static_cast<float>(textProps.Text.CharSize) * 1.1f));
+		cursor.Add<ColorMaterial>(textProps.Color);
+		if (textProps.Outline)
+			cursor.Add<Outline>(textProps.Outline.value());
 		cursor.Add<Hidden>();
 
 		input.TextChild = text;

@@ -140,8 +140,8 @@ namespace BM::UI
 		{
 			text.TryPatch<TextRender>([&](auto& textRender) {
 				textRender.Text = !input.Text.empty() ? input.Text : input.Placeholder; });
-			text.TryPatch<Style>([&](auto& style) {
-				style.FillColor.a = !input.Text.empty() ? 0xFF : 0x80; });
+			text.TryPatch<ColorMaterial>([&](auto& color) {
+				color.Color.a = !input.Text.empty() ? 0xFF : 0x80; });
 		}
 
 		if (cursor)

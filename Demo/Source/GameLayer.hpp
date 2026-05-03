@@ -29,7 +29,7 @@ private:
 	bool OnMouseScrolled(const BM::EventHandle::MouseWheelScrolled& mouseScrolled) noexcept;
 
 	void UpdateMouseCursor() noexcept;
-	void UpdateMouseRect(BM::Vec2i point) noexcept;
+	void UpdateMouseRender(BM::Vec2i point) noexcept;
 	std::string FormatStatText(float deltaTime) const noexcept;
 private:
 	BM::Camera2D* m_ActiveCameraPtr;
@@ -45,7 +45,7 @@ private:
 	BM::Entity m_InputText;
 	BM::Entity m_FocusText;
 
-	BM::Entity m_MouseRect;
+	BM::Entity m_MouseRender;
 
 	BM::Timer m_StatTimer;
 	BM::Timer m_SwitchTimer;

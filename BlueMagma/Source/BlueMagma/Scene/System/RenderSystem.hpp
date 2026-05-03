@@ -5,15 +5,15 @@
 #include "Core/Vec2.hpp"
 #include "Core/Rect.hpp"
 #include "Asset/Asset.hpp"
-#include <SFML/Graphics/Transform.hpp>
-#include <SFML/Graphics/Text.hpp>
 #include <SFML/Graphics/RenderStates.hpp>
 #include <SFML/Graphics/Shader.hpp>
 #include <SFML/Graphics/Vertex.hpp>
+#include <SFML/Graphics/Transform.hpp>
+#include <SFML/Graphics/Text.hpp>
 #include <SFML/Graphics/Color.hpp>
-#include <variant>
 #include <vector>
 #include <array>
+#include <variant>
 #include <tuple>
 #include <utility>
 
@@ -21,24 +21,35 @@ namespace BM
 {
 	struct RenderCommand
 	{
-		struct RectData { Vec2f Size{}; float Corner = 0.f; };
-		struct CircleData { float Radius = 0.f; };
-		struct TextureData { const Texture* Ptr = nullptr; };
-		struct TextData { sf::Text TextCopy{ Font::GetDefault() }; sf::Transform Matrix{}; };
+		struct SpriteData
+		{
+			const Texture* TexturePtr = nullptr;
+			RectFloat TextureCoords{ Vec2f(0.f), Vec2f(1.f) };
+		};
+		struct TextData
+		{
+			sf::Text TextCopy{ Font::GetDefault() };
+			sf::Transform Matrix{};
+		};
 
-		using DataType = std::variant<RectData, CircleData, TextureData, TextData>;
-		DataType Data;
+		using ShapeVariant = std::variant<Component::RectShape, Component::CircleShape, SpriteData, TextData>;
+
+		struct MaterialType
+		{
+			sf::Color Color = sf::Color::White;
+			const Texture* TexturePtr = nullptr;
+			RectFloat TextureCoords{ Vec2f(0.f), Vec2f(1.f) };
+		} Material{};
+		ShapeVariant Shape{};
 
 		float Z = 0.f;
-		sf::Vertex Quad[6]{};
+		std::array<sf::Vertex, 6> Quad{};
+		Component::Outline Outline{};
 
-		float Outline = 0.f;
-		sf::Color OutlineColor{};
-
-		template<typename TData>
-		inline const TData& Get() const noexcept { return std::get<TData>(Data); }
-		template<typename TData>
-		inline bool Is() const noexcept { return std::holds_alternative<TData>(Data); }
+		template<typename TShape>
+		inline bool IsShape() const noexcept { return std::holds_alternative<TShape>(Shape); }
+		template<typename TShape>
+		inline const TShape& GetShape() const noexcept { return std::get<TShape>(Shape); }
 	};
 
 	class RenderSystem : public ISystem

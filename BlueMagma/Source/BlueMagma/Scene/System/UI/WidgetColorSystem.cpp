@@ -18,15 +18,16 @@ namespace BM::UI
 
 	void WidgetColorSystem::TryUpdateColor(Registry& registry, EntityHandle entity) noexcept
 	{
-		auto style = registry.try_get<Style>(entity);
+		auto color = registry.try_get<ColorMaterial>(entity);
 		auto widget = registry.try_get<Widget>(entity);
 		auto widgetColor = registry.try_get<WidgetColor>(entity);
-		if (!style || !widget || !widgetColor)
+		if (!color || !widget || !widgetColor)
 			return;
 
-		style->FillColor =
-			widget->Hover ? widgetColor->HoverColor :
-			widget->Focus ? widgetColor->FocusColor :
-			widgetColor->IdleColor;
+		const auto [cIdleColor, cHoverColor, cFocusColor] = *widgetColor;
+		color->Color =
+			widget->Hover && cHoverColor != cIdleColor ? cHoverColor :
+			widget->Focus ? cFocusColor :
+			cIdleColor;
 	}
 }

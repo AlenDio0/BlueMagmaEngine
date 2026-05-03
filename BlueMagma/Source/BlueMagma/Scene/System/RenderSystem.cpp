@@ -1,6 +1,7 @@
 #include "bmpch.hpp"
 #include "RenderSystem.hpp"
 #include "Scene/Scene.hpp"
+#include "Scene/Entity.hpp"
 #include "Core/Transform2D.hpp"
 
 namespace BM
@@ -12,6 +13,9 @@ namespace BM
 			uniform float uCorner;
 			uniform float uOutline;
 			uniform vec4 uOutlineColor;
+
+			uniform sampler2D uTexture;
+			uniform bool uHasTexture;
 
 			void main() {
 				vec2 pixelCoord = gl_TexCoord[0].xy - 0.5;
@@ -26,7 +30,7 @@ namespace BM
 				if (alpha <= 0.0)
 					discard;
 
-				vec4 finalColor = gl_Color;
+				vec4 finalColor = uHasTexture ? texture2D(uTexture, gl_TexCoord[0].xy) * gl_Color : gl_Color;
 				if (uOutline > 0.0)
 				{
 					float outlineFactor = smoothstep(-uOutline - 1.0, -uOutline, distance);
@@ -40,6 +44,9 @@ namespace BM
 			uniform float uOutline;
 			uniform vec4 uOutlineColor;
 
+			uniform sampler2D uTexture;
+			uniform bool uHasTexture;
+
 			void main() {
 				vec2 pixelCoord = gl_TexCoord[0].xy - 0.5;
 
@@ -50,7 +57,7 @@ namespace BM
 				if (alpha <= 0.0)
 					discard;
 
-				vec4 finalColor = gl_Color;
+				vec4 finalColor = uHasTexture ? texture2D(uTexture, gl_TexCoord[0].xy) * gl_Color : gl_Color;
 				if (uOutline > 0.0)
 				{
 					float outlineFactor = smoothstep(-uOutline - 1.0, -uOutline, distance);
@@ -66,82 +73,98 @@ namespace BM
 
 	using namespace Component;
 
-	static inline sf::Text CreateText(const TextRender& textRender, Style style) noexcept
+	static inline sf::Text CreateText(const TextRender& textRender) noexcept
 	{
-		sf::Text text{ Font::GetDefault() };
+		static sf::Text sText{ Font::GetDefault() };
 
 		if (!textRender.FontPtr)
-			return text;
+			return sf::Text{ Font::GetDefault() };
 
-		text.setFont(*textRender.FontPtr);
-		text.setString(textRender.Text);
-		text.setCharacterSize(textRender.CharSize);
-		text.setOutlineThickness(style.Outline);
-		text.setFillColor(style.FillColor);
-		text.setOutlineColor(style.OutlineColor);
+		sText.setFont(*textRender.FontPtr);
+		sText.setString(textRender.Text);
+		sText.setCharacterSize(textRender.CharSize);
 
-		return text;
+		return sText;
 	}
 
-	static inline RenderCommand BuildRenderCommand(const Transform& transform, auto& render, Vec2f size, const Style& style) noexcept
+	static inline std::array<sf::Vertex, 6> BuildQuad(const Transform& transform, sf::Color color, Vec2f size, RectFloat coords) noexcept
 	{
-		using TRenderComp = std::decay_t<decltype(render)>;
+		const auto cMatrix = RenderSystem::GetRenderStates(transform, size).transform;
+		const Vec2f cMin = coords.Min(), cMax = coords.Max();
+		return { {
+			{ cMatrix.transformPoint(Vec2f(0.f)),			color, cMin },
+			{ cMatrix.transformPoint(Vec2f(size.X, 0.f)),	color, {cMax.X, cMin.Y} },
+			{ cMatrix.transformPoint(size),					color, cMax },
+			{ cMatrix.transformPoint(Vec2f(0.f)),			color, cMin },
+			{ cMatrix.transformPoint(size),					color, cMax },
+			{ cMatrix.transformPoint(Vec2f(0.f, size.Y)),	color, {cMin.X, cMax.Y} }
+			} };
+	}
 
-		const auto cColor = style.FillColor;
-		RenderCommand command{
-			.Z = transform.Global.Z,
-			.Outline = std::abs(style.Outline),
-			.OutlineColor = style.OutlineColor
+	static inline void PopulateRenderCommand(Entity entity, RenderCommand& command) noexcept
+	{
+		if (auto* outline = entity.TryGet<Outline>())
+			command.Outline = *outline;
+
+		if (auto* color = entity.TryGet<ColorMaterial>())
+			command.Material.Color = color->Color;
+
+		if (auto* texture = entity.TryGet<TextureMaterial>())
+		{
+			command.Material.TexturePtr = texture->TexturePtr;
+			command.Material.TextureCoords = texture->TextureRect.value_or(RectInt({ 0, 0 }, texture->TexturePtr->getSize()));
+		}
+	}
+
+	static inline void BuildText(const Transform& transform, const TextRender& textRender, RenderCommand& outCommand) noexcept
+	{
+		sf::Text text = CreateText(textRender);
+		text.setFillColor(outCommand.Material.Color);
+		text.setOutlineThickness(outCommand.Outline.Thickness);
+		text.setOutlineColor(outCommand.Outline.Color);
+
+		const RectFloat cBounds = text.getLocalBounds();
+		outCommand.Shape = RenderCommand::TextData{
+			.TextCopy = std::move(text),
+			.Matrix = RenderSystem::GetRenderStates(transform, cBounds.Size, cBounds.Position).transform
 		};
+	}
 
-		Vec2f offset{ 0.f };
-		Vec2f min{ 0.f }, max{ 1.f };
+	static inline void BuildSprite(const Transform& transform, const SpriteShape& sprite, Vec2f size, RenderCommand& outCommand) noexcept
+	{
+		const auto& texture = sprite.TexturePtr;
+		if (!texture)
+			return;
 
-		if constexpr (std::is_same_v<TRenderComp, RectRender>)
+		const RectInt cCoords = sprite.TextureRect.value_or(RectInt({ 0, 0 }, texture->getSize()));
+		outCommand.Shape = RenderCommand::SpriteData{ .TexturePtr = texture, .TextureCoords = cCoords };
+
+		outCommand.Quad = BuildQuad(transform, outCommand.Material.Color, size, cCoords);
+	}
+
+	template<typename TRenderComp>
+	static inline RenderCommand BuildRenderCommand(Entity entity, const Transform& transform, const TRenderComp& render, Vec2f size) noexcept
+	{
+		RenderCommand command{ .Z = transform.Global.Z };
+		PopulateRenderCommand(entity, command);
+
+		if constexpr (std::is_same_v<TRenderComp, TextRender>)
 		{
-			command.Data = RenderCommand::RectData{
-				.Size = size, .Corner = render.Corner
-			};
-		}
-		else if constexpr (std::is_same_v<TRenderComp, CircleRender>)
-		{
-			command.Data = RenderCommand::CircleData{
-				.Radius = render.Radius
-			};
-		}
-		else if constexpr (std::is_same_v<TRenderComp, TextureRender>)
-		{
-			command.Data = RenderCommand::TextureData{
-				.Ptr = render.TexturePtr
-			};
-
-			const RectInt cTextureRect = render.TextureRect ? render.TextureRect.value() : RectInt({ 0, 0 }, size);
-			offset = cTextureRect.Position;
-			min = cTextureRect.Min();
-			max = cTextureRect.Max();
-
+			BuildText(transform, render, command);
 			return command;
 		}
-		else if constexpr (std::is_same_v<TRenderComp, TextRender>)
+		if constexpr (std::is_same_v<TRenderComp, SpriteShape>)
 		{
-			sf::Text text = CreateText(render, style);
-			const RectFloat cBounds = text.getLocalBounds();
-
-			command.Data = RenderCommand::TextData{
-				.TextCopy = std::move(text),
-				.Matrix = RenderSystem::GetRenderStates(transform, cBounds.Size, cBounds.Position).transform
-			};
-
+			BuildSprite(transform, render, size, command);
 			return command;
 		}
 
-		const auto cMatrix = RenderSystem::GetRenderStates(transform, size, offset).transform;
-		command.Quad[0] = { cMatrix.transformPoint(Vec2f(0.f)),			cColor,	min };
-		command.Quad[1] = { cMatrix.transformPoint(Vec2f(size.X, 0.f)),	cColor,	{max.X, min.Y} };
-		command.Quad[2] = { cMatrix.transformPoint(size),				cColor,	max };
-		command.Quad[3] = { cMatrix.transformPoint(Vec2f(0.f)),			cColor, min };
-		command.Quad[4] = { cMatrix.transformPoint(size),				cColor,	max };
-		command.Quad[5] = { cMatrix.transformPoint(Vec2f(0.f, size.Y)),	cColor, {min.X, max.Y} };
+		if constexpr (std::is_same_v<TRenderComp, RectShape>)
+			command.Shape = RectShape{ .Size = size, .Corner = render.Corner };
+		else if constexpr (std::is_same_v<TRenderComp, CircleShape>)
+			command.Shape = CircleShape{ .Radius = render.Radius };
+
+		command.Quad = BuildQuad(transform, command.Material.Color, size, command.Material.TextureCoords);
 
 		return command;
 	}
@@ -149,37 +172,34 @@ namespace BM
 	template<typename TRenderComp>
 	static inline Vec2f GetRenderSize(const TRenderComp& render) noexcept
 	{
-		if constexpr (std::is_same_v<TRenderComp, RectRender>)
+		if constexpr (std::is_same_v<TRenderComp, RectShape>)
 			return render.Size;
-		else if constexpr (std::is_same_v<TRenderComp, CircleRender>)
+		else if constexpr (std::is_same_v<TRenderComp, CircleShape>)
 			return Vec2f(render.Radius * 2.f);
-		else if constexpr (std::is_same_v<TRenderComp, TextureRender>)
-			return Vec2f(render.TexturePtr->getSize());
+		else if constexpr (std::is_same_v<TRenderComp, SpriteShape>)
+			return render.TextureRect.value_or(RectInt(Vec2i(0.f), render.TexturePtr->getSize())).Size;
 		else if constexpr (std::is_same_v<TRenderComp, TextRender>)
-		{
-			sf::Text text = CreateText(render, {});
-			return text.getLocalBounds().size;
-		}
+			return CreateText(render).getLocalBounds().size;
+
+		return Vec2f::Zero();
 	}
 
 	template<typename TRenderComp>
-	static inline void CollectRenderCommands(Scene& scene, RectFloat cameraBounds, std::vector<RenderCommand>& commands) noexcept
+	static inline void CollectRender(Scene& scene, RectFloat cameraBounds, std::vector<RenderCommand>& outCommands) noexcept
 	{
-		scene.View<Transform, TRenderComp>().each([&](auto entity, const auto& transform, const auto& render) {
+		auto view = scene.View<Transform, TRenderComp>();
+		for (const auto& [entity, transform, render] : view.each())
+		{
 			auto hidden = scene.TryGetComponent<Hidden>(entity);
 			if (hidden && !hidden->Visible)
-				return;
+				continue;
 
 			const Vec2f cSize = GetRenderSize<TRenderComp>(render);
 			if (!RenderSystem::IsInCameraBounds(cameraBounds, transform, cSize))
-				return;
+				continue;
 
-			Style style{};
-			if (auto eStyle = scene.TryGetComponent<Style>(entity))
-				style = *eStyle;
-
-			commands.push_back(BuildRenderCommand(transform, render, cSize, style));
-			});
+			outCommands.push_back(BuildRenderCommand(scene.GetEntity(entity), transform, render, cSize));
+		}
 	}
 
 	void RenderSystem::OnRender(Scene& scene) const noexcept
@@ -193,10 +213,10 @@ namespace BM
 		sRenderCommands.clear();
 		sRenderCommands.reserve(scene.View<Transform>().size());
 
-		CollectRenderCommands<RectRender>(scene, cCameraBounds, sRenderCommands);
-		CollectRenderCommands<CircleRender>(scene, cCameraBounds, sRenderCommands);
-		CollectRenderCommands<TextureRender>(scene, cCameraBounds, sRenderCommands);
-		CollectRenderCommands<TextRender>(scene, cCameraBounds, sRenderCommands);
+		CollectRender<RectShape>(scene, cCameraBounds, sRenderCommands);
+		CollectRender<CircleShape>(scene, cCameraBounds, sRenderCommands);
+		CollectRender<SpriteShape>(scene, cCameraBounds, sRenderCommands);
+		CollectRender<TextRender>(scene, cCameraBounds, sRenderCommands);
 
 		std::ranges::stable_sort(sRenderCommands, [](const auto& left, const auto& right) {
 			return left.Z < right.Z; });
@@ -209,14 +229,14 @@ namespace BM
 		static std::vector<sf::Vertex> sBatch;
 		sBatch.clear();
 
-		const RenderCommand* batchKey = nullptr;
+		const RenderCommand* commandKey = nullptr;
 		for (const auto& command : commands)
 		{
-			if (command.Is<RenderCommand::TextData>())
+			if (command.IsShape<RenderCommand::TextData>())
 			{
-				FlushBatch(renderer, sBatch, batchKey);
+				FlushBatch(renderer, sBatch, commandKey);
 
-				const auto& textData = command.Get<RenderCommand::TextData>();
+				const auto& textData = command.GetShape<RenderCommand::TextData>();
 				sf::RenderStates states;
 				states.blendMode = sf::BlendAlpha;
 				states.transform = textData.Matrix;
@@ -225,15 +245,15 @@ namespace BM
 				continue;
 			}
 
-			if (batchKey && !HasSameUniform(command, *batchKey))
-				FlushBatch(renderer, sBatch, batchKey);
+			if (commandKey && !HasSameUniform(command, *commandKey))
+				FlushBatch(renderer, sBatch, commandKey);
 
-			if (!batchKey)
-				batchKey = &command;
+			if (!commandKey)
+				commandKey = &command;
 
 			sBatch.append_range(command.Quad);
 		}
-		FlushBatch(renderer, sBatch, batchKey);
+		FlushBatch(renderer, sBatch, commandKey);
 	}
 
 	void RenderSystem::FlushBatch(Renderer& renderer, std::vector<sf::Vertex>& batch, const RenderCommand*& keyPtr) noexcept
@@ -244,8 +264,11 @@ namespace BM
 		sf::RenderStates states;
 		states.blendMode = sf::BlendAlpha;
 		states.shader = GetRenderShader(*keyPtr);
-		if (keyPtr->Is<RenderCommand::TextureData>())
-			states.texture = keyPtr->Get<RenderCommand::TextureData>().Ptr;
+
+		if (keyPtr->IsShape<RenderCommand::SpriteData>())
+			states.texture = keyPtr->GetShape<RenderCommand::SpriteData>().TexturePtr;
+		else if (keyPtr->Material.TexturePtr)
+			states.texture = keyPtr->Material.TexturePtr;
 
 		renderer.Draw(batch.data(), batch.size(), sf::PrimitiveType::Triangles, states);
 
@@ -255,9 +278,15 @@ namespace BM
 
 	bool RenderSystem::HasSameUniform(const RenderCommand& left, const RenderCommand& right) noexcept
 	{
-		if (left.Outline != right.Outline)
+		if (left.Shape.index() != right.Shape.index())
 			return false;
-		if (left.OutlineColor != right.OutlineColor)
+
+		if (left.Material.TexturePtr != right.Material.TexturePtr)
+			return false;
+
+		if (left.Outline.Thickness != right.Outline.Thickness)
+			return false;
+		if (left.Outline.Color != right.Outline.Color)
 			return false;
 
 		return std::visit([](const auto& left, const auto& right) {
@@ -266,17 +295,17 @@ namespace BM
 
 			if constexpr (!std::is_same_v<TLeft, TRight>)
 				return false;
-			else if constexpr (std::is_same_v<TLeft, RenderCommand::RectData>)
+			else if constexpr (std::is_same_v<TLeft, RectShape>)
 				return left.Size == right.Size && left.Corner == right.Corner;
-			else if constexpr (std::is_same_v<TLeft, RenderCommand::CircleData>)
+			else if constexpr (std::is_same_v<TLeft, CircleShape>)
 				return left.Radius == right.Radius;
-			else if constexpr (std::is_same_v<TLeft, RenderCommand::TextureData>)
-				return left.Ptr == right.Ptr;
+			else if constexpr (std::is_same_v<TLeft, RenderCommand::SpriteData>)
+				return left.TexturePtr == right.TexturePtr;
 			else if constexpr (std::is_same_v<TLeft, RenderCommand::TextData>)
 				return false;
 
 			return false;
-			}, left.Data, right.Data);
+			}, left.Shape, right.Shape);
 	}
 
 	bool RenderSystem::IsInCameraBounds(RectFloat cameraBounds, const Transform& transform, Vec2f size) noexcept
@@ -301,26 +330,29 @@ namespace BM
 
 	sf::Shader* RenderSystem::GetRenderShader(const RenderCommand& command) noexcept
 	{
-		return std::visit([&](const auto& data) -> sf::Shader* {
-			using TData = std::decay_t<decltype(data)>;
+		return std::visit([&](const auto& shape) -> sf::Shader* {
+			using TShape = std::decay_t<decltype(shape)>;
 
-			if constexpr (std::is_same_v<TData, RenderCommand::RectData>) {
+			const bool cHasTexture = command.Material.TexturePtr != nullptr;
+			if constexpr (std::is_same_v<TShape, RectShape>) {
 				auto& shader = Shader::s_RectShader;
-				shader.setUniform("uSize", sf::Glsl::Vec2(data.Size));
-				shader.setUniform("uCorner", data.Corner);
-				shader.setUniform("uOutline", command.Outline);
-				shader.setUniform("uOutlineColor", sf::Glsl::Vec4(command.OutlineColor));
+				shader.setUniform("uSize", sf::Glsl::Vec2(shape.Size));
+				shader.setUniform("uCorner", shape.Corner);
+				shader.setUniform("uOutline", command.Outline.Thickness);
+				shader.setUniform("uOutlineColor", sf::Glsl::Vec4(command.Outline.Color));
+				shader.setUniform("uHasTexture", cHasTexture);
 				return &shader;
 			}
-			else if constexpr (std::is_same_v<TData, RenderCommand::CircleData>) {
+			else if constexpr (std::is_same_v<TShape, CircleShape>) {
 				auto& shader = Shader::s_CircleShader;
-				shader.setUniform("uRadius", data.Radius);
-				shader.setUniform("uOutline", command.Outline);
-				shader.setUniform("uOutlineColor", sf::Glsl::Vec4(command.OutlineColor));
+				shader.setUniform("uRadius", shape.Radius);
+				shader.setUniform("uOutline", command.Outline.Thickness);
+				shader.setUniform("uOutlineColor", sf::Glsl::Vec4(command.Outline.Color));
+				shader.setUniform("uHasTexture", cHasTexture);
 				return &shader;
 			}
 
 			return nullptr;
-			}, command.Data);
+			}, command.Shape);
 	}
 }

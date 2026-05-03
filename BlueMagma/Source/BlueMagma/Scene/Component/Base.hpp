@@ -34,25 +34,35 @@ namespace BM::Component
 		bool Visible = false;
 	};
 
-	struct Style
+	struct ColorMaterial
 	{
-		sf::Color FillColor = sf::Color::White;
-		sf::Color OutlineColor = sf::Color::Transparent;
-		float Outline = 0.f;
+		sf::Color Color = sf::Color::White;
 	};
 
-	struct RectRender
+	struct TextureMaterial
+	{
+		const Texture* TexturePtr = nullptr;
+		std::optional<RectInt> TextureRect{};
+	};
+
+	struct Outline
+	{
+		sf::Color Color = sf::Color::Transparent;
+		float Thickness = 0.f;
+	};
+
+	struct RectShape
 	{
 		Vec2f Size{};
 		float Corner = 0.f;
 	};
 
-	struct CircleRender
+	struct CircleShape
 	{
 		float Radius = 0.f;
 	};
 
-	struct TextureRender
+	struct SpriteShape
 	{
 		const Texture* TexturePtr = nullptr;
 		std::optional<RectInt> TextureRect{};
