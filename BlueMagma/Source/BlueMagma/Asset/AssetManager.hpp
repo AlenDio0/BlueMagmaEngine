@@ -43,7 +43,7 @@ namespace BM
 			if (auto asset = dynamic_cast<const TAsset*>(GetAsset(key)))
 				return *asset;
 
-			BM_CORE_WARN("{}(key: {}) Invalid Asset conversion\n - Returned a default asset", __FUNCTION__, key);
+			BM_CORE_WARN("{}(key: {}) Invalid Asset conversion or Asset not found\n - Returned a default asset", __FUNCTION__, key);
 			return TAsset::GetDefault();
 		}
 		const AssetHandle* GetAsset(const AssetKey& key) const noexcept;
