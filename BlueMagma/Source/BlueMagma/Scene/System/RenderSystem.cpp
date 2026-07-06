@@ -313,7 +313,7 @@ namespace BM
 		const auto& [position, scale, rotation, z] = transform.Global;
 		const auto& origin = transform.Local.State.Origin;
 
-		const RectFloat cEntityBounds{ {0.f}, size };
+		const RectFloat cEntityBounds{ Vec2f(0.f), size };
 		const auto cMatrix = Transform2D::ToMatrix({ position, scale, origin, rotation }, cEntityBounds);
 		const RectFloat cLocalCameraBounds = cMatrix.getInverse().transformRect(cameraBounds);
 

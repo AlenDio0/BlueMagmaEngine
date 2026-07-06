@@ -83,7 +83,7 @@ namespace BM::UIMaker
 		Entity text = AddTextChild(inputText, textProps);
 
 		auto cursorTransform = textProps.Transform;
-		cursorTransform.State.Origin = 0.5f;
+		cursorTransform.State.Origin = Vec2f(0.5f);
 		cursorTransform.Z += 1.f;
 
 		Entity cursor = inputText.CreateChild(cursorTransform);

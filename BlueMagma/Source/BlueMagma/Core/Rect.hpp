@@ -32,8 +32,10 @@ namespace BM
 		constexpr Rect(const Rect<UValue>& rect) noexcept
 			: X(static_cast<TValue>(rect.X)), Y(static_cast<TValue>(rect.Y)),
 			Width(static_cast<TValue>(rect.Width)), Height(static_cast<TValue>(rect.Height)) {}
+		constexpr explicit Rect(const Vec2<TValue>& vec) noexcept
+			: Position(vec), Size(vec) {}
 		template<typename UValue = TValue>
-		explicit constexpr Rect(const UValue& value) noexcept
+		constexpr explicit Rect(const UValue& value) noexcept
 			: X(static_cast<TValue>(value)), Y(static_cast<TValue>(value)),
 			Width(static_cast<TValue>(value)), Height(static_cast<TValue>(value)) {}
 

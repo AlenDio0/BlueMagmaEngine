@@ -43,7 +43,7 @@ namespace BM::UI
 		if (auto renderer = registry.ctx().get<Renderer*>())
 			coords = renderer->PixelToCoords(point);
 
-		const auto cMatrix = Transform2D::ToMatrix({ position, scale, origin, rotation }, { {0.f}, cSize });
+		const auto cMatrix = Transform2D::ToMatrix({ position, scale, origin, rotation }, { Vec2f(0.f), cSize });
 		const Vec2f cPosition = cMatrix.getInverse().transformPoint(coords);
 
 		switch (widget.Shape)

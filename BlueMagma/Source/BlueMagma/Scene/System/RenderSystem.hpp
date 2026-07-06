@@ -63,7 +63,7 @@ namespace BM
 		static bool IsInCameraBounds(RectFloat cameraBounds, const Component::Transform& transform, Vec2f size) noexcept;
 		static bool HasSameUniform(const RenderCommand& left, const RenderCommand& right) noexcept;
 
-		static sf::RenderStates GetRenderStates(const Component::Transform& transform, Vec2f size, Vec2f offset = { 0.f }) noexcept;
+		static sf::RenderStates GetRenderStates(const Component::Transform& transform, Vec2f size, Vec2f offset = Vec2f(0.f)) noexcept;
 		static sf::Shader* GetRenderShader(const RenderCommand& command) noexcept;
 	};
 }

@@ -15,7 +15,7 @@ namespace BM
 	struct WindowContext
 	{
 		std::string Title = "BlueMagma Application";
-		Vec2u Size = 800;
+		Vec2u Size = Vec2u(800u);
 		uint32_t Style = sf::Style::Default;
 
 		uint32_t FPSLimit = 0;

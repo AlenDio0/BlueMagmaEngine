@@ -19,7 +19,7 @@ namespace BM
 		constexpr Vec2(const Vec2<UValue>& vec) noexcept
 			: X(static_cast<TValue>(vec.X)), Y(static_cast<TValue>(vec.Y)) {}
 		template<typename UValue = TValue>
-		constexpr Vec2(const UValue& value) noexcept
+		constexpr explicit Vec2(const UValue& value) noexcept
 			: X(static_cast<TValue>(value)), Y(static_cast<TValue>(value)) {}
 
 		template<typename UValue = TValue>
