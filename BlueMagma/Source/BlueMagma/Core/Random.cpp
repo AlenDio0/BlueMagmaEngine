@@ -1,37 +1,33 @@
 #include "bmpch.hpp"
 #include "Random.hpp"
-#include <random>
-#include <ctime>
-#include <limits>
 
 namespace BM
 {
-	namespace Random
+	Random::Random(uint32_t seed) noexcept
 	{
-		static inline struct RandomData
-		{
-			std::default_random_engine Engine;
-			std::uniform_int_distribution<size_t> Distribution;
+		SetSeed(seed);
+	}
 
-			inline RandomData() noexcept {
-				Engine.seed(static_cast<uint32_t>(time(nullptr)));
-			}
-		} s_Random;
+	void Random::SetSeed(uint32_t seed) noexcept
+	{
+		m_Engine.seed(seed);
+	}
 
-		size_t Get() noexcept
-		{
-			return s_Random.Distribution(s_Random.Engine);
-		}
+	size_t Random::Generate(size_t min, size_t max) noexcept
+	{
+		std::uniform_int_distribution<size_t> distribution{ min, max };
+		return distribution(m_Engine);
+	}
 
-		size_t Get(size_t min, size_t max) noexcept
-		{
-			BM_CORE_ASSERT(min <= max);
-			return min + (Get() % (max - min + 1ull));
-		}
+	double Random::GenerateDouble(double min, double max) noexcept
+	{
+		std::uniform_real_distribution<double> distribution{ min, max };
+		return distribution(m_Engine);
+	}
 
-		double GetDouble() noexcept
-		{
-			return static_cast<double>(Get()) / static_cast<double>(std::numeric_limits<size_t>::max());
-		}
+	Random& Random::Get() noexcept
+	{
+		static Random sRandom{};
+		return sRandom;
 	}
 }

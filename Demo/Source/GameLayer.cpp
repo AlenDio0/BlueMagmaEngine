@@ -384,7 +384,7 @@ bool GameLayer::OnMousePressed(const BM::EventHandle::MouseButtonPressed& mouseP
 		return true;
 		};
 
-	const sf::Color cRandomColor{ (static_cast<uint32_t>(BM_RANDOM()) << 8) | 0xFF };
+	const sf::Color cRandomColor{ (static_cast<uint32_t>(BM_RANDOM(0, 0xFFFFFFFF)) << 8) | 0xFF };
 	static float sPositionZ = 100.f;
 	sPositionZ += 0.1f;
 
@@ -450,9 +450,14 @@ void GameLayer::UpdateMouseRender(BM::Vec2i point) noexcept
 
 std::string GameLayer::FormatStatText(float deltaTime) const noexcept
 {
-	const size_t cEntities = m_Scene.View<BM::Component::Transform>().size();
+#ifdef NDEBUG
+	const char* cConfiguration = "Release";
+#else
+	const char* cConfiguration = "Debug";
+#endif
 	const double cMicro = std::round(deltaTime * std::pow(10, 6));
 	const double cFPS = std::round(1.f / deltaTime);
+	const size_t cEntities = m_Scene.View<BM::Component::Transform>().size();
 
-	return std::format("{} Entities\n{:.5f}ms\n{}us\n{} FPS", cEntities, deltaTime, cMicro, cFPS);
+	return std::format("{} build\n{:.5f}ms\n{}us\n{} FPS\n{} Entities", cConfiguration, deltaTime, cMicro, cFPS, cEntities);
 }

@@ -1,5 +1,6 @@
 #include <BlueMagma.hpp>
 #include <BlueMagma/Core/Timer.hpp>
+#include <BlueMagma/Core/Random.hpp>
 #include "GameLayer.hpp"
 #include <chrono>
 
@@ -32,6 +33,7 @@ int main(int argc, char* argv[])
 	if (!application.GetAssets().LoadYaml("Config/LoadAsset.yml"))
 		BM_ERROR("Couldn't load Asset Yaml");
 
+	BM_RANDOM_SEED(BM_RANDOM(1, 10));
 	application.QueuePushLayer<GameLayer>();
 	application.Run();
 
