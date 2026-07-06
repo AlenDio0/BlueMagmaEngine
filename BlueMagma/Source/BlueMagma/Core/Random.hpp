@@ -7,7 +7,7 @@ namespace BM
 	class Random
 	{
 	public:
-		Random(uint32_t seed = std::random_device{}()) noexcept;
+		explicit Random(uint32_t seed = std::random_device{}()) noexcept;
 
 		void SetSeed(uint32_t seed) noexcept;
 

@@ -19,13 +19,13 @@ namespace BM::UI
 
 		static bool Contains(Registry& registry, const Component::Transform& transform, const Component::Widget& widget, Vec2i point) noexcept;
 	private:
-		bool OnMouseMoved(const EventHandle::MouseMoved& mouseMoved, Scene& scene) noexcept;
+		bool OnMouseMoved(const EventHandle::MouseMoved& mouseMoved) noexcept;
 		bool OnMousePressed(const EventHandle::MouseButtonPressed& mousePressed, Scene& scene) noexcept;
 
 		using WidgetUpdateFn = std::function<void(EntityHandle, const Component::Widget&, bool)>;
 		void UpdateWidgets(Registry& registry, const WidgetUpdateFn& onUpdate) const noexcept;
 
-		void UpdateTransformWidget(Registry& registry, EntityHandle entity) noexcept;
+		void UpdateTransformWidget() noexcept;
 	private:
 		bool m_UpdatedHover = false;
 

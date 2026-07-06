@@ -16,7 +16,7 @@ namespace BM::UI
 	void WidgetSystem::OnEvent(Scene& scene, Event& event) noexcept
 	{
 		BM::EventDispatcher dispatcher(event);
-		dispatcher.Dispatch<BM::EventHandle::MouseMoved>(BM_EVENT_FN(OnMouseMoved, scene));
+		dispatcher.Dispatch<BM::EventHandle::MouseMoved>(BM_EVENT_FN(OnMouseMoved));
 		dispatcher.Dispatch<BM::EventHandle::MouseButtonPressed>(BM_EVENT_FN(OnMousePressed, scene));
 	}
 
@@ -64,7 +64,7 @@ namespace BM::UI
 		}
 	}
 
-	bool WidgetSystem::OnMouseMoved(const EventHandle::MouseMoved& mouseMoved, Scene& scene) noexcept
+	bool WidgetSystem::OnMouseMoved(const EventHandle::MouseMoved& mouseMoved) noexcept
 	{
 		m_MousePosition = mouseMoved.position;
 		m_UpdatedHover = false;
@@ -107,7 +107,7 @@ namespace BM::UI
 		}
 	}
 
-	void WidgetSystem::UpdateTransformWidget(Registry& registry, EntityHandle entity) noexcept
+	void WidgetSystem::UpdateTransformWidget() noexcept
 	{
 		m_UpdatedHover = false;
 	}

@@ -236,7 +236,7 @@ namespace BM
 			{
 				FlushBatch(renderer, sBatch, commandKey);
 
-				const auto& textData = command.GetShape<RenderCommand::TextData>();
+				const RenderCommand::TextData& textData = command.GetShape<RenderCommand::TextData>();
 				sf::RenderStates states;
 				states.blendMode = sf::BlendAlpha;
 				states.transform = textData.Matrix;
@@ -251,7 +251,7 @@ namespace BM
 			if (!commandKey)
 				commandKey = &command;
 
-			sBatch.append_range(command.Quad);
+			sBatch.insert(sBatch.end(), command.Quad.begin(), command.Quad.end());
 		}
 		FlushBatch(renderer, sBatch, commandKey);
 	}
