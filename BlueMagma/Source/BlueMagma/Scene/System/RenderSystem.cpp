@@ -73,16 +73,33 @@ namespace BM
 
 	using namespace Component;
 
-	static inline sf::Text CreateText(const TextRender& textRender) noexcept
+	static inline void UpdateTextCache(const TextRender& textRender) noexcept
 	{
-		if (!textRender.FontPtr)
-			return sf::Text{ Font::GetDefault() };
+		auto& [fontPtr, text, size, lastFontPtr, lastText, lastSize, cachedText, cachedBounds] = textRender;
+		if (fontPtr != lastFontPtr || text != lastText || size != lastSize)
+		{
+			lastFontPtr = fontPtr;
+			lastText = text;
+			lastSize = size;
 
-		sf::Text text{ *textRender.FontPtr };
-		text.setString(textRender.Text);
-		text.setCharacterSize(textRender.CharSize);
+			cachedText.setFont(fontPtr ? *fontPtr : Font::GetDefault());
+			cachedText.setString(text);
+			cachedText.setCharacterSize(size);
 
-		return text;
+			cachedBounds = cachedText.getGlobalBounds();
+		}
+	}
+
+	static inline sf::Text& GetCachedText(const TextRender& textRender) noexcept
+	{
+		UpdateTextCache(textRender);
+		return textRender.CachedText;
+	}
+
+	static inline RectFloat GetCachedTextBounds(const TextRender& textRender) noexcept
+	{
+		UpdateTextCache(textRender);
+		return textRender.CachedBounds;
 	}
 
 	static inline std::array<sf::Vertex, 6> BuildQuad(const Transform& transform, sf::Color color, Vec2f size, RectFloat coords) noexcept
@@ -116,14 +133,14 @@ namespace BM
 
 	static inline void BuildText(const Transform& transform, const TextRender& textRender, RenderCommand& outCommand) noexcept
 	{
-		sf::Text text = CreateText(textRender);
+		sf::Text& text = GetCachedText(textRender);
 		text.setFillColor(outCommand.Material.Color);
 		text.setOutlineThickness(outCommand.Outline.Thickness);
 		text.setOutlineColor(outCommand.Outline.Color);
 
-		const RectFloat cBounds = text.getLocalBounds();
+		const RectFloat cBounds = GetCachedTextBounds(textRender);
 		outCommand.Shape = RenderCommand::TextData{
-			.TextCopy = std::move(text),
+			.TextPtr = &text,
 			.Matrix = RenderSystem::GetRenderStates(transform, cBounds.Size, cBounds.Position).transform
 		};
 	}
@@ -177,7 +194,7 @@ namespace BM
 		else if constexpr (std::is_same_v<TRenderComp, SpriteShape>)
 			return render.TextureRect.value_or(RectInt(Vec2i(0.f), render.TexturePtr->getSize())).Size;
 		else if constexpr (std::is_same_v<TRenderComp, TextRender>)
-			return CreateText(render).getLocalBounds().size;
+			return GetCachedTextBounds(render).Size;
 
 		return Vec2f::Zero();
 	}
@@ -216,7 +233,32 @@ namespace BM
 		CollectRender<TextRender>(scene, cCameraBounds, sRenderCommands);
 
 		std::ranges::stable_sort(sRenderCommands, [](const auto& left, const auto& right) {
-			return left.Z < right.Z; });
+			if (left.Z != right.Z)
+				return left.Z < right.Z;
+
+			if (left.Shape.index() != right.Shape.index())
+				return left.Shape.index() < right.Shape.index();
+
+			if (left.Material.TexturePtr != right.Material.TexturePtr)
+				return left.Material.TexturePtr < right.Material.TexturePtr;
+
+			if (left.Outline.Thickness != right.Outline.Thickness)
+				return left.Outline.Thickness < right.Outline.Thickness;
+
+			return std::visit([&](const auto& leftShape) -> bool {
+				using TLeft = std::decay_t<decltype(leftShape)>;
+				const auto& rightShape = std::get<TLeft>(right.Shape);
+
+				if constexpr (std::is_same_v<TLeft, RectShape>)
+					return leftShape.Size.X != rightShape.Size.X ? leftShape.Size.X < rightShape.Size.X :
+					leftShape.Size.Y != rightShape.Size.Y ? leftShape.Size.Y < rightShape.Size.Y :
+					leftShape.Corner < rightShape.Corner;
+				else if constexpr (std::is_same_v<TLeft, CircleShape>)
+					return leftShape.Radius < rightShape.Radius;
+
+				return false;
+				}, left.Shape);
+			});
 
 		DrawRenderCommands(*renderer, sRenderCommands);
 		sRenderCommands.clear();
@@ -239,7 +281,7 @@ namespace BM
 				states.blendMode = sf::BlendAlpha;
 				states.transform = textData.Matrix;
 
-				renderer.Draw(textData.TextCopy, states);
+				renderer.Draw(*textData.TextPtr, states);
 				continue;
 			}
 
@@ -287,23 +329,19 @@ namespace BM
 		if (left.Outline.Color != right.Outline.Color)
 			return false;
 
-		return std::visit([](const auto& left, const auto& right) {
-			using TLeft = std::decay_t<decltype(left)>;
-			using TRight = std::decay_t<decltype(right)>;
+		return std::visit([&right](const auto& leftShape) -> bool {
+			using TLeft = std::decay_t<decltype(leftShape)>;
+			const auto& rightShape = std::get<TLeft>(right.Shape);
 
-			if constexpr (!std::is_same_v<TLeft, TRight>)
-				return false;
-			else if constexpr (std::is_same_v<TLeft, RectShape>)
-				return left.Size == right.Size && left.Corner == right.Corner;
+			if constexpr (std::is_same_v<TLeft, RectShape>)
+				return leftShape.Size == rightShape.Size && leftShape.Corner == rightShape.Corner;
 			else if constexpr (std::is_same_v<TLeft, CircleShape>)
-				return left.Radius == right.Radius;
+				return leftShape.Radius == rightShape.Radius;
 			else if constexpr (std::is_same_v<TLeft, RenderCommand::SpriteData>)
-				return left.TexturePtr == right.TexturePtr;
-			else if constexpr (std::is_same_v<TLeft, RenderCommand::TextData>)
-				return false;
+				return leftShape.TexturePtr == rightShape.TexturePtr;
 
 			return false;
-			}, left.Shape, right.Shape);
+			}, left.Shape);
 	}
 
 	bool RenderSystem::IsInCameraBounds(RectFloat cameraBounds, const Transform& transform, Vec2f size) noexcept

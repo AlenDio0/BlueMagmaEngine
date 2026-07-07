@@ -28,7 +28,7 @@ namespace BM
 		};
 		struct TextData
 		{
-			sf::Text TextCopy{ Font::GetDefault() };
+			const sf::Text* TextPtr = nullptr;
 			sf::Transform Matrix{};
 		};
 

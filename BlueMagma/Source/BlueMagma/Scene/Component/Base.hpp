@@ -4,6 +4,7 @@
 #include "Asset/Asset.hpp"
 #include "Core/Rect.hpp"
 #include <SFML/Graphics/Color.hpp>
+#include <SFML/Graphics/Text.hpp>
 #include <string>
 #include <cstdint>
 #include <optional>
@@ -73,5 +74,12 @@ namespace BM::Component
 		const Font* FontPtr = nullptr;
 		std::string Text{ "" };
 		uint32_t CharSize = 30u;
+
+		mutable const Font* LastFontPtr = nullptr;
+		mutable std::string LastText{ "" };
+		mutable uint32_t LastCharSize = 30u;
+
+		mutable sf::Text CachedText{ Font::GetDefault() };
+		mutable RectFloat CachedBounds{ Vec2f(0.f) };
 	};
 }
