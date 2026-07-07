@@ -75,16 +75,14 @@ namespace BM
 
 	static inline sf::Text CreateText(const TextRender& textRender) noexcept
 	{
-		static sf::Text sText{ Font::GetDefault() };
-
 		if (!textRender.FontPtr)
 			return sf::Text{ Font::GetDefault() };
 
-		sText.setFont(*textRender.FontPtr);
-		sText.setString(textRender.Text);
-		sText.setCharacterSize(textRender.CharSize);
+		sf::Text text{ *textRender.FontPtr };
+		text.setString(textRender.Text);
+		text.setCharacterSize(textRender.CharSize);
 
-		return sText;
+		return text;
 	}
 
 	static inline std::array<sf::Vertex, 6> BuildQuad(const Transform& transform, sf::Color color, Vec2f size, RectFloat coords) noexcept
@@ -210,7 +208,6 @@ namespace BM
 		const RectFloat cCameraBounds = renderer->GetCamera().GetBounds();
 
 		static std::vector<RenderCommand> sRenderCommands;
-		sRenderCommands.clear();
 		sRenderCommands.reserve(scene.View<Transform>().size());
 
 		CollectRender<RectShape>(scene, cCameraBounds, sRenderCommands);
@@ -222,6 +219,7 @@ namespace BM
 			return left.Z < right.Z; });
 
 		DrawRenderCommands(*renderer, sRenderCommands);
+		sRenderCommands.clear();
 	}
 
 	void RenderSystem::DrawRenderCommands(Renderer& renderer, const std::vector<RenderCommand>& commands) noexcept

@@ -20,6 +20,6 @@ namespace BM
 	};
 }
 
-#define BM_RANDOM_SEED(seed)	BM::Random::Get().SetSeed(seed)
-#define BM_RANDOM(...)			BM::Random::Get().Generate(__VA_ARGS__)
-#define BM_RANDOM_DOUBLE(...)	BM::Random::Get().GenerateDouble(__VA_ARGS__)
+#define BM_RANDOM_SEED(seed)		BM::Random::Get().SetSeed(static_cast<uint32_t>(seed))
+#define BM_RANDOM(min, max)			BM::Random::Get().Generate(static_cast<size_t>(min), static_cast<size_t>(max))
+#define BM_RANDOM_DOUBLE(min, max)	BM::Random::Get().GenerateDouble(static_cast<double>(min), static_cast<double>(max))

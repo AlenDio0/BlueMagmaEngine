@@ -28,6 +28,7 @@ set(SOURCES
     Source/BlueMagma/Layer/AppLayer.cpp
     Source/BlueMagma/Layer/LayerMachine.hpp
     Source/BlueMagma/Layer/LayerMachine.cpp
+    Source/BlueMagma/Asset/DefaultFont.hpp
     Source/BlueMagma/Asset/Asset.hpp
     Source/BlueMagma/Asset/AssetManager.hpp
     Source/BlueMagma/Asset/AssetManager.cpp

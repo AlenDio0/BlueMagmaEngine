@@ -38,7 +38,7 @@ void GameLayer::OnAttach() noexcept
 
 	namespace Comp = BM::Component;
 
-	auto font = &GetAsset<BM::Font>("Minecraft");
+	const BM::Font* font = &GetAsset<BM::Font>("Minecraft");
 	const BM::Vec2f cWindowSize = GetWindow().GetSize();
 
 	m_Background = m_Scene.CreateEntity({ .State{.Position{0.f}}, .Z = -1.f });

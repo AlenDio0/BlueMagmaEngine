@@ -1,4 +1,5 @@
 #pragma once
+#include "DefaultFont.hpp"
 #include "Core/Vec2.hpp"
 #include <cstdint>
 #include <filesystem>
@@ -35,8 +36,8 @@ namespace BM
 			: sf::Texture(image) {}
 
 		inline static const Texture& GetDefault() noexcept {
-			static Texture texture{ sf::Image{ Vec2u(2), s_TextureBytes } };
-			return texture;
+			static Texture* texture = new Texture{ sf::Image{ Vec2u(2), s_TextureBytes } };
+			return *texture;
 		}
 	private:
 		static constexpr inline const uint8_t s_TextureBytes[] = {
@@ -54,10 +55,12 @@ namespace BM
 			: sf::Font() {}
 		inline explicit Font(const AssetPath& path)
 			: sf::Font(path) {}
+		inline explicit Font(const void* data, size_t bytesSize)
+			: sf::Font(data, bytesSize) {}
 
 		inline static const Font& GetDefault() noexcept {
-			static Font font{};
-			return font;
+			static Font* font = new Font{ DefaultFont::s_TinyTTFBytes, DefaultFont::s_TinyTTFLength };
+			return *font;
 		}
 	};
 
@@ -70,8 +73,8 @@ namespace BM
 			: sf::SoundBuffer(path) {}
 
 		inline static const SoundBuffer& GetDefault() noexcept {
-			static SoundBuffer soundBuffer{};
-			return soundBuffer;
+			static SoundBuffer* soundBuffer = new SoundBuffer{};
+			return *soundBuffer;
 		}
 	};
 }

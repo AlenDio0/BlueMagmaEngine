@@ -1,11 +1,26 @@
 PROJECT_DIR=$(pwd)
 BUILD_DIR="build_linux"
 
-echo "Checking dependencies..."
-sudo apt update -qq && sudo apt install -y -qq \
-    build-essential cmake g++ libx11-dev libxrandr-dev \
-    libxcursor-dev libxi-dev libudev-dev libgl1-mesa-dev \
-    libfreetype6-dev libopenal-dev > /dev/null
+read -p "Do you want to install dependencies? [y/N]: " answer
+
+if [[ "$answer" =~ ^[Yy]$ ]]; then
+    echo "Installing dependencies..."
+    sudo apt-get update && sudo apt-get install -y \
+        libxrandr-dev \
+        libxcursor-dev \
+        libxi-dev \
+        libudev-dev \
+        libflac-dev \
+        libvorbis-dev \
+        libgl1-mesa-dev \
+        libegl1-mesa-dev \
+        libfreetype-dev \
+        libharfbuzz-dev \
+        libmbedtls-dev \
+        libssh2-1-dev > /dev/null
+else
+    echo "Dependencies installation skipped."
+fi
 
 if [ -d "$BUILD_DIR" ]; then
     echo "Cleaning last build..."
