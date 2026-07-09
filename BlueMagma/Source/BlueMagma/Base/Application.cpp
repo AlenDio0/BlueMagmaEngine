@@ -1,6 +1,7 @@
 #include "bmpch.hpp"
 #include "Application.hpp"
 #include "Core/Timer.hpp"
+#include <algorithm>
 
 namespace BM
 {
@@ -37,6 +38,9 @@ namespace BM
 
 		m_Running = true;
 
+		const float cTimeStep = 1.f / static_cast<float>(m_Context.TPSLimit);
+		float timeAccumulator = 0.f;
+
 		Timer timer;
 		while (m_Running)
 		{
@@ -53,7 +57,16 @@ namespace BM
 
 			const auto& layers = m_Machine.GetLayers();
 
-			float deltaTime = timer.Restart().AsSeconds();
+			float deltaTime = std::min(timer.Restart().AsSeconds(), m_Context.MaxLagTime);
+			timeAccumulator += deltaTime;
+
+			while (timeAccumulator >= cTimeStep)
+			{
+				timeAccumulator -= cTimeStep;
+				for (const auto& layer : layers)
+					layer->OnTick(cTimeStep);
+			}
+
 			for (const auto& layer : layers)
 				layer->OnUpdate(deltaTime);
 

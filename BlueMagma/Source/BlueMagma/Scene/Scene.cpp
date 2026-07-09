@@ -45,6 +45,12 @@ namespace BM
 			system.OnEvent(*this, event);
 	}
 
+	void Scene::OnTick(float timeStep) noexcept
+	{
+		for (auto& system : m_Systems)
+			system.OnTick(*this, timeStep);
+	}
+
 	void Scene::OnUpdate(float deltaTime) noexcept
 	{
 		for (auto& system : m_Systems)

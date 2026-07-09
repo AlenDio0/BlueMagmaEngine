@@ -7,6 +7,7 @@ namespace BM
 	class Scene;
 
 	using SystemEventFn = std::function<void(Scene&, Event&)>;
+	using SystemTickFn = std::function<void(Scene&, float)>;
 	using SystemUpdateFn = std::function<void(Scene&, float)>;
 	using SystemRenderFn = std::function<void(Scene&)>;
 
@@ -17,6 +18,7 @@ namespace BM
 		inline virtual void OnAttach(Scene& scene) noexcept {}
 
 		inline virtual void OnEvent(Scene& scene, Event& event) noexcept {}
+		inline virtual void OnTick(Scene& scene, float timeStep) noexcept {}
 		inline virtual void OnUpdate(Scene& scene, float deltaTime) noexcept {}
 		inline virtual void OnRender(Scene& scene) const noexcept {}
 

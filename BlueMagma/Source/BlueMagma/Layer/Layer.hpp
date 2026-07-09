@@ -17,6 +17,7 @@ namespace BM
 		inline virtual void OnTransition() noexcept {}
 
 		inline virtual void OnEvent(Event& event) noexcept {}
+		inline virtual void OnTick(float timeStep) noexcept {}
 		inline virtual void OnUpdate(float deltaTime) noexcept {}
 		inline virtual void OnRender() noexcept {}
 	};

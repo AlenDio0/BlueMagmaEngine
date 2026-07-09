@@ -17,6 +17,7 @@ public:
 	virtual void OnTransition() noexcept override;
 
 	virtual void OnEvent(BM::Event& event) noexcept override;
+	virtual void OnTick(float timeStep) noexcept override;
 	virtual void OnUpdate(float deltaTime) noexcept override;
 	virtual void OnRender() noexcept override;
 private:

@@ -18,7 +18,7 @@ namespace BM
 		Vec2u Size = Vec2u(800u);
 		uint32_t Style = sf::Style::Default;
 
-		uint32_t FPSLimit = 0;
+		uint32_t FPSLimit = 0u;
 		bool VSync = true;
 
 		std::filesystem::path IconPath = "";

@@ -23,6 +23,7 @@ namespace BM
 		uint32_t Priority;
 
 		SystemEventFn OnEvent;
+		SystemTickFn OnTick;
 		SystemUpdateFn OnUpdate;
 		SystemRenderFn OnRender;
 	};
@@ -48,6 +49,7 @@ namespace BM
 
 			m_Systems.emplace_back(cTypeId, system, priority,
 				[system](Scene& scene, Event& event) { system->OnEvent(scene, event); },
+				[system](Scene& scene, float timeStep) { system->OnTick(scene, timeStep); },
 				[system](Scene& scene, float deltaTime) { system->OnUpdate(scene, deltaTime); },
 				[system](Scene& scene) { system->OnRender(scene); }
 			);
@@ -64,6 +66,7 @@ namespace BM
 		}
 
 		void OnEvent(Event& event) noexcept;
+		void OnTick(float timeStep) noexcept;
 		void OnUpdate(float deltaTime) noexcept;
 		void OnRender() noexcept;
 

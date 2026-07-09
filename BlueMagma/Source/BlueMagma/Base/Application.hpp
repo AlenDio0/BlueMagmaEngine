@@ -5,12 +5,16 @@
 #include "Asset/AssetManager.hpp"
 #include <concepts>
 #include <memory>
+#include <cstdint>
 
 namespace BM
 {
 	struct ApplicationContext
 	{
 		WindowContext Window;
+
+		float MaxLagTime = 1.f;
+		uint32_t TPSLimit = 60u;
 
 		bool DefaultWindowCloseEvent = true;
 	};
