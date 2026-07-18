@@ -11,18 +11,18 @@ namespace BM
 {
 	struct ApplicationContext
 	{
-		WindowContext Window;
-
-		float MaxLagTime = 1.f;
-		uint32_t TPSLimit = 60u;
-
 		bool DefaultWindowCloseEvent = true;
+
+		uint32_t TPSLimit = 30u;
+		float MaxLagTime = 1.f;
 	};
 
 	class Application
 	{
 	public:
-		explicit Application(const ApplicationContext& context = {}) noexcept;
+		ApplicationContext Context;
+	public:
+		Application(const ApplicationContext& appContext = {}, WindowContext windowContext = {}) noexcept;
 		~Application() noexcept;
 
 		static Application& Get() noexcept;
@@ -44,9 +44,7 @@ namespace BM
 		void EventCallback(Event& event) noexcept;
 
 		bool OnCloseEvent(const EventHandle::Closed& event) noexcept;
-		bool OnResizeEvent(const EventHandle::Resized& event) noexcept;
 	private:
-		ApplicationContext m_Context;
 		std::unique_ptr<Window> m_Window;
 		LayerMachine m_Machine;
 		AssetManager m_Assets;

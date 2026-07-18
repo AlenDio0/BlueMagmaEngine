@@ -1,11 +1,12 @@
 #include "bmpch.hpp"
 #include "Window.hpp"
 #include <SFML/Window/Mouse.hpp>
+#include <SFML/Window/VideoMode.hpp>
 
 namespace BM
 {
 	Window::Window(const WindowContext& context) noexcept
-		: m_Context(context)
+		: Context(context)
 	{}
 
 	Window::~Window() noexcept
@@ -15,24 +16,17 @@ namespace BM
 
 	void BM::Window::Create() noexcept
 	{
-		BM_CORE_DEBUG("{}()\n - Size: {}\n - Title: '{}'\n - Style: {}\n - FPSLimit: {}\n - VSync: {}\n - IconPath: '{}'", __FUNCTION__,
-			m_Context.Size, m_Context.Title, m_Context.Style, m_Context.FPSLimit, m_Context.VSync, m_Context.IconPath.string());
+		BM_CORE_DEBUG("{}()\n - InitialSize: {}\n - InitialStyle: {}\n - InitialState: {}", __FUNCTION__,
+			Context.InitialSize, static_cast<uint8_t>(Context.InitialStyle), static_cast<uint8_t>(Context.InitialState));
 
-		m_Handle = std::make_unique<sf::RenderWindow>();
+		if (!m_Handle)
+			m_Handle = std::make_unique<sf::RenderWindow>();
+		m_Handle->create(sf::VideoMode(Context.InitialSize), {}, Context.InitialStyle, static_cast<sf::State>(Context.InitialState));
 
-		m_Handle->create(sf::VideoMode(m_Context.Size), m_Context.Title, m_Context.Style);
+		if (!m_Renderer)
+			m_Renderer = std::make_unique<Renderer>(*m_Handle);
 
-		m_Handle->setFramerateLimit(m_Context.FPSLimit);
-		m_Handle->setVerticalSyncEnabled(m_Context.VSync);
-
-		m_Renderer = std::make_unique<Renderer>(*m_Handle);
-
-		if (!m_Context.IconPath.empty())
-		{
-			sf::Image icon;
-			if (icon.loadFromFile(m_Context.IconPath))
-				m_Handle->setIcon(icon);
-		}
+		ApplyContext();
 
 		BM_CORE_INFO("Window created");
 	}
@@ -49,6 +43,17 @@ namespace BM
 		BM_CORE_INFO("Window destroyed");
 	}
 
+	void Window::ApplyContext() noexcept
+	{
+		BM_CORE_DEBUG("{}()\n - Title: '{}'\n - FPSLimit: {}\n - VSync: {}\n - IconPath: '{}'", __FUNCTION__,
+			Context.Title, Context.FPSLimit, Context.VSync, Context.IconPath.string());
+
+		SetTitle(Context.Title);
+		SetFPSLimit(Context.FPSLimit);
+		SetVSync(Context.VSync);
+		SetIconFromPath(Context.IconPath);
+	}
+
 	void BM::Window::Close() noexcept
 	{
 		BM_CORE_FN();
@@ -60,13 +65,13 @@ namespace BM
 
 	void Window::PollEvent() noexcept
 	{
-		if (!m_Context.EventCallback)
+		if (!Context.EventCallback)
 			return;
 
 		while (auto ev = m_Handle->pollEvent())
 		{
-			Event event(static_cast<EventHandle>(ev.value()));
-			m_Context.EventCallback(event);
+			Event event = static_cast<EventHandle>(ev.value());
+			Context.EventCallback(event);
 		}
 	}
 
@@ -85,6 +90,45 @@ namespace BM
 		sf::Mouse::setPosition(point, *m_Handle);
 	}
 
+	void Window::SetSize(Vec2u size) noexcept
+	{
+		m_Handle->setSize(size);
+	}
+
+	void Window::SetTitle(const std::string& title) noexcept
+	{
+		Context.Title = title;
+		m_Handle->setTitle(title);
+	}
+
+	void Window::SetFPSLimit(uint32_t fps) noexcept
+	{
+		Context.FPSLimit = fps;
+		m_Handle->setFramerateLimit(fps);
+	}
+
+	void Window::SetVSync(bool vsync) noexcept
+	{
+		Context.VSync = vsync;
+		m_Handle->setVerticalSyncEnabled(vsync);
+	}
+
+	void Window::SetIconFromPath(const std::filesystem::path& iconPath) noexcept
+	{
+		Context.IconPath = iconPath;
+		if (!iconPath.empty())
+		{
+			sf::Image icon;
+			if (icon.loadFromFile(iconPath))
+				SetIcon(icon);
+		}
+	}
+
+	void Window::SetIcon(const sf::Image& icon) noexcept
+	{
+		m_Handle->setIcon(icon);
+	}
+
 	bool Window::IsOpen() const noexcept
 	{
 		return m_Handle && m_Handle->isOpen();
@@ -98,11 +142,6 @@ namespace BM
 	Vec2i Window::GetMousePosition() const noexcept
 	{
 		return sf::Mouse::getPosition(*m_Handle);
-	}
-
-	const WindowContext& Window::GetContext() const noexcept
-	{
-		return m_Context;
 	}
 
 	Vec2u Window::GetSize() const noexcept

@@ -5,18 +5,18 @@
 
 namespace BM
 {
-	Application::Application(const ApplicationContext& context) noexcept
-		: m_Context(context)
+	Application::Application(const ApplicationContext& appContext, WindowContext windowContext) noexcept
+		: Context(appContext)
 	{
 		BM_CORE_DEBUG("{}()\n - DefaultWindowCloseEvent: {}", __FUNCTION__,
-			context.DefaultWindowCloseEvent);
+			appContext.DefaultWindowCloseEvent);
 
 		s_Instance = this;
 
-		if (!m_Context.Window.EventCallback)
-			m_Context.Window.EventCallback = [&](Event& event) { EventCallback(event); };
+		if (!windowContext.EventCallback)
+			windowContext.EventCallback = [&](Event& event) { EventCallback(event); };
 
-		m_Window = std::make_unique<Window>(m_Context.Window);
+		m_Window = std::make_unique<Window>(windowContext);
 		m_Window->Create();
 	}
 
@@ -38,7 +38,7 @@ namespace BM
 
 		m_Running = true;
 
-		const float cTimeStep = 1.f / static_cast<float>(m_Context.TPSLimit);
+		const float cTimeStep = 1.f / static_cast<float>(Context.TPSLimit);
 		float timeAccumulator = 0.f;
 
 		Timer timer;
@@ -57,7 +57,7 @@ namespace BM
 
 			const auto& layers = m_Machine.GetLayers();
 
-			float deltaTime = std::min(timer.Restart().AsSeconds(), m_Context.MaxLagTime);
+			float deltaTime = std::min(timer.Restart().AsSeconds(), Context.MaxLagTime);
 			timeAccumulator += deltaTime;
 
 			while (timeAccumulator >= cTimeStep)
@@ -115,7 +115,7 @@ namespace BM
 		{
 			EventDispatcher dispatcher(event);
 
-			if (m_Context.DefaultWindowCloseEvent)
+			if (Context.DefaultWindowCloseEvent)
 				dispatcher.Dispatch<EventHandle::Closed>(BM_EVENT_FN(OnCloseEvent));
 		}
 

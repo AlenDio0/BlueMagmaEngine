@@ -24,11 +24,10 @@ int main(int argc, char* argv[])
 
 	BM_FN("argc: {}", argc);
 
-	BM::ApplicationContext appContext{
-		.Window{.Size = { 1280, 720 }, .VSync = false}
-	};
+	BM::ApplicationContext appContext{};
+	BM::WindowContext windowContext{ .InitialSize{ 1280u, 720u } };
 
-	BM::Application application(appContext);
+	BM::Application application(appContext, windowContext);
 
 	if (!application.GetAssets().LoadYaml("Config/LoadAsset.yml"))
 		BM_ERROR("Couldn't load Asset Yaml");

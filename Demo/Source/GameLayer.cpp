@@ -97,40 +97,6 @@ void GameLayer::OnEvent(BM::Event& event) noexcept
 	dispatcher.Dispatch<BM::EventHandle::MouseWheelScrolled>(BM_EVENT_FN(OnMouseScrolled));
 }
 
-void GameLayer::OnTick(float timeStep) noexcept
-{
-	if (m_Button)
-	{
-		m_Button.Patch<BM::Component::Transform>([&](auto& transform) {
-			const BM::RectFloat cCameraBounds = m_ActiveCameraPtr->GetBounds();
-			const float cCameraLeft = cCameraBounds.Min().X;
-			const float cCameraRight = cCameraBounds.Max().X;
-
-			const float cWidth = m_Button.Get<BM::Component::Widget>().Size.X * transform.Global.Scale.X;
-			const float cLeft = cWidth * transform.Local.State.Origin.X;
-			const float cRight = cWidth * (1.f - transform.Local.State.Origin.X);
-
-			constexpr float cSpeed = 300.f;
-			float& positionX = transform.Local.State.Position.X;
-			positionX += cSpeed * m_ButtonSpeedFactor * timeStep;
-
-			if (positionX - cLeft >= cCameraRight)
-			{
-				positionX = cCameraLeft - cRight;
-				m_ButtonSpeedFactor += 0.1f;
-			}
-
-			constexpr float cRotationSpeed = 30.f;
-			float& rotation = transform.Local.State.Rotation;
-
-			const size_t cRotationCount = (size_t)(rotation / 360.f);
-			rotation += (cRotationSpeed * (float)(cRotationCount + 1ull)) * timeStep;
-
-			m_ButtonCamera.SetCenter(transform.Global.Position);
-			});
-	}
-}
-
 void GameLayer::OnUpdate(float deltaTime) noexcept
 {
 	GetRenderer().SetCamera(*m_ActiveCameraPtr);
@@ -187,8 +153,39 @@ void GameLayer::OnUpdate(float deltaTime) noexcept
 			});
 	}
 
-	if (m_Button && m_ActiveCameraPtr == &m_ButtonCamera)
-		UpdateMouseRender(GetWindow().GetMousePosition());
+	if (m_Button)
+	{
+		m_Button.Patch<BM::Component::Transform>([&](auto& transform) {
+			const BM::RectFloat cCameraBounds = m_ActiveCameraPtr->GetBounds();
+			const float cCameraLeft = cCameraBounds.Min().X;
+			const float cCameraRight = cCameraBounds.Max().X;
+
+			const float cWidth = m_Button.Get<BM::Component::Widget>().Size.X * transform.Global.Scale.X;
+			const float cLeft = cWidth * transform.Local.State.Origin.X;
+			const float cRight = cWidth * (1.f - transform.Local.State.Origin.X);
+
+			constexpr float cSpeed = 300.f;
+			float& positionX = transform.Local.State.Position.X;
+			positionX += cSpeed * m_ButtonSpeedFactor * deltaTime;
+
+			if (positionX - cLeft >= cCameraRight)
+			{
+				positionX = cCameraLeft - cRight;
+				m_ButtonSpeedFactor += 0.1f;
+			}
+
+			constexpr float cRotationSpeed = 30.f;
+			float& rotation = transform.Local.State.Rotation;
+
+			const size_t cRotationCount = (size_t)(rotation / 360.f);
+			rotation += (cRotationSpeed * (float)(cRotationCount + 1ull)) * deltaTime;
+
+			m_ButtonCamera.SetCenter(transform.Global.Position);
+			});
+
+		if (m_ActiveCameraPtr == &m_ButtonCamera)
+			UpdateMouseRender(GetWindow().GetMousePosition());
+	}
 }
 
 void GameLayer::OnRender() noexcept
@@ -324,6 +321,11 @@ bool GameLayer::OnKeyPressed(const BM::EventHandle::KeyPressed& keyPressed) noex
 		break;
 	case Key::H:
 		QueueRemoveLayer();
+		break;
+
+	case Key::C:
+		GetWindow().SetTitle("Cat Application");
+		GetWindow().SetIconFromPath("Asset/cat.png");
 		break;
 
 	case Key::B:
