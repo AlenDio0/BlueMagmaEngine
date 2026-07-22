@@ -1,5 +1,6 @@
 #include "GameLayer.hpp"
 #include "DemoLayer.hpp"
+#include "PaddleLayer.hpp"
 #include <BlueMagma/Base/Application.hpp>
 #include <BlueMagma/Core/Log.hpp>
 #include <BlueMagma/Core/Random.hpp>
@@ -310,6 +311,9 @@ bool GameLayer::OnKeyPressed(const BM::EventHandle::KeyPressed& keyPressed) noex
 	{
 		using Key = sf::Keyboard::Key;
 
+	case Key::P:
+		QueueTransitionTo<PaddleLayer>();
+		break;
 	case Key::G:
 		QueueTransitionTo<GameLayer>();
 		break;
@@ -335,16 +339,16 @@ bool GameLayer::OnKeyPressed(const BM::EventHandle::KeyPressed& keyPressed) noex
 		m_MainCamera = GetRenderer().GetDefaultCamera();
 		break;
 
-	case Key::P:
+	case Key::J:
 		m_SoundManager.Play("sound");
 		break;
-	case Key::L:
+	case Key::K:
 		m_SoundManager.Play("sound", true);
 		break;
 	case Key::O:
 		m_SoundManager.PlayThread("sound");
 		break;
-	case Key::K:
+	case Key::L:
 		m_SoundManager.Stop("sound");
 		break;
 	case Key::Up:

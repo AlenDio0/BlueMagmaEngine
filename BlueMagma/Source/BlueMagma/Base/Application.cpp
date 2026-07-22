@@ -57,7 +57,7 @@ namespace BM
 
 			const auto& layers = m_Machine.GetLayers();
 
-			float deltaTime = std::min(timer.Restart().AsSeconds(), Context.MaxLagTime);
+			float deltaTime = std::min(timer.Restart().AsSeconds(), Context.MaxLagTime) * Context.TimeScale;
 			timeAccumulator += deltaTime;
 
 			while (timeAccumulator >= cTimeStep)

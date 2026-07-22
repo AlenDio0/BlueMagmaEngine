@@ -15,6 +15,7 @@ namespace BM
 
 		uint32_t TPSLimit = 30u;
 		float MaxLagTime = 1.f;
+		float TimeScale = 1.f;
 	};
 
 	class Application

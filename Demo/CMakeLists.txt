@@ -6,6 +6,8 @@ set(SOURCES
     Source/DemoLayer.cpp
     Source/GameLayer.hpp
     Source/GameLayer.cpp
+    Source/PaddleLayer.hpp
+    Source/PaddleLayer.cpp
 )
 
 # Executable

@@ -74,7 +74,7 @@ namespace BM
 		}
 
 		constexpr TValue SquaredDistance(const Vec2& vec) const noexcept {
-			return Vec2(*this - vec).Squared().Sum();
+			return Vec2(*this - vec).SquaredLength();
 		}
 		constexpr TValue Distance(const Vec2& vec) const noexcept {
 			return sqrt(SquaredDistance(vec));
