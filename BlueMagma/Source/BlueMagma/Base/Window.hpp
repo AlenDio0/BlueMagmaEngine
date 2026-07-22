@@ -30,8 +30,8 @@ namespace BM
 
 		enum class State : uint8_t
 		{
-			Windowed = sf::State::Windowed,
-			Fullscreen = sf::State::Fullscreen
+			Windowed = static_cast<uint8_t>(sf::State::Windowed),
+			Fullscreen = static_cast<uint8_t>(sf::State::Fullscreen)
 		};
 	}
 

@@ -15,6 +15,11 @@ namespace BM
 	public:
 		inline AppLayer() noexcept = default;
 		inline virtual ~AppLayer() noexcept override = default;
+
+		AppLayer(const AppLayer&) = delete;
+		AppLayer(AppLayer&&) = delete;
+		AppLayer& operator=(const AppLayer&) = delete;
+		AppLayer& operator=(AppLayer&&) = delete;
 	protected:
 		Application& GetApp() const noexcept;
 

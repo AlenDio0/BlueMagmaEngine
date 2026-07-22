@@ -222,7 +222,7 @@ void PaddleLayer::TickBotPaddle(BM::Entity paddle, float timeStep) noexcept
 	}
 
 	if (botTargetOffsetY == -1.f)
-		botTargetOffsetY = BM_RANDOM_DOUBLE(-0.75f, 0.75f);
+		botTargetOffsetY = (float)BM_RANDOM_DOUBLE(-0.75f, 0.75f);
 
 	const float cPredictedBallTargetY = PredictBallTargetY(cPaddlePosition.X);
 	botTargetY = cPredictedBallTargetY - cPaddleHalfHeight - (botTargetOffsetY * cPaddleHalfHeight);

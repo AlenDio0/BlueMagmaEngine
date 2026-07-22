@@ -12,6 +12,11 @@ namespace BM
 		inline Layer() noexcept = default;
 		inline virtual ~Layer() noexcept = default;
 
+		Layer(const Layer&) = delete;
+		Layer(Layer&&) = delete;
+		Layer& operator=(const Layer&) = delete;
+		Layer& operator=(Layer&&) = delete;
+
 		inline virtual void OnAttach() noexcept {}
 		inline virtual void OnDetach() noexcept {}
 		inline virtual void OnTransition() noexcept {}
