@@ -25,9 +25,9 @@ namespace BM::UI
 		using WidgetUpdateFn = std::function<void(EntityHandle, const Component::Widget&, bool)>;
 		void UpdateWidgets(Registry& registry, const WidgetUpdateFn& onUpdate) const noexcept;
 
-		void UpdateTransformWidget() noexcept;
+		void SetNeedUpdateHover() noexcept;
 	private:
-		bool m_UpdatedHover = false;
+		bool m_NeedUpdateHover = true;
 
 		Vec2i m_MousePosition{};
 	};

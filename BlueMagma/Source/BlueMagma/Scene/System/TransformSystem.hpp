@@ -14,7 +14,9 @@ namespace BM
 	private:
 		void UpdateTransformAndChildren(Entity entity, const Component::Transform::GlobalSpace& parentGlobal, bool updated) noexcept;
 		void UpdateSortByZ(Scene& scene) noexcept;
+
+		void SetNeedUpdateZ() noexcept;
 	private:
-		bool m_CachedUpdatedZ = true;
+		bool m_NeedUpdateZ = true;
 	};
 }

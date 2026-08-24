@@ -8,9 +8,13 @@ namespace BM::UI
 
 	void WidgetSystem::OnAttach(Scene& scene) noexcept
 	{
-		scene.OnDestroy<Transform>().connect<&WidgetSystem::UpdateTransformWidget>(this);
+		scene.OnConstruct<Transform>().connect<&WidgetSystem::SetNeedUpdateHover>(this);
+		scene.OnUpdate<Transform>().connect<&WidgetSystem::SetNeedUpdateHover>(this);
+		scene.OnDestroy<Transform>().connect<&WidgetSystem::SetNeedUpdateHover>(this);
 
-		scene.OnUpdate<Transform>().connect<&WidgetSystem::UpdateTransformWidget>(this);
+		scene.OnConstruct<Widget>().connect<&WidgetSystem::SetNeedUpdateHover>(this);
+		scene.OnUpdate<Widget>().connect<&WidgetSystem::SetNeedUpdateHover>(this);
+		scene.OnDestroy<Widget>().connect<&WidgetSystem::SetNeedUpdateHover>(this);
 	}
 
 	void WidgetSystem::OnEvent(Scene& scene, Event& event) noexcept
@@ -22,7 +26,7 @@ namespace BM::UI
 
 	void WidgetSystem::OnUpdate(Scene& scene, float deltaTime) noexcept
 	{
-		if (m_UpdatedHover)
+		if (!m_NeedUpdateHover)
 			return;
 
 		UpdateWidgets(scene.GetRegistry(), [&](auto entity, const auto& widget, bool onMouse) {
@@ -30,7 +34,7 @@ namespace BM::UI
 				scene.PatchComponent<Widget>(entity, [&](auto& widget) { widget.Hover = onMouse; });
 			});
 
-		m_UpdatedHover = true;
+		m_NeedUpdateHover = false;
 	}
 
 	bool WidgetSystem::Contains(Registry& registry, const Transform& transform, const Widget& widget, Vec2i point) noexcept
@@ -67,7 +71,7 @@ namespace BM::UI
 	bool WidgetSystem::OnMouseMoved(const EventHandle::MouseMoved& mouseMoved) noexcept
 	{
 		m_MousePosition = mouseMoved.position;
-		m_UpdatedHover = false;
+		m_NeedUpdateHover = true;
 
 		return false;
 	}
@@ -107,8 +111,8 @@ namespace BM::UI
 		}
 	}
 
-	void WidgetSystem::UpdateTransformWidget() noexcept
+	void WidgetSystem::SetNeedUpdateHover() noexcept
 	{
-		m_UpdatedHover = false;
+		m_NeedUpdateHover = true;
 	}
 }

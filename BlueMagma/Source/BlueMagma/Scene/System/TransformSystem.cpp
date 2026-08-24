@@ -8,11 +8,6 @@ namespace BM
 {
 	using namespace Component;
 
-	static inline void SetTrue(bool& b) noexcept
-	{
-		b = true;
-	}
-
 	static inline void SetNeedUpdate(Registry& registry, EntityHandle entity) noexcept
 	{
 		auto& transform = registry.get<Transform>(entity);
@@ -21,9 +16,9 @@ namespace BM
 
 	void TransformSystem::OnAttach(Scene& scene) noexcept
 	{
-		scene.OnConstruct<Transform>().connect<SetTrue>(m_CachedUpdatedZ);
-		scene.OnDestroy<Transform>().connect<SetTrue>(m_CachedUpdatedZ);
-		scene.OnUpdate<Transform>().connect<SetTrue>(m_CachedUpdatedZ);
+		scene.OnConstruct<Transform>().connect<&TransformSystem::SetNeedUpdateZ>(this);
+		scene.OnDestroy<Transform>().connect<&TransformSystem::SetNeedUpdateZ>(this);
+		scene.OnUpdate<Transform>().connect<&TransformSystem::SetNeedUpdateZ>(this);
 
 		scene.OnUpdate<Transform>().connect<SetNeedUpdate>();
 	}
@@ -74,12 +69,17 @@ namespace BM
 
 	void TransformSystem::UpdateSortByZ(Scene& scene) noexcept
 	{
-		if (m_CachedUpdatedZ)
+		if (m_NeedUpdateZ)
 		{
 			scene.GetRegistry().sort<Transform>([](const auto& left, const auto& right) {
 				return left.Global.Z < right.Global.Z; });
 
-			m_CachedUpdatedZ = false;
+			m_NeedUpdateZ = false;
 		}
+	}
+
+	void TransformSystem::SetNeedUpdateZ() noexcept
+	{
+		m_NeedUpdateZ = true;
 	}
 }

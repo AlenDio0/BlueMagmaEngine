@@ -193,6 +193,9 @@ bool PaddleLayer::OnKeyPressed(const BM::EventHandle::KeyPressed& keyPressed) no
 	case Key::Down:
 		StartBall();
 		break;
+
+	default:
+		break;
 	}
 
 	return false;

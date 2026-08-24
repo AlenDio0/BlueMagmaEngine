@@ -74,4 +74,6 @@ private:
 	uint16_t m_LeftScore = 0u;
 	uint16_t m_RightScore = 0u;
 
+	//BM::Entity m_FPSText;
+	//BM::Entity m_TPSText;
 };

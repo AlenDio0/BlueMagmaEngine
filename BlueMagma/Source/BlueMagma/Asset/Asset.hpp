@@ -36,8 +36,8 @@ namespace BM
 			: sf::Texture(image) {}
 
 		inline static const Texture& GetDefault() noexcept {
-			static Texture* texture = new Texture{ sf::Image{ Vec2u(2), s_TextureBytes } };
-			return *texture;
+			static Texture* sTexture = new Texture{ sf::Image{ Vec2u(2), s_TextureBytes } };
+			return *sTexture;
 		}
 	private:
 		static constexpr inline const uint8_t s_TextureBytes[] = {
@@ -59,8 +59,8 @@ namespace BM
 			: sf::Font(data, bytesSize) {}
 
 		inline static const Font& GetDefault() noexcept {
-			static Font* font = new Font{ DefaultFont::s_TinyTTFBytes, DefaultFont::s_TinyTTFLength };
-			return *font;
+			static Font* sFont = new Font{ DefaultFont::s_TinyTTFBytes, DefaultFont::s_TinyTTFLength };
+			return *sFont;
 		}
 	};
 
@@ -73,8 +73,8 @@ namespace BM
 			: sf::SoundBuffer(path) {}
 
 		inline static const SoundBuffer& GetDefault() noexcept {
-			static SoundBuffer* soundBuffer = new SoundBuffer{};
-			return *soundBuffer;
+			static SoundBuffer* sSoundBuffer = new SoundBuffer{};
+			return *sSoundBuffer;
 		}
 	};
 }

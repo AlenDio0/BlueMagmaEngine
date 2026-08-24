@@ -339,6 +339,17 @@ bool GameLayer::OnKeyPressed(const BM::EventHandle::KeyPressed& keyPressed) noex
 		m_MainCamera = GetRenderer().GetDefaultCamera();
 		break;
 
+	case Key::M:
+	{
+		static bool sSizeSwitch = true;
+
+		m_InputText.Patch<BM::Component::Widget>([](auto& widget) {
+			widget.Size *= sSizeSwitch ? 2.f : 0.5f;
+			});
+		sSizeSwitch = !sSizeSwitch;
+	}
+		break;
+
 	case Key::J:
 		m_SoundManager.Play("sound");
 		break;
