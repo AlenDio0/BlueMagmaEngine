@@ -25,11 +25,11 @@ int main(int argc, char* argv[])
 	BM_FN("argc: {}", argc);
 
 	BM::ApplicationContext appContext{};
-	BM::WindowContext windowContext{ .InitialSize{ 1280u, 720u } };
+	BM::Application application(appContext);
 
-	BM::Application application(appContext, windowContext);
-
-	if (!application.GetAssets().LoadYaml("Config/LoadAsset.yml"))
+	BM::WindowContext windowContext{ .InitialMode{ { 1280u, 720u } } };
+	application.CreateOrReplaceWindow(windowContext);
+	if (!application.Assets.LoadYaml("Config/LoadAsset.yml"))
 		BM_ERROR("Couldn't load Asset Yaml");
 
 	BM_RANDOM_SEED(BM_RANDOM(1, 10));

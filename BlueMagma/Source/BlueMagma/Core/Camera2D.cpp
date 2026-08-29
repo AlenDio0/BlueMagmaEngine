@@ -5,19 +5,23 @@ namespace BM
 {
 	Camera2D::Camera2D(RectFloat rect) noexcept
 		: Camera2D(rect.Size, rect.Center())
-	{}
+	{
+	}
 
 	Camera2D::Camera2D(Vec2f size) noexcept
 		: Camera2D(size, size.Center())
-	{}
+	{
+	}
 
 	Camera2D::Camera2D(const sf::View& view, float zoomFactor) noexcept
 		: Camera2D(view.getSize(), view.getCenter(), zoomFactor)
-	{}
+	{
+	}
 
 	Camera2D::Camera2D(Vec2f size, Vec2f center, float zoomFactor) noexcept
 		: m_Size(size), m_Center(center), m_ZoomFactor(zoomFactor), m_Viewport(0.f, 0.f, 1.f, 1.f)
-	{}
+	{
+	}
 
 	bool Camera2D::OnViewportResizeEvent(const EventHandle::Resized& resized) noexcept
 	{

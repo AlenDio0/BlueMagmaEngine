@@ -5,19 +5,14 @@
 
 namespace BM
 {
-	Application::Application(const ApplicationContext& appContext, WindowContext windowContext) noexcept
-		: Context(appContext)
+	Application::Application(const ApplicationContext& appContext) noexcept
+		: m_Context(appContext)
 	{
-		BM_CORE_DEBUG("{}()\n - DefaultWindowCloseEvent: {}", __FUNCTION__,
-			appContext.DefaultWindowCloseEvent);
+		BM_CORE_DEBUG("{}()\n - DefaultWindowCloseEvent: {}\n - StopOnWindowCloseEvent: {}\n - TPSLimit: {}\n - MaxLagTime: {}\n - TimeScale: {}", __FUNCTION__,
+			appContext.DefaultWindowCloseEvent, appContext.StopOnWindowCloseEvent, appContext.TPSLimit, appContext.MaxLagTime, appContext.TimeScale);
 
+		BM_CORE_ASSERT(s_Instance == nullptr, "Application already created");
 		s_Instance = this;
-
-		if (!windowContext.EventCallback)
-			windowContext.EventCallback = [&](Event& event) { EventCallback(event); };
-
-		m_Window = std::make_unique<Window>(windowContext);
-		m_Window->Create();
 	}
 
 	Application::~Application() noexcept
@@ -27,9 +22,48 @@ namespace BM
 
 	Application& Application::Get() noexcept
 	{
-		BM_CORE_ASSERT(s_Instance != nullptr, "Application not constructed yet");
-
+		BM_CORE_ASSERT(s_Instance != nullptr, "Application not created");
 		return *s_Instance;
+	}
+
+	void Application::SetDefaultWindowCloseEvent(bool flag) noexcept
+	{
+		BM_CORE_FN("flag: {}", flag);
+
+		m_Context.DefaultWindowCloseEvent = flag;
+	}
+
+	void Application::SetStopOnWindowCloseEvent(bool flag) noexcept
+	{
+		BM_CORE_FN("flag: {}", flag);
+
+		m_Context.StopOnWindowCloseEvent = flag;
+	}
+
+	void Application::SetTPSLimit(uint32_t tps) noexcept
+	{
+		BM_CORE_FN("tps: {}", tps);
+
+		m_Context.TPSLimit = tps;
+	}
+
+	void Application::SetMaxLagTime(float lag) noexcept
+	{
+		BM_CORE_FN("lag: {}", lag);
+
+		m_Context.MaxLagTime = lag;
+	}
+
+	void Application::SetTimeScale(float timeScale) noexcept
+	{
+		BM_CORE_FN("timeScale: {}", timeScale);
+
+		m_Context.TimeScale = timeScale;
+	}
+
+	const ApplicationContext& Application::GetContext() const noexcept
+	{
+		return m_Context;
 	}
 
 	void Application::Run()
@@ -38,26 +72,24 @@ namespace BM
 
 		m_Running = true;
 
-		const float cTimeStep = 1.f / static_cast<float>(Context.TPSLimit);
+		const float cTimeStep = 1.f / static_cast<float>(m_Context.TPSLimit);
 		float timeAccumulator = 0.f;
 
 		Timer timer;
 		while (m_Running)
 		{
-			if (!m_Machine.ProcessLayerChanges())
+			if (!Layers.ProcessLayerChanges())
 			{
 				Stop();
 				break;
 			}
 
-			m_Window->PollEvent();
+			GetWindow().PollEvents();
 
-			if (!m_Window->IsOpen())
-				Stop();
+			const auto& layers = Layers.GetLayers();
 
-			const auto& layers = m_Machine.GetLayers();
-
-			float deltaTime = std::min(timer.Restart().AsSeconds(), Context.MaxLagTime) * Context.TimeScale;
+			float unscaledDeltaTime = std::min(timer.Restart().AsSeconds(), m_Context.MaxLagTime);
+			float deltaTime = unscaledDeltaTime * m_Context.TimeScale;
 			timeAccumulator += deltaTime;
 
 			while (timeAccumulator >= cTimeStep)
@@ -70,15 +102,15 @@ namespace BM
 			for (const auto& layer : layers)
 				layer->OnUpdate(deltaTime);
 
-			m_Window->GetRenderer().Clear();
+			GetRenderer().Clear();
 
 			for (const auto& layer : layers)
 				layer->OnRender();
 
-			m_Window->GetRenderer().Display();
+			GetRenderer().Display();
 		}
 
-		m_Machine.Clear();
+		Layers.Clear();
 	}
 
 	void Application::Stop()
@@ -88,10 +120,27 @@ namespace BM
 		m_Running = false;
 	}
 
+	void Application::CreateOrReplaceWindow(WindowContext windowContext) noexcept
+	{
+		BM_CORE_FN();
+
+		if (!windowContext.EventCallback)
+			windowContext.EventCallback = [&](Event& event) { EventCallback(event); };
+
+		if (m_Window)
+		{
+			m_Window->Context = windowContext;
+			m_Window->ApplyContext();
+		}
+		else
+			m_Window = std::make_unique<Window>(windowContext);
+
+		m_Window->Create();
+	}
+
 	Window& Application::GetWindow() noexcept
 	{
-		BM_CORE_ASSERT(m_Window != nullptr, "Window not contructed yet");
-
+		BM_CORE_ASSERT(m_Window != nullptr, "Window not created");
 		return *m_Window;
 	}
 
@@ -100,26 +149,15 @@ namespace BM
 		return GetWindow().GetRenderer();
 	}
 
-	LayerMachine& Application::GetMachine() noexcept
-	{
-		return m_Machine;
-	}
-
-	AssetManager& Application::GetAssets() noexcept
-	{
-		return m_Assets;
-	}
-
 	void Application::EventCallback(Event& event) noexcept
 	{
+		if (m_Context.DefaultWindowCloseEvent || m_Context.StopOnWindowCloseEvent)
 		{
 			EventDispatcher dispatcher(event);
-
-			if (Context.DefaultWindowCloseEvent)
-				dispatcher.Dispatch<EventHandle::Closed>(BM_EVENT_FN(OnCloseEvent));
+			dispatcher.Dispatch<EventHandle::Closed>(BM_EVENT_FN(OnCloseEvent));
 		}
 
-		for (const auto& layer : m_Machine.GetLayers() | std::views::reverse)
+		for (const auto& layer : Layers.GetLayers() | std::views::reverse)
 		{
 			if (event.Done)
 				break;
@@ -130,7 +168,11 @@ namespace BM
 
 	bool Application::OnCloseEvent(const EventHandle::Closed& event) noexcept
 	{
-		m_Window->Close();
+		if (m_Context.DefaultWindowCloseEvent)
+			m_Window->Close();
+
+		if (m_Context.StopOnWindowCloseEvent)
+			Stop();
 
 		return false;
 	}

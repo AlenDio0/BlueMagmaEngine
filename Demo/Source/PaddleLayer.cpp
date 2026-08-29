@@ -10,18 +10,18 @@
 #include <cstdint>
 
 PaddleLayer::PaddleLayer() noexcept
-	: m_MainCamera(GetWindow().GetSize())
+	: m_MainCamera(BM::RectFloat{ 0.f, 0.f, 0.f, 0.f })
 {
-	m_Scene.AttachRenderer(GetRenderer());
-
 	m_Scene.AddSystem<BM::TransformSystem>(100);
 	m_Scene.AddSystem<BM::RenderSystem>();
+
+	m_Scene.AttachRenderer(GetRenderer());
 }
 
 void PaddleLayer::OnAttach() noexcept
 {
-	GetWindow().SetFPSLimit(180u);
-	GetApp().Context.TPSLimit = 60u;
+	GetApp().CreateOrReplaceWindow(m_WindowContext);
+	m_MainCamera = BM::Camera2D(GetWindow().GetSize());
 
 	const BM::Vec2f cCameraSize = m_MainCamera.GetSize();
 	const BM::Vec2f cCameraCenter = m_MainCamera.GetCenter();
@@ -38,9 +38,9 @@ void PaddleLayer::OnAttach() noexcept
 	background.Add<BM::Component::RectShape>(cCameraSize);
 	background.Add<BM::Component::ColorMaterial>(sf::Color(0xFFFFFF10));
 
-	BM::Entity axis = m_Scene.CreateEntity({ .State{.Position = cCameraCenter, .Origin{0.5f, 0.5f}}, .Z = -1.f });
-	axis.Add<BM::Component::RectShape>(BM::Vec2f(2.f, cCameraSize.Y));
-	axis.Add<BM::Component::ColorMaterial>(sf::Color(0xFFFFFF80));
+	BM::Entity paddleNet = m_Scene.CreateEntity({ .State{.Position = cCameraCenter, .Origin{0.5f, 0.5f}}, .Z = -1.f });
+	paddleNet.Add<BM::Component::RectShape>(BM::Vec2f(2.f, cCameraSize.Y));
+	paddleNet.Add<BM::Component::ColorMaterial>(sf::Color(0xFFFFFF80));
 
 	const BM::Font& cFont = GetAsset<BM::Font>("Minecraft");
 	const float cPaddingY = cCameraSize.Y / 32.f;
@@ -54,10 +54,10 @@ void PaddleLayer::OnAttach() noexcept
 	m_TimerText = m_Scene.CreateEntity({ .State{.Position{cCameraCenter.X + cSpaceX, cPaddingY }} });
 	m_TimerText.Add<BM::Component::TextRender>(&cFont, "0", cCharacterSize);
 
-	m_LeftScoreText = m_Scene.CreateEntityWithParent(axis, { .State{.Position{-cSpaceX, 0.f }, .Origin{1.f, 0.5f}} });
+	m_LeftScoreText = m_Scene.CreateEntityWithParent(paddleNet, { .State{.Position{-cSpaceX, 0.f }, .Origin{1.f, 0.5f}} });
 	m_LeftScoreText.Add<BM::Component::TextRender>(&cFont, "0", cCharacterSize);
 
-	m_RightScoreText = m_Scene.CreateEntityWithParent(axis, { .State{.Position{cSpaceX, 0.f }, .Origin{0.f, 0.5f}} });
+	m_RightScoreText = m_Scene.CreateEntityWithParent(paddleNet, { .State{.Position{cSpaceX, 0.f }, .Origin{0.f, 0.5f}} });
 	m_RightScoreText.Add<BM::Component::TextRender>(&cFont, "0", cCharacterSize);
 }
 
@@ -72,6 +72,9 @@ void PaddleLayer::OnEvent(BM::Event& event) noexcept
 
 void PaddleLayer::OnTick(float timeStep) noexcept
 {
+	if (!GetWindow().HasFocus())
+		return;
+
 	m_LeftScoreText.Patch<BM::Component::TextRender>([&](auto& textRender) {
 		textRender.Text = std::to_string(m_LeftScore);
 		});
@@ -108,9 +111,9 @@ void PaddleLayer::OnTick(float timeStep) noexcept
 		textRender.Text = std::format("{:.3f}", m_BallSpeedFactor);
 		});
 	m_BallSpeedFactorText.Patch<BM::Component::ColorMaterial>([&](auto& material) {
-		const float cSpeedColor = std::clamp((m_BallSpeedFactor - 1.f) / 3.f, 0.f, 1.f);
-		material.Color.r = (uint8_t)std::lerp(0.f, 255.f, cSpeedColor);
-		material.Color.g = (uint8_t)std::lerp(255.f, 0.f, cSpeedColor);
+		const float cSpeedProgress = std::clamp((m_BallSpeedFactor - 1.f) / 3.f, 0.f, 1.f);
+		material.Color.r = (uint8_t)std::lerp(0.f, 255.f, cSpeedProgress);
+		material.Color.g = (uint8_t)std::lerp(255.f, 0.f, cSpeedProgress);
 		material.Color.b = 0u;
 		});
 
@@ -118,6 +121,11 @@ void PaddleLayer::OnTick(float timeStep) noexcept
 
 void PaddleLayer::OnUpdate(float deltaTime) noexcept
 {
+	GetWindow().UpdateModeFocus();
+
+	if (!GetWindow().HasFocus())
+		return;
+
 	m_Scene.OnUpdate(deltaTime);
 
 	if (m_BallVelocity.X != 0.f)
@@ -143,22 +151,6 @@ void PaddleLayer::OnRender() noexcept
 	m_Scene.OnRender();
 }
 
-BM::Entity PaddleLayer::CreatePaddle(BM::Component::Transform::LocalSpace transform) noexcept
-{
-	const float cPaddleHeight = m_MainCamera.GetSize().Y / 6.f;
-
-	const BM::Vec2f cPaddleSize{ cPaddleHeight / 8.f, cPaddleHeight };
-	constexpr float cPaddleCorner = 1.f;
-
-	transform.State.Position.Y -= cPaddleHeight / 2.f;
-
-	BM::Entity entity = m_Scene.CreateEntity(transform);
-	entity.Add<BM::Component::RectShape>(cPaddleSize, cPaddleCorner);
-	entity.Add<BM::Component::ColorMaterial>(sf::Color::White);
-
-	return entity;
-}
-
 bool PaddleLayer::OnKeyPressed(const BM::EventHandle::KeyPressed& keyPressed) noexcept
 {
 	switch (keyPressed.code)
@@ -166,10 +158,10 @@ bool PaddleLayer::OnKeyPressed(const BM::EventHandle::KeyPressed& keyPressed) no
 		using Key = sf::Keyboard::Key;
 
 	case Key::Add:
-		GetApp().Context.TimeScale += 1.f;
+		GetApp().SetTimeScale(GetApp().GetContext().TimeScale + 1.f);
 		break;
 	case Key::Subtract:
-		GetApp().Context.TimeScale = std::max(0.f, GetApp().Context.TimeScale - 1.f);
+		GetApp().SetTimeScale(std::max(0.f, GetApp().GetContext().TimeScale - 1.f));
 		break;
 
 	case Key::N:
@@ -194,11 +186,42 @@ bool PaddleLayer::OnKeyPressed(const BM::EventHandle::KeyPressed& keyPressed) no
 		StartBall();
 		break;
 
+	case Key::F:
+	{
+		BM::WindowContext windowContext = m_WindowContext;
+
+		m_DesktopMode = !m_DesktopMode;
+		if (m_DesktopMode)
+		{
+			windowContext.InitialMode = BM::WindowMode::GetDesktopMode();
+			windowContext.InitialStyle = BM::WindowStyle::None;
+		}
+
+		GetApp().CreateOrReplaceWindow(windowContext);
+	}
+	break;
+
 	default:
 		break;
 	}
 
 	return false;
+}
+
+BM::Entity PaddleLayer::CreatePaddle(BM::Component::Transform::LocalSpace transform) noexcept
+{
+	const float cPaddleHeight = m_MainCamera.GetSize().Y / 6.f;
+
+	const BM::Vec2f cPaddleSize{ cPaddleHeight / 8.f, cPaddleHeight };
+	constexpr float cPaddleCorner = 1.f;
+
+	transform.State.Position.Y -= cPaddleHeight / 2.f;
+
+	BM::Entity entity = m_Scene.CreateEntity(transform);
+	entity.Add<BM::Component::RectShape>(cPaddleSize, cPaddleCorner);
+	entity.Add<BM::Component::ColorMaterial>(sf::Color::White);
+
+	return entity;
 }
 
 void PaddleLayer::TickBotPaddle(BM::Entity paddle, float timeStep) noexcept

@@ -205,7 +205,7 @@ void GameLayer::InitExample() noexcept
 {
 	namespace Comp = BM::Component;
 
-	const BM::Texture& texture = GetAsset<BM::Texture>("Cat");
+	const BM::Texture* texture = &GetAsset<BM::Texture>("Cat");
 	const BM::Font* font = &GetAsset<BM::Font>("Minecraft");
 	constexpr float cBoxSize = 50.f;
 	const float cBoundSize = GetWindow().GetSize().Y - cBoxSize;
@@ -231,8 +231,8 @@ void GameLayer::InitExample() noexcept
 		circle.Add<Comp::Outline>(sf::Color::Black, i % 2 == 0 ? 0.f : 1.f);
 
 		BM::Entity sprite = m_Scene.CreateEntity({ .State{.Position{cPosX, cBoundSize - (cPercentage * cBasePosY)},
-			.Scale{BM::Vec2f(cBoxSize) / texture.getSize()}, .Rotation = -45.f}, .Z = 0.2f, });
-		sprite.Add<Comp::SpriteShape>(&texture);
+			.Scale{BM::Vec2f(cBoxSize) / texture->getSize()}, .Rotation = -45.f}, .Z = 0.2f, });
+		sprite.Add<Comp::SpriteShape>(texture);
 		sprite.Add<Comp::ColorMaterial>(sf::Color(cColor, cColor, cColor));
 
 		BM::Entity text = m_Scene.CreateEntity({ .State{.Position{cPosX, cBoundSize - cBasePosY}}, .Z = 0.3f });
@@ -246,7 +246,7 @@ void GameLayer::InitUIExample() noexcept
 {
 	namespace Comp = BM::Component;
 
-	auto font = &GetAsset<BM::Font>("Minecraft");
+	const BM::Font* font = &GetAsset<BM::Font>("Minecraft");
 	const BM::Vec2f cWindowSize = GetWindow().GetSize();
 	constexpr BM::Vec2f cUISize(200.f, 40.f);
 
@@ -348,7 +348,7 @@ bool GameLayer::OnKeyPressed(const BM::EventHandle::KeyPressed& keyPressed) noex
 			});
 		sSizeSwitch = !sSizeSwitch;
 	}
-		break;
+	break;
 
 	case Key::J:
 		m_SoundManager.Play("sound");
@@ -476,9 +476,10 @@ std::string GameLayer::FormatStatText(float deltaTime) const noexcept
 #else
 	const char* cConfiguration = "Debug";
 #endif
-	const double cMicro = std::round(deltaTime * std::pow(10, 6));
+	const double cMilli = deltaTime * 1e3;
+	const double cMicro = std::round(deltaTime * 1e6);
 	const double cFPS = std::round(1.f / deltaTime);
 	const size_t cEntities = m_Scene.View<BM::Component::Transform>().size();
 
-	return std::format("{} build\n{:.5f}ms\n{}us\n{} FPS\n{} Entities", cConfiguration, deltaTime, cMicro, cFPS, cEntities);
+	return std::format("{} build\n{:.5f}ms\n{}us\n{} FPS\n{} Entities", cConfiguration, cMilli, cMicro, cFPS, cEntities);
 }

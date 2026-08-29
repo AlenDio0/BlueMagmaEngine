@@ -18,6 +18,8 @@ set(SOURCES
     Source/BlueMagma/Core/Camera2D.cpp
     Source/BlueMagma/Base/Application.hpp
     Source/BlueMagma/Base/Application.cpp
+    Source/BlueMagma/Base/WindowContext.hpp
+    Source/BlueMagma/Base/WindowContext.cpp
     Source/BlueMagma/Base/Window.hpp
     Source/BlueMagma/Base/Window.cpp
     Source/BlueMagma/Base/Renderer.hpp

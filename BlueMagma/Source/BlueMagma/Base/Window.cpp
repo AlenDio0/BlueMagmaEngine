@@ -7,7 +7,8 @@ namespace BM
 {
 	Window::Window(const WindowContext& context) noexcept
 		: Context(context)
-	{}
+	{
+	}
 
 	Window::~Window() noexcept
 	{
@@ -16,12 +17,13 @@ namespace BM
 
 	void BM::Window::Create() noexcept
 	{
-		BM_CORE_DEBUG("{}()\n - InitialSize: {}\n - InitialStyle: {}\n - InitialState: {}", __FUNCTION__,
-			Context.InitialSize, static_cast<uint8_t>(Context.InitialStyle), static_cast<uint8_t>(Context.InitialState));
+		BM_CORE_DEBUG("{}()\n - InitialStyle: {}\n - InitialState: {}", __FUNCTION__,
+			static_cast<uint8_t>(Context.InitialStyle), static_cast<uint8_t>(Context.InitialState));
 
 		if (!m_Handle)
 			m_Handle = std::make_unique<sf::RenderWindow>();
-		m_Handle->create(sf::VideoMode(Context.InitialSize), {}, Context.InitialStyle, static_cast<sf::State>(Context.InitialState));
+
+		m_Handle->create(sf::VideoMode(Context.InitialMode.Size, Context.InitialMode.BitsPerPixel), {}, Context.InitialStyle, static_cast<sf::State>(Context.InitialState));
 
 		if (!m_Renderer)
 			m_Renderer = std::make_unique<Renderer>(*m_Handle);
@@ -35,7 +37,7 @@ namespace BM
 	{
 		BM_CORE_FN();
 
-		m_Handle->close();
+		Close();
 
 		m_Renderer.reset();
 		m_Handle.reset();
@@ -54,67 +56,99 @@ namespace BM
 		SetIconFromPath(Context.IconPath);
 	}
 
-	void BM::Window::Close() noexcept
+	void BM::Window::Close() const noexcept
 	{
 		BM_CORE_FN();
 
-		m_Handle->close();
+		GetHandle().close();
 
 		BM_CORE_INFO("Window closed");
 	}
 
-	void Window::PollEvent() noexcept
+	void Window::PollEvents() const noexcept
 	{
 		if (!Context.EventCallback)
 			return;
 
-		while (auto ev = m_Handle->pollEvent())
+		while (auto ev = GetHandle().pollEvent())
 		{
 			Event event = static_cast<EventHandle>(ev.value());
 			Context.EventCallback(event);
 		}
 	}
 
-	bool Window::SetActive(bool active) noexcept
+	void Window::UpdateModeFocus() const noexcept
 	{
-		return m_Handle->setActive(active);
+		static bool sFocusSwitch = true;
+
+		if (!sFocusSwitch && HasFocus())
+		{
+			SetSize(Context.InitialMode.Size);
+			sFocusSwitch = true;
+		}
+		else if (sFocusSwitch && !HasFocus())
+		{
+			SetSize(BM::Vec2i::Zero());
+			sFocusSwitch = false;
+		}
 	}
 
-	void Window::RequestFocus() noexcept
+	bool Window::SetActive(bool active) const noexcept
 	{
-		m_Handle->requestFocus();
+		BM_CORE_FN("active: {}", active);
+
+		return GetHandle().setActive(active);
 	}
 
-	void Window::SetMousePosition(Vec2i point) noexcept
+	void Window::RequestFocus() const noexcept
 	{
-		sf::Mouse::setPosition(point, *m_Handle);
+		BM_CORE_FN();
+
+		GetHandle().requestFocus();
 	}
 
-	void Window::SetSize(Vec2u size) noexcept
+	void Window::SetMousePosition(Vec2i point) const noexcept
 	{
-		m_Handle->setSize(size);
+		BM_CORE_FN("point: {}", point);
+
+		sf::Mouse::setPosition(point, GetHandle());
+	}
+
+	void Window::SetSize(Vec2u size) const noexcept
+	{
+		BM_CORE_FN("size: {}", size);
+
+		GetHandle().setSize(size);
 	}
 
 	void Window::SetTitle(const std::string& title) noexcept
 	{
+		BM_CORE_FN("title: {}", title);
+
 		Context.Title = title;
-		m_Handle->setTitle(title);
+		GetHandle().setTitle(title);
 	}
 
 	void Window::SetFPSLimit(uint32_t fps) noexcept
 	{
+		BM_CORE_FN("fps: {}", fps);
+
 		Context.FPSLimit = fps;
-		m_Handle->setFramerateLimit(fps);
+		GetHandle().setFramerateLimit(fps);
 	}
 
 	void Window::SetVSync(bool vsync) noexcept
 	{
+		BM_CORE_FN("vsync: {}", vsync);
+
 		Context.VSync = vsync;
-		m_Handle->setVerticalSyncEnabled(vsync);
+		GetHandle().setVerticalSyncEnabled(vsync);
 	}
 
 	void Window::SetIconFromPath(const std::filesystem::path& iconPath) noexcept
 	{
+		BM_CORE_FN("iconPath: {}", iconPath.string());
+
 		Context.IconPath = iconPath;
 		if (!iconPath.empty())
 		{
@@ -124,19 +158,28 @@ namespace BM
 		}
 	}
 
-	void Window::SetIcon(const sf::Image& icon) noexcept
+	void Window::SetIcon(const sf::Image& icon) const noexcept
 	{
-		m_Handle->setIcon(icon);
+		BM_CORE_FN();
+
+		GetHandle().setIcon(icon);
+	}
+
+	void Window::SetPosition(Vec2i point) const noexcept
+	{
+		BM_CORE_FN();
+
+		GetHandle().setPosition(point);
 	}
 
 	bool Window::IsOpen() const noexcept
 	{
-		return m_Handle && m_Handle->isOpen();
+		return m_Handle && GetHandle().isOpen();
 	}
 
 	bool Window::HasFocus() const noexcept
 	{
-		return m_Handle->hasFocus();
+		return GetHandle().hasFocus();
 	}
 
 	Vec2i Window::GetMousePosition() const noexcept
@@ -146,7 +189,12 @@ namespace BM
 
 	Vec2u Window::GetSize() const noexcept
 	{
-		return m_Handle->getSize();
+		return GetHandle().getSize();
+	}
+
+	Vec2i Window::GetPosition() const noexcept
+	{
+		return GetHandle().getPosition();
 	}
 
 	Renderer& Window::GetRenderer() noexcept
@@ -156,7 +204,7 @@ namespace BM
 
 	sf::RenderWindow& Window::GetHandle() const noexcept
 	{
-		BM_CORE_ASSERT(m_Handle != nullptr, "Window Handle not contructed yet");
+		BM_CORE_ASSERT(m_Handle != nullptr, "Window Handle not created");
 		return *m_Handle;
 	}
 }

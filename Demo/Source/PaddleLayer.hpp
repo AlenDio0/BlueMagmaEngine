@@ -19,9 +19,9 @@ public:
 	virtual void OnUpdate(float deltaTime) noexcept override;
 	virtual void OnRender() noexcept override;
 private:
-	BM::Entity CreatePaddle(BM::Component::Transform::LocalSpace transform) noexcept;
-
 	bool OnKeyPressed(const BM::EventHandle::KeyPressed& keyPressed) noexcept;
+
+	BM::Entity CreatePaddle(BM::Component::Transform::LocalSpace transform) noexcept;
 
 	void TickBotPaddle(BM::Entity paddle, float timeStep) noexcept;
 
@@ -44,6 +44,8 @@ private:
 
 	void StartNewGame() noexcept;
 private:
+	const BM::WindowContext m_WindowContext{ .InitialMode{ { 1280u, 720u } }, .FPSLimit = 180u };
+
 	BM::Camera2D m_MainCamera;
 
 	BM::Scene m_Scene;
@@ -76,4 +78,6 @@ private:
 
 	//BM::Entity m_FPSText;
 	//BM::Entity m_TPSText;
+
+	bool m_DesktopMode = false;
 };

@@ -1,9 +1,8 @@
 #pragma once
+#include "WindowContext.hpp"
 #include "Renderer.hpp"
-#include "EventDispatcher.hpp"
 #include "Core/Vec2.hpp"
 #include <SFML/Graphics/RenderWindow.hpp>
-#include <SFML/Window/WindowEnums.hpp>
 #include <SFML/Graphics/Image.hpp>
 #include <memory>
 #include <string>
@@ -13,45 +12,6 @@
 
 namespace BM
 {
-	namespace WindowEnum
-	{
-		namespace Style
-		{
-			enum
-			{
-				None = sf::Style::None,
-				Titlebar = sf::Style::Titlebar,
-				Resize = sf::Style::Resize,
-				Close = sf::Style::Close,
-
-				Default = sf::Style::Default
-			};
-		}
-
-		enum class State : uint8_t
-		{
-			Windowed = static_cast<uint8_t>(sf::State::Windowed),
-			Fullscreen = static_cast<uint8_t>(sf::State::Fullscreen)
-		};
-	}
-
-	struct WindowContext
-	{
-		Vec2u InitialSize = Vec2u(800u);
-		uint32_t InitialStyle = WindowEnum::Style::Default;
-		WindowEnum::State InitialState = WindowEnum::State::Windowed;
-
-		std::string Title = "BlueMagma Application";
-
-		uint32_t FPSLimit = 0u;
-		bool VSync = false;
-
-		std::filesystem::path IconPath = "";
-
-		using EventCallbackFn = std::function<void(Event&)>;
-		EventCallbackFn EventCallback;
-	};
-
 	class Window
 	{
 	public:
@@ -65,26 +25,30 @@ namespace BM
 
 		void ApplyContext() noexcept;
 
-		void Close() noexcept;
+		void Close() const noexcept;
 
-		void PollEvent() noexcept;
+		void PollEvents() const noexcept;
 
-		bool SetActive(bool active) noexcept;
-		void RequestFocus() noexcept;
+		void UpdateModeFocus() const noexcept;
 
-		void SetMousePosition(Vec2i point) noexcept;
-		void SetSize(Vec2u size) noexcept;
+		bool SetActive(bool active) const noexcept;
+		void RequestFocus() const noexcept;
+
+		void SetSize(Vec2u size) const noexcept;
 		void SetTitle(const std::string& title) noexcept;
 		void SetFPSLimit(uint32_t fps) noexcept;
 		void SetVSync(bool vsync) noexcept;
 		void SetIconFromPath(const std::filesystem::path& iconPath) noexcept;
-		void SetIcon(const sf::Image& icon) noexcept;
+		void SetIcon(const sf::Image& icon) const noexcept;
+		void SetPosition(Vec2i point) const noexcept;
+		void SetMousePosition(Vec2i point) const noexcept;
 
 		bool IsOpen() const noexcept;
 		bool HasFocus() const noexcept;
 
-		Vec2i GetMousePosition() const noexcept;
 		Vec2u GetSize() const noexcept;
+		Vec2i GetPosition() const noexcept;
+		Vec2i GetMousePosition() const noexcept;
 
 		Renderer& GetRenderer() noexcept;
 		sf::RenderWindow& GetHandle() const noexcept;

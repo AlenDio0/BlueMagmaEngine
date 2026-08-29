@@ -6,7 +6,8 @@ namespace BM
 {
 	Renderer::Renderer(sf::RenderWindow& handle) noexcept
 		: m_HandlePtr(&handle), m_Camera(GetDefaultCamera())
-	{}
+	{
+	}
 
 	void Renderer::Clear(sf::Color color) noexcept
 	{
@@ -82,7 +83,7 @@ namespace BM
 
 	sf::RenderWindow& Renderer::GetHandle() noexcept
 	{
-		BM_CORE_ASSERT(m_HandlePtr != nullptr, "Window Handle not contructed yet");
+		BM_CORE_ASSERT(m_HandlePtr != nullptr, "Window Handle not created");
 		return *m_HandlePtr;
 	}
 

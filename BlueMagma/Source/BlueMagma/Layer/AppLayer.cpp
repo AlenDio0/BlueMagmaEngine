@@ -18,23 +18,23 @@ namespace BM
 		return GetWindow().GetRenderer();
 	}
 
-	LayerMachine& AppLayer::GetMachine() const noexcept
+	LayerMachine& AppLayer::GetLayers() const noexcept
 	{
-		return GetApp().GetMachine();
+		return GetApp().Layers;
 	}
 
 	AssetManager& AppLayer::GetAssets() const noexcept
 	{
-		return GetApp().GetAssets();
+		return GetApp().Assets;
 	}
 
 	void AppLayer::QueueRemoveLayer() noexcept
 	{
-		GetMachine().QueueRemove(this);
+		GetLayers().QueueRemove(this);
 	}
 
 	void AppLayer::QueueTransition(std::unique_ptr<Layer> toAppLayer) noexcept
 	{
-		GetMachine().QueueTransition(this, std::move(toAppLayer));
+		GetLayers().QueueTransition(this, std::move(toAppLayer));
 	}
 }

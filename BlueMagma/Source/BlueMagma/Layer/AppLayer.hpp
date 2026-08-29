@@ -25,7 +25,7 @@ namespace BM
 
 		Window& GetWindow() const noexcept;
 		Renderer& GetRenderer() const noexcept;
-		LayerMachine& GetMachine() const noexcept;
+		LayerMachine& GetLayers() const noexcept;
 		AssetManager& GetAssets() const noexcept;
 
 		template<std::derived_from<Layer> TLayer, typename... TArgs>
