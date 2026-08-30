@@ -1,4 +1,5 @@
-PROJECT_DIR=$(pwd)
+#!/bin/bash
+
 BUILD_DIR="build_linux"
 
 read -p "Do you want to install dependencies? [y/N]: " answer
@@ -19,18 +20,27 @@ if [[ "$answer" =~ ^[Yy]$ ]]; then
         libmbedtls-dev \
         libssh2-1-dev > /dev/null
 else
-    echo "Dependencies installation skipped."
+    echo "Dependencies installation - skipped."
 fi
 
 if [ -d "$BUILD_DIR" ]; then
-    echo "Cleaning last build..."
-    rm -rf "$BUILD_DIR"
+    read -p "Do you want to cleanup last build? [y/N]: " answer
+
+    if [[ "$answer" =~ ^[Yy]$ ]]; then
+        echo "Cleaning last build..."
+        rm -rf "$BUILD_DIR"
+        mkdir "$BUILD_DIR"
+    else
+        echo "Cleanup last build - skipped."
+    fi
+else
+    mkdir "$BUILD_DIR"
 fi
 
-mkdir "$BUILD_DIR" && cd "$BUILD_DIR"
+cd "$BUILD_DIR"
 
-echo "Starting CMake configuration..."
-cmake ..
+echo "Starting CMake configuration in '"$BUILD_DIR"' with Clang..."
+cmake .. -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
 
 if [ $? -ne 0 ]; then
     echo "Error during CMake configuration!"
@@ -38,7 +48,7 @@ if [ $? -ne 0 ]; then
 fi
 
 echo "Starting build..."
-make -j12
+cmake --build . --config Release
 
 if [ $? -eq 0 ]; then
     echo "Build completed!"

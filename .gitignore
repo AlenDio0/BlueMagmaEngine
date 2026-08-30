@@ -1,12 +1,14 @@
-# Directories
-build
-build_linux
-out
-.cache
-.idea
-.vs
-.vscode
+# Build Directories
+[Oo]ut/
+[Bb]uild*/
+[Bb]in/
+
+# IDE Directories
+.cache/
+.idea/
+.vs/
+.vscode/
 
 # Log
-Log
+Log/
 *.log
