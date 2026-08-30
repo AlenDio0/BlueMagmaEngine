@@ -2,6 +2,7 @@
 
 #include "BlueMagma/Core/Log.hpp"
 #include "BlueMagma/Core/Assert.hpp"
+#include "BlueMagma/Core/Utils.hpp"
 #include "BlueMagma/Core/Vec2.hpp"
 #include "BlueMagma/Core/Rect.hpp"
 

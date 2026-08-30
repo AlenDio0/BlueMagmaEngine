@@ -45,6 +45,12 @@ namespace BM
 		BM_CORE_INFO("Window destroyed");
 	}
 
+	void Window::ReplaceContext(const WindowContext& context) noexcept
+	{
+		Context = context;
+		ApplyContext();
+	}
+
 	void Window::ApplyContext() noexcept
 	{
 		BM_CORE_DEBUG("{}()\n - Title: '{}'\n - FPSLimit: {}\n - VSync: {}\n - IconPath: '{}'", __FUNCTION__,

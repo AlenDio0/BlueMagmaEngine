@@ -23,6 +23,7 @@ namespace BM
 		void Create() noexcept;
 		void Destroy() noexcept;
 
+		void ReplaceContext(const WindowContext& context) noexcept;
 		void ApplyContext() noexcept;
 
 		void Close() const noexcept;

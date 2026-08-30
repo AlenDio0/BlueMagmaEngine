@@ -14,7 +14,8 @@ namespace BM
 		bool Done = false;
 
 		inline Event(EventHandle handle) noexcept
-			: Handle(handle) {}
+			: Handle(handle) {
+		}
 	};
 
 	class EventDispatcher
@@ -23,7 +24,8 @@ namespace BM
 		using OnEvent = std::function<bool(const TEvent&)>;
 	public:
 		inline explicit EventDispatcher(Event& event)
-			: m_EventPtr(&event) {}
+			: m_EventPtr(&event) {
+		}
 
 		template<typename TEvent>
 		inline bool Dispatch(const OnEvent<TEvent>& handler) noexcept {

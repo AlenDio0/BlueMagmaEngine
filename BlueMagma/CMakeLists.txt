@@ -7,6 +7,8 @@ set(SOURCES
     Source/BlueMagma/Core/Log.hpp
     Source/BlueMagma/Core/Log.cpp
     Source/BlueMagma/Core/Assert.hpp
+    Source/BlueMagma/Core/Utils.hpp
+    Source/BlueMagma/Core/Utils.cpp
     Source/BlueMagma/Core/Vec2.hpp
     Source/BlueMagma/Core/Rect.hpp
     Source/BlueMagma/Core/Transform2D.hpp

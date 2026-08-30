@@ -25,23 +25,29 @@ namespace BM
 		template<typename UValue = TValue>
 		constexpr Rect(const UValue& x, const UValue& y, const UValue& width, const UValue& height) noexcept
 			: X(static_cast<TValue>(x)), Y(static_cast<TValue>(y)),
-			Width(static_cast<TValue>(width)), Height(static_cast<TValue>(height)) {}
+			Width(static_cast<TValue>(width)), Height(static_cast<TValue>(height)) {
+		}
 		constexpr Rect(const Vec2<TValue>& position, const Vec2<TValue>& size) noexcept
-			: Position(position), Size(size) {}
+			: Position(position), Size(size) {
+		}
 		template<typename UValue = TValue>
 		constexpr Rect(const Rect<UValue>& rect) noexcept
 			: X(static_cast<TValue>(rect.X)), Y(static_cast<TValue>(rect.Y)),
-			Width(static_cast<TValue>(rect.Width)), Height(static_cast<TValue>(rect.Height)) {}
+			Width(static_cast<TValue>(rect.Width)), Height(static_cast<TValue>(rect.Height)) {
+		}
 		constexpr explicit Rect(const Vec2<TValue>& vec) noexcept
-			: Position(vec), Size(vec) {}
+			: Position(vec), Size(vec) {
+		}
 		template<typename UValue = TValue>
 		constexpr explicit Rect(const UValue& value) noexcept
 			: X(static_cast<TValue>(value)), Y(static_cast<TValue>(value)),
-			Width(static_cast<TValue>(value)), Height(static_cast<TValue>(value)) {}
+			Width(static_cast<TValue>(value)), Height(static_cast<TValue>(value)) {
+		}
 
 		template<typename UValue = TValue>
 		constexpr Rect(const sf::Rect<UValue>& rect) noexcept
-			: Position(rect.position), Size(rect.size) {}
+			: Position(rect.position), Size(rect.size) {
+		}
 		template<typename UValue = TValue>
 		constexpr operator sf::Rect<UValue>() const noexcept {
 			return sf::Rect<UValue>(Position, Size);

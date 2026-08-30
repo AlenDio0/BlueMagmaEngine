@@ -57,6 +57,6 @@ namespace BM
 		std::filesystem::path IconPath = "";
 
 		using EventCallbackFn = std::function<void(Event&)>;
-		EventCallbackFn EventCallback;
+		EventCallbackFn EventCallback = nullptr;
 	};
 }
