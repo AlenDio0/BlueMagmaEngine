@@ -310,7 +310,7 @@ namespace BM::UI
 			if (cIsOverMaxLimit)
 				continue;
 
-			const bool cIsAgainstPolicy = input.Policy && !input.Policy(cUnicodeInput);
+			const bool cIsAgainstPolicy = input.Policy && !input.Policy(static_cast<uint8_t>(cUnicodeInput));
 			if (cIsAgainstPolicy)
 				continue;
 
