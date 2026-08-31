@@ -102,7 +102,7 @@ namespace BM
 		return textRender.CachedBounds;
 	}
 
-	static inline std::array<sf::Vertex, 6> BuildQuad(const Transform& transform, sf::Color color, Vec2f size, RectFloat coords) noexcept
+	static inline std::array<sf::Vertex, 6> BuildQuad(const Transform& transform, Color color, Vec2f size, RectFloat coords) noexcept
 	{
 		const auto cMatrix = RenderSystem::GetRenderStates(transform, size).transform;
 		const Vec2f cMin = coords.Min(), cMax = coords.Max();

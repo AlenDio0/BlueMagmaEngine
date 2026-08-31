@@ -27,17 +27,10 @@ namespace BM::UIMaker
 	void AddWidgetColor(Entity entity, float hoverFactor, float focusFactor) noexcept
 	{
 		BM_CORE_FN("entity: {}", entity);
-		const sf::Color cColor = entity.AddOrGet<ColorMaterial>().Color;
+		const Color cColor = entity.AddOrGet<ColorMaterial>().Color;
 
-		sf::Color hoverColor = cColor;
-		hoverColor.r = static_cast<uint8_t>(hoverColor.r * hoverFactor);
-		hoverColor.g = static_cast<uint8_t>(hoverColor.g * hoverFactor);
-		hoverColor.b = static_cast<uint8_t>(hoverColor.b * hoverFactor);
-
-		sf::Color focusColor = cColor;
-		focusColor.r = static_cast<uint8_t>(focusColor.r * focusFactor);
-		focusColor.g = static_cast<uint8_t>(focusColor.g * focusFactor);
-		focusColor.b = static_cast<uint8_t>(focusColor.b * focusFactor);
+		Color hoverColor = (cColor * hoverFactor).WithAlpha(1.f);
+		Color focusColor = (cColor * focusFactor).WithAlpha(1.f);
 
 		auto& widgetColor = entity.AddOrGet<WidgetColor>(cColor, hoverColor, focusColor);
 		widgetColor.HoverColor = hoverColor;

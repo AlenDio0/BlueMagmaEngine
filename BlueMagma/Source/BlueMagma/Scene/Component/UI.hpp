@@ -1,8 +1,8 @@
 #pragma once
 #include "Scene/Entity.hpp"
 #include "Core/Vec2.hpp"
+#include "Core/Color.hpp"
 #include "Base/EventDispatcher.hpp"
-#include <SFML/Graphics/Color.hpp>
 #include <functional>
 #include <string>
 #include <cstdint>
@@ -23,9 +23,9 @@ namespace BM::Component
 
 	struct WidgetColor
 	{
-		sf::Color IdleColor = sf::Color::White;
-		sf::Color HoverColor = sf::Color::White;
-		sf::Color FocusColor = sf::Color::White;
+		Color IdleColor = ColorDef::White;
+		Color HoverColor = ColorDef::White;
+		Color FocusColor = ColorDef::White;
 	};
 
 	using ClickFn = std::function<bool(Entity, EventHandle::MouseButtonPressed)>;

@@ -5,6 +5,7 @@
 #include "BlueMagma/Core/Utils.hpp"
 #include "BlueMagma/Core/Vec2.hpp"
 #include "BlueMagma/Core/Rect.hpp"
+#include "BlueMagma/Core/Color.hpp"
 
 #include <cstdint>
 #include <string>

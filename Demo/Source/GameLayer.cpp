@@ -3,13 +3,13 @@
 #include "PaddleLayer.hpp"
 #include <BlueMagma/Base/Application.hpp>
 #include <BlueMagma/Core/Log.hpp>
+#include <BlueMagma/Core/Color.hpp>
 #include <BlueMagma/Core/Random.hpp>
 #include <Scene/Entity.hpp>
 #include <Scene/System/TransformSystem.hpp>
 #include <Scene/System/RenderSystem.hpp>
 #include <Scene/System/UI/UISystem.hpp>
 #include <Scene/Component/UIMaker.hpp>
-#include <SFML/Graphics/Color.hpp>
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/Cursor.hpp>
 #include <format>
@@ -44,25 +44,25 @@ void GameLayer::OnAttach() noexcept
 
 	m_Background = m_Scene.CreateEntity({ .State{.Position{0.f}}, .Z = -1.f });
 	m_Background.Add<Comp::RectShape>(cWindowSize);
-	m_Background.Add<Comp::ColorMaterial>(sf::Color(0x00FF00A0));
+	m_Background.Add<Comp::ColorMaterial>(BM::ColorDef::Green.WithAlpha(0.5f));
 
 	m_StatText = m_Scene.CreateEntity({ .State{.Position{0.f}}, .Z = 3.f });
 	m_StatText.Add<Comp::TextRender>(font, FormatStatText(0.f));
-	m_StatText.Add<Comp::ColorMaterial>(sf::Color::White);
-	m_StatText.Add<Comp::Outline>(sf::Color::Black, 1.f);
+	m_StatText.Add<Comp::ColorMaterial>(BM::ColorDef::White);
+	m_StatText.Add<Comp::Outline>(BM::ColorDef::Black, 1.f);
 
 	constexpr float cAxisThickness = 3.f;
 	BM::Entity axisX = m_Scene.CreateEntity({ .State{.Position = cWindowSize.Center(), .Origin{0.5f}}, .Z = 5.f });
 	axisX.Add<Comp::RectShape>(BM::Vec2f(cWindowSize.X, cAxisThickness));
-	axisX.Add<Comp::ColorMaterial>(sf::Color::White);
+	axisX.Add<Comp::ColorMaterial>(BM::ColorDef::White);
 	BM::Entity axisY = m_Scene.CreateEntity({ .State{.Position = cWindowSize.Center(), .Origin{0.5f}}, .Z = 5.f });
 	axisY.Add<Comp::RectShape>(BM::Vec2f(cAxisThickness, cWindowSize.Y));
-	axisY.Add<Comp::ColorMaterial>(sf::Color::White);
+	axisY.Add<Comp::ColorMaterial>(BM::ColorDef::White);
 
 	m_MouseRender = m_Scene.CreateEntity({ .State{.Position = cWindowSize.Center(), .Origin{0.5f}}, .Z = 10.f });
 	m_MouseRender.Add<Comp::CircleShape>(0.f);
-	m_MouseRender.Add<Comp::ColorMaterial>(sf::Color::Transparent);
-	m_MouseRender.Add<Comp::Outline>(sf::Color(0xFF000060), 5.f);
+	m_MouseRender.Add<Comp::ColorMaterial>(BM::ColorDef::Clear);
+	m_MouseRender.Add<Comp::Outline>(BM::ColorDef::Red.WithAlpha(0.35f), 5.f);
 
 	InitExample();
 	InitUIExample();
@@ -141,8 +141,8 @@ void GameLayer::OnUpdate(float deltaTime) noexcept
 		m_FocusText.Patch<BM::Component::TextRender>([&](auto& text) {
 			text.Text = std::format("Focus: {}", cFocus);
 			});
-		m_FocusText.Patch<BM::Component::ColorMaterial>([&](auto& color) {
-			color.Color = cFocus ? sf::Color::Green : sf::Color::Red;
+		m_FocusText.Patch<BM::Component::ColorMaterial>([&](auto& material) {
+			material.Color = cFocus ? BM::ColorDef::Green : BM::ColorDef::Red;
 			});
 	}
 
@@ -222,23 +222,23 @@ void GameLayer::InitExample() noexcept
 
 		BM::Entity rect = m_Scene.CreateEntity({ .State{.Position{cPosX, cBasePosY}, .Rotation = 45.f}, .Z = 0.f });
 		rect.Add<Comp::RectShape>(BM::Vec2f(cBoxSize), 5.f);
-		rect.Add<Comp::ColorMaterial>(sf::Color(cColor, 0, 0));
-		rect.Add<Comp::Outline>(sf::Color::Black, i % 2 ? 0.f : 2.f);
+		rect.Add<Comp::ColorMaterial>(BM::Color(cColor, 0, 0));
+		rect.Add<Comp::Outline>(BM::ColorDef::Black, i % 2 ? 0.f : 2.f);
 
 		BM::Entity circle = m_Scene.CreateEntity({ .State{.Position{cPosX, cPercentage * cBasePosY}}, .Z = 0.1f });
 		circle.Add<Comp::CircleShape>(cBoxSize / 2.f);
-		circle.Add<Comp::ColorMaterial>(sf::Color(0, cColor, 0));
-		circle.Add<Comp::Outline>(sf::Color::Black, i % 2 == 0 ? 0.f : 1.f);
+		circle.Add<Comp::ColorMaterial>(BM::Color(0, cColor, 0));
+		circle.Add<Comp::Outline>(BM::ColorDef::Black, i % 2 == 0 ? 0.f : 1.f);
 
 		BM::Entity sprite = m_Scene.CreateEntity({ .State{.Position{cPosX, cBoundSize - (cPercentage * cBasePosY)},
 			.Scale{BM::Vec2f(cBoxSize) / texture->getSize()}, .Rotation = -45.f}, .Z = 0.2f, });
 		sprite.Add<Comp::SpriteShape>(texture);
-		sprite.Add<Comp::ColorMaterial>(sf::Color(cColor, cColor, cColor));
+		sprite.Add<Comp::ColorMaterial>(BM::Color(cColor, cColor, cColor));
 
 		BM::Entity text = m_Scene.CreateEntity({ .State{.Position{cPosX, cBoundSize - cBasePosY}}, .Z = 0.3f });
 		text.Add<Comp::TextRender>(font, "O", (uint32_t)cBoxSize);
-		text.Add<Comp::ColorMaterial>(sf::Color(cColor, 0, cColor));
-		text.Add<Comp::Outline>(sf::Color::Black, 5.f);
+		text.Add<Comp::ColorMaterial>(BM::Color(cColor, 0, cColor));
+		text.Add<Comp::Outline>(BM::ColorDef::Black, 5.f);
 	}
 }
 
@@ -252,7 +252,7 @@ void GameLayer::InitUIExample() noexcept
 
 	m_Button = BM::UIMaker::CreateButton(m_Scene,
 		{ .Transform{.State{.Position = cWindowSize.Center(), .Origin{0.5f}}, .Z = 10.f}, .Size = cUISize,
-		.Corner = 5.f, .Color{sf::Color::Blue}, .Outline{{sf::Color::Red, 2.f}} },
+		.Corner = 5.f, .Color{BM::ColorDef::Blue}, .Outline{{BM::ColorDef::Red, 2.f}} },
 		[&](auto entity, auto event) {
 			BM_INFO("Button pressed");
 			m_Scene.Destroy(entity);
@@ -260,7 +260,7 @@ void GameLayer::InitUIExample() noexcept
 		});
 	BM::UIMaker::AddTextChild(m_Button,
 		{ .Transform{.State{.Position = BM::UIMaker::Center(cUISize, BM::Vec2f(0.5f)), .Origin = BM::Vec2f(0.5f)}, .Z = 1.f},
-		.Text{font, "Hello World!"}, .Color{sf::Color::Green}, .Outline{{sf::Color::Black, 1.f}} });
+		.Text{font, "Hello World!"}, .Color{BM::ColorDef::Green}, .Outline{{BM::ColorDef::Black, 1.f}} });
 	BM::UIMaker::AddWidgetColor(m_Button, 0.5f, 1.f);
 
 	auto text = m_Button.CreateChild({ .State{.Position{0.f, 100.f}, .Origin = BM::Vec2f(0.5f)} });
@@ -269,7 +269,7 @@ void GameLayer::InitUIExample() noexcept
 	auto testButton = BM::UIMaker::CreateButton(m_Scene,
 		{ .Transform{.State{.Position{cWindowSize.Center().X, cWindowSize.Y - 200.f}, .Scale{3.f, 2.f}, .Origin{0.1f, 0.5f},
 		.Rotation = 90.f}, .Z = 10.f}, .Size = BM::Vec2f(80.f), .Shape = Comp::Widget::ShapeType::Circle,
-		.Color{sf::Color::Cyan}, .Outline{{sf::Color::Yellow, 1.f }} },
+		.Color{BM::ColorDef::Cyan}, .Outline{{BM::ColorDef::Yellow, 1.f }} },
 		[&](BM::Entity entity, auto event) {
 			static size_t sPressedCount = 0;
 			sPressedCount++;
@@ -281,27 +281,27 @@ void GameLayer::InitUIExample() noexcept
 		});
 	BM::UIMaker::AddTextChild(testButton,
 		{ .Transform{.State{.Position = BM::UIMaker::Center(BM::Vec2f(80.f), {0.1f, 0.5f}), .Scale{1.5f / 3.f, 1.5f / 2.f}, .Origin = BM::Vec2f(0.5f)},
-		.Z = 1.f}, .Text{font, "PRESS ME"}, .Color{sf::Color::White}, .Outline{{sf::Color::Black, 1.f }} });
+		.Z = 1.f}, .Text{font, "PRESS ME"}, .Color{BM::ColorDef::White}, .Outline{{BM::ColorDef::Black, 1.f }} });
 
 	constexpr float cSpaceAxisX = 25.f;
 	constexpr float cInputX = cUISize.X + cSpaceAxisX;
 
 	m_InputText = BM::UIMaker::CreateInputText(m_Scene,
 		{ .Transform{.State{.Position{cWindowSize.Center().X - cInputX, cWindowSize.Y / 3.f}},
-		.Z = 10.f}, .Size = cUISize, .Corner = 5.f, .Color{sf::Color::White}, .Outline{{sf::Color::Black, 1.f }} },
+		.Z = 10.f}, .Size = cUISize, .Corner = 5.f, .Color{BM::ColorDef::White}, .Outline{{BM::ColorDef::Black, 1.f }} },
 		{ .Transform{.State{.Position{10.f, BM::UIMaker::Center(cUISize, BM::Vec2f(0.f)).Y}, .Origin{0.f, 0.5f}}, .Z = 1.f },
-		.Text{ font }, .Color{sf::Color::Black} }, { .Placeholder = "hello" });
+		.Text{ font }, .Color{BM::ColorDef::Black} }, { .Placeholder = "hello" });
 	BM::UIMaker::AddWidgetColor(m_InputText, 0.7f, 0.85f);
 
 	m_FocusText = m_InputText.CreateChild({ .State{.Position{cInputX + cSpaceAxisX, cUISize.Center().Y}, .Origin{0.f, 0.5f}} });
 	m_FocusText.Add<Comp::TextRender>(font);
-	m_FocusText.Add<Comp::ColorMaterial>(sf::Color::Red);
+	m_FocusText.Add<Comp::ColorMaterial>(BM::ColorDef::Red);
 
 	BM::Entity pinInputText = BM::UIMaker::CreateInputText(m_Scene,
 		{ .Transform{.State{.Position{cWindowSize.Center().X - cInputX, cWindowSize.Y / 3.f}, .Scale{0.9f}, .Origin{0.7f, 0.2f}},
-		.Z = 1.f}, .Size = cUISize, .Corner = 5.f, .Color{sf::Color::Magenta} },
+		.Z = 1.f}, .Size = cUISize, .Corner = 5.f, .Color{BM::ColorDef::Magenta} },
 		{ .Transform{.State{.Position = BM::UIMaker::Center(cUISize, {0.7f, 0.2f}), .Origin = BM::Vec2f(0.5f)}, .Z = 1.f},
-		.Text{font}, .Color{sf::Color::Black} }, { .Placeholder = "PIN", .Policy{isdigit} });
+		.Text{font}, .Color{BM::ColorDef::Black} }, { .Placeholder = "PIN", .Policy{isdigit} });
 	BM::UIMaker::AddWidgetColor(pinInputText, 0.75f, 1.f);
 }
 
@@ -405,18 +405,18 @@ bool GameLayer::OnMousePressed(const BM::EventHandle::MouseButtonPressed& mouseP
 		return true;
 		};
 
-	const sf::Color cRandomColor{ (static_cast<uint32_t>(BM_RANDOM(0, 0xFFFFFFFF)) << 8) | 0xFF };
+	const BM::Color cRandomColor{ (static_cast<uint32_t>(BM_RANDOM(0, 0xFFFFFFFF)) << 8) | 0xFF };
 	static float sPositionZ = 100.f;
 	sPositionZ += 0.1f;
 
 	BM::Entity circle = BM::UIMaker::CreateButton(m_Scene,
 		{ .Transform{.State{.Position = cMouseCoords, .Origin = BM::Vec2f(0.5f)}, .Z = sPositionZ},
 		.Size = BM::Vec2f(cRadius * 2.f), .Shape = BM::Component::Widget::ShapeType::Circle,
-		.Color{sf::Color::Transparent}, .Outline{{cRandomColor, 10.f}} }, onCirclePressed);
+		.Color{BM::ColorDef::Clear}, .Outline{{cRandomColor, 10.f}} }, onCirclePressed);
 
 	BM::Entity center = circle.CreateChild({ .State{.Origin = BM::Vec2f(0.5f)} });
 	center.Add<BM::Component::CircleShape>(5.f);
-	center.Add<BM::Component::ColorMaterial>(sf::Color::Red);
+	center.Add<BM::Component::ColorMaterial>(BM::ColorDef::Red);
 
 	return false;
 }

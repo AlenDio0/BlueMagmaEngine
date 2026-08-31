@@ -4,13 +4,13 @@
 #include "Base/Renderer.hpp"
 #include "Core/Vec2.hpp"
 #include "Core/Rect.hpp"
+#include "Core/Color.hpp"
 #include "Asset/Asset.hpp"
 #include <SFML/Graphics/RenderStates.hpp>
 #include <SFML/Graphics/Shader.hpp>
 #include <SFML/Graphics/Vertex.hpp>
 #include <SFML/Graphics/Transform.hpp>
 #include <SFML/Graphics/Text.hpp>
-#include <SFML/Graphics/Color.hpp>
 #include <vector>
 #include <array>
 #include <variant>
@@ -36,7 +36,7 @@ namespace BM
 
 		struct MaterialType
 		{
-			sf::Color Color = sf::Color::White;
+			Color Color = ColorDef::White;
 			const Texture* TexturePtr = nullptr;
 			RectFloat TextureCoords{ Vec2f(0.f), Vec2f(1.f) };
 		} Material{};

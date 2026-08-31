@@ -9,7 +9,7 @@ namespace BM
 	{
 	}
 
-	void Renderer::Clear(sf::Color color) noexcept
+	void Renderer::Clear(Color color) noexcept
 	{
 		m_HandlePtr->clear(color);
 	}

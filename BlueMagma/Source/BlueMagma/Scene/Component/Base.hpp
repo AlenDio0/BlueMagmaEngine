@@ -1,9 +1,9 @@
 #pragma once
 #include "Core/Vec2.hpp"
+#include "Core/Color.hpp"
 #include "Core/Transform2D.hpp"
 #include "Asset/Asset.hpp"
 #include "Core/Rect.hpp"
-#include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Text.hpp>
 #include <string>
 #include <cstdint>
@@ -37,7 +37,7 @@ namespace BM::Component
 
 	struct ColorMaterial
 	{
-		sf::Color Color = sf::Color::White;
+		Color Color = ColorDef::White;
 	};
 
 	struct TextureMaterial
@@ -48,7 +48,7 @@ namespace BM::Component
 
 	struct Outline
 	{
-		sf::Color Color = sf::Color::Transparent;
+		Color Color = ColorDef::Clear;
 		float Thickness = 0.f;
 	};
 

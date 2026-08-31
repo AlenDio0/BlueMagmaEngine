@@ -1,4 +1,5 @@
 #pragma once
+#include "Core/Color.hpp"
 #include "Core/Vec2.hpp"
 #include "Core/Camera2D.hpp"
 #include <SFML/Graphics/RenderWindow.hpp>
@@ -15,7 +16,7 @@ namespace BM
 	public:
 		explicit Renderer(sf::RenderWindow& handle) noexcept;
 
-		void Clear(sf::Color color = sf::Color::Black) noexcept;
+		void Clear(Color color = ColorDef::Black) noexcept;
 		void Display() noexcept;
 
 		void Draw(const sf::Drawable& drawable, const sf::RenderStates& states = sf::RenderStates::Default) noexcept;

@@ -1,17 +1,22 @@
 #include "PaddleLayer.hpp"
 #include <BlueMagma/Scene/System/TransformSystem.hpp>
 #include <BlueMagma/Scene/System/RenderSystem.hpp>
+#include <BlueMagma/Core/Color.hpp>
+#include <BlueMagma/Core/Utils.hpp>
 #include <BlueMagma/Core/Random.hpp>
-#include <SFML/Graphics/Color.hpp>
 #include <SFML/System/Angle.hpp>
 #include <algorithm>
 #include <cstdlib>
 #include <cmath>
 #include <cstdint>
+#include <ranges>
 
 PaddleLayer::PaddleLayer() noexcept
 	: m_MainCamera(BM::RectFloat{ 0.f, 0.f, 0.f, 0.f })
 {
+	m_WindowContext.InitialMode.Size = { 1280u, 720u };
+	UpdateWindowTitle();
+
 	m_Scene.AddSystem<BM::TransformSystem>(100);
 	m_Scene.AddSystem<BM::RenderSystem>();
 
@@ -32,15 +37,15 @@ void PaddleLayer::OnAttach() noexcept
 
 	m_Ball = m_Scene.CreateEntity({ .State{.Position = cCameraCenter, .Origin{0.5f, 0.5f} }, .Z = 1.f });
 	m_Ball.Add<BM::Component::CircleShape>(cCameraSize.Y / 48.f);
-	m_Ball.Add<BM::Component::ColorMaterial>(sf::Color::White);
+	m_Ball.Add<BM::Component::ColorMaterial>(BM::ColorDef::White);
 
 	BM::Entity background = m_Scene.CreateEntity({ .Z = -2.f });
 	background.Add<BM::Component::RectShape>(cCameraSize);
-	background.Add<BM::Component::ColorMaterial>(sf::Color(0xFFFFFF10));
+	background.Add<BM::Component::ColorMaterial>(BM::ColorDef::White.WithAlpha(0.1f));
 
 	BM::Entity paddleNet = m_Scene.CreateEntity({ .State{.Position = cCameraCenter, .Origin{0.5f, 0.5f}}, .Z = -1.f });
 	paddleNet.Add<BM::Component::RectShape>(BM::Vec2f(2.f, cCameraSize.Y));
-	paddleNet.Add<BM::Component::ColorMaterial>(sf::Color(0xFFFFFF80));
+	paddleNet.Add<BM::Component::ColorMaterial>(BM::ColorDef::White.WithAlpha(0.5f));
 
 	const BM::Font& cFont = GetAsset<BM::Font>("Minecraft");
 	const float cPaddingY = cCameraSize.Y / 32.f;
@@ -49,7 +54,7 @@ void PaddleLayer::OnAttach() noexcept
 
 	m_BallSpeedFactorText = m_Scene.CreateEntity({ .State{.Position{cCameraCenter.X - cSpaceX, cPaddingY }, .Origin{1.f, 0.f}} });
 	m_BallSpeedFactorText.Add<BM::Component::TextRender>(&cFont, std::format("{:.3f}", m_BallSpeedFactor), cCharacterSize);
-	m_BallSpeedFactorText.Add<BM::Component::ColorMaterial>(sf::Color::Green);
+	m_BallSpeedFactorText.Add<BM::Component::ColorMaterial>(BM::ColorDef::Green);
 
 	m_TimerText = m_Scene.CreateEntity({ .State{.Position{cCameraCenter.X + cSpaceX, cPaddingY }} });
 	m_TimerText.Add<BM::Component::TextRender>(&cFont, "0", cCharacterSize);
@@ -72,7 +77,7 @@ void PaddleLayer::OnEvent(BM::Event& event) noexcept
 
 void PaddleLayer::OnTick(float timeStep) noexcept
 {
-	if (!GetWindow().HasFocus())
+	if (m_DesktopMode && !GetWindow().HasFocus())
 		return;
 
 	m_LeftScoreText.Patch<BM::Component::TextRender>([&](auto& textRender) {
@@ -84,22 +89,18 @@ void PaddleLayer::OnTick(float timeStep) noexcept
 
 	if (m_BallVelocity.X != 0.f)
 	{
+		m_TickFromStartCounter++;
+
 		if (m_IsLeftBot)
 			TickBotPaddle(m_LeftPaddle, timeStep);
 		if (m_IsRightBot)
 			TickBotPaddle(m_RightPaddle, timeStep);
 
-		m_BallTickCounter++;
-		if (m_BallTickCounter >= 20ull)
-		{
-			m_BallTickCounter = 0ull;
+		if (m_TickFromStartCounter % 20ull == 0ull)
 			m_BallSpeedFactor += 0.005f;
-		}
 
-		m_TimerTickCounter++;
-		if (m_TimerTickCounter > (size_t)std::ceil(1.f / timeStep))
+		if (m_TickFromStartCounter % GetApp().GetContext().TPSLimit == 0ull)
 		{
-			m_TimerTickCounter = 0ull;
 			m_Timer++;
 			m_TimerText.Patch<BM::Component::TextRender>([&](auto& textRender) {
 				textRender.Text = std::to_string(m_Timer);
@@ -107,23 +108,25 @@ void PaddleLayer::OnTick(float timeStep) noexcept
 		}
 	}
 
-	m_BallSpeedFactorText.Patch<BM::Component::TextRender>([&](auto& textRender) {
-		textRender.Text = std::format("{:.3f}", m_BallSpeedFactor);
-		});
-	m_BallSpeedFactorText.Patch<BM::Component::ColorMaterial>([&](auto& material) {
-		const float cSpeedProgress = std::clamp((m_BallSpeedFactor - 1.f) / 3.f, 0.f, 1.f);
-		material.Color.r = (uint8_t)std::lerp(0.f, 255.f, cSpeedProgress);
-		material.Color.g = (uint8_t)std::lerp(255.f, 0.f, cSpeedProgress);
-		material.Color.b = 0u;
-		});
-
+	if (m_BallSpeedFactor > 1.f)
+	{
+		m_BallSpeedFactorText.Patch<BM::Component::TextRender>([&](auto& textRender) {
+			textRender.Text = std::format("{:.3f}", m_BallSpeedFactor);
+			});
+		const float cSpeedProgress = BM::Utils::InverseLerp(m_BallSpeedFactor, 1.f, 3.f);
+		BM::Color cSpeedProgressColor = BM::Color::Lerp(BM::ColorDef::Green, BM::ColorDef::Red, cSpeedProgress);
+		m_BallSpeedFactorText.Patch<BM::Component::ColorMaterial>([&](auto& material) {
+			material.Color = cSpeedProgressColor;
+			});
+	}
 }
 
 void PaddleLayer::OnUpdate(float deltaTime) noexcept
 {
-	GetWindow().UpdateModeFocus();
+	if (m_DesktopMode)
+		GetWindow().UpdateModeFocus();
 
-	if (!GetWindow().HasFocus())
+	if (m_DesktopMode && !GetWindow().HasFocus())
 		return;
 
 	m_Scene.OnUpdate(deltaTime);
@@ -219,13 +222,16 @@ BM::Entity PaddleLayer::CreatePaddle(BM::Component::Transform::LocalSpace transf
 
 	BM::Entity entity = m_Scene.CreateEntity(transform);
 	entity.Add<BM::Component::RectShape>(cPaddleSize, cPaddleCorner);
-	entity.Add<BM::Component::ColorMaterial>(sf::Color::White);
+	entity.Add<BM::Component::ColorMaterial>(BM::ColorDef::White);
 
 	return entity;
 }
 
 void PaddleLayer::TickBotPaddle(BM::Entity paddle, float timeStep) noexcept
 {
+	if (m_TickFromStartCounter % 15ull != 0ull)
+		return;
+
 	const bool cIsLeftPaddle = paddle.GetHandle() == m_LeftPaddle.GetHandle();
 	const bool cIsBallComing = cIsLeftPaddle ? m_BallVelocity.X < 0.f : m_BallVelocity.X > 0.f;
 
@@ -411,7 +417,9 @@ float PaddleLayer::PredictBallTargetY(float paddleX) const noexcept
 		return cCameraCenterY;
 
 	float predictedY = std::abs(cBallPosition.Y + (m_BallVelocity.Y * cTimeToReachPaddle));
-	while (predictedY > cCameraHeight)
+
+	const uint8_t cMaxPrediction = -1;
+	for (size_t prediction = 0; predictedY > cCameraHeight && prediction < cMaxPrediction; prediction++)
 		predictedY = std::abs((2.f * cCameraHeight) - predictedY);
 
 	return predictedY;
@@ -452,7 +460,6 @@ void PaddleLayer::ResetBall() noexcept
 
 	m_BallVelocity = BM::Vec2f(0.f);
 	m_BallSpeedFactor = 1.f;
-	m_BallTickCounter = 0;
 }
 
 void PaddleLayer::StartBall() noexcept
@@ -469,6 +476,7 @@ void PaddleLayer::StartBall() noexcept
 
 void PaddleLayer::StartNewGame() noexcept
 {
+	m_TickFromStartCounter = 0ull;
 	ResetPaddle();
 	ResetBall();
 
@@ -477,4 +485,26 @@ void PaddleLayer::StartNewGame() noexcept
 
 	if (m_IsLeftBot && m_IsRightBot)
 		StartBall();
+
+	UpdateWindowTitle();
+}
+
+void PaddleLayer::UpdateWindowTitle() noexcept
+{
+	std::string title = std::format("{} ~ ", m_WindowTitle);
+
+	struct BotLabel {
+		bool* EnabledPtr = nullptr;
+		const char* Label = nullptr;
+	};
+
+	const BotLabel sBots[]{ { &m_IsLeftBot, "LBot" }, { &m_IsRightBot, "RBot" } };
+	auto botsView = sBots
+		| std::views::filter([](const BotLabel& botLabel) { return *botLabel.EnabledPtr; })
+		| std::views::transform([](const BotLabel& bot) { return std::string_view(bot.Label); });
+
+	title += BM::Utils::JoinWith(botsView, " | ");
+
+	GetWindow().SetTitle(title);
+	m_WindowContext.Title = title;
 }

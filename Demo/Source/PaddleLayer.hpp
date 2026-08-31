@@ -43,8 +43,13 @@ private:
 	void StartBall() noexcept;
 
 	void StartNewGame() noexcept;
+
+	void UpdateWindowTitle() noexcept;
 private:
-	const BM::WindowContext m_WindowContext{ .InitialMode{ { 1280u, 720u } }, .FPSLimit = 180u };
+	const char* m_WindowTitle = "Paddle Game";
+	BM::WindowContext m_WindowContext = GetWindow().Context;
+
+	size_t m_TickFromStartCounter = 0ull;
 
 	BM::Camera2D m_MainCamera;
 
@@ -63,13 +68,11 @@ private:
 	BM::Entity m_Ball;
 	BM::Vec2f m_BallVelocity{};
 	float m_BallSpeedFactor = 1.f;
-	size_t m_BallTickCounter = 0ull;
 
 	BM::Entity m_BallSpeedFactorText;
 
 	BM::Entity m_TimerText;
 	uint16_t m_Timer = 0u;
-	size_t m_TimerTickCounter = 0ull;
 
 	BM::Entity m_LeftScoreText;
 	BM::Entity m_RightScoreText;
