@@ -18,16 +18,11 @@ static inline void InitLog(BM::Log::Level level, BM::Log::Level flushOn) noexcep
 	BM_LOG_INIT("Demo", flushOn, level);
 }
 
-int main(int argc, char* argv[])
-{
-	InitLog(BM::Log::Trace, BM::Log::Warn);
-
-	BM_FN("argc: {}", argc);
-
+static inline void RunApplication(BM::Vec2u windowSize) {
 	BM::ApplicationContext appContext{};
 	BM::Application application(appContext);
 
-	BM::WindowContext windowContext{ .InitialMode{ { 1280u, 720u } } };
+	BM::WindowContext windowContext{ .InitialMode{ windowSize } };
 	application.CreateOrReplaceWindow(windowContext);
 	if (!application.Assets.LoadYaml("Config/LoadAsset.yml"))
 		BM_ERROR("Couldn't load Asset Yaml");
@@ -35,6 +30,14 @@ int main(int argc, char* argv[])
 	BM_RANDOM_SEED(BM_RANDOM(1, 10));
 	application.QueuePushLayer<GameLayer>();
 	application.Run();
+}
+
+int main(int argc, char* argv[])
+{
+	InitLog(BM::Log::Trace, BM::Log::Warn);
+	BM_FN("argc: {}", argc);
+
+	RunApplication({ 1920u, 1080u });
 
 	return 0;
 }

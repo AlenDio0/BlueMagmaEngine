@@ -3,6 +3,7 @@
 #include "BlueMagma/Core/Assert.hpp"
 #include "BlueMagma/Core/Vec2.hpp"
 #include "BlueMagma/Core/Rect.hpp"
+#include "BlueMagma/Core/Color.hpp"
 
 #include "BlueMagma/Base/Application.hpp"
 #include "BlueMagma/Base/Window.hpp"

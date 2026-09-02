@@ -48,22 +48,22 @@ namespace BM::UI
 			coords = renderer->PixelToCoords(point);
 
 		const auto cMatrix = Transform2D::ToMatrix({ position, scale, origin, rotation }, { Vec2f(0.f), cSize });
-		const Vec2f cPosition = cMatrix.getInverse().transformPoint(coords);
+		const Vec2f cCoordsPosition = cMatrix.getInverse().transformPoint(coords);
 
 		switch (widget.Shape)
 		{
 			using Shape = Widget::ShapeType;
 
 		case Shape::Rect:
-			return (cPosition.X >= 0.f && cPosition.X <= cSize.X) && (cPosition.Y >= 0.f && cPosition.Y <= cSize.Y);
+			return RectFloat(Vec2f::Zero(), cSize).Contains(cCoordsPosition);
 		case Shape::Circle:
 		{
 			const Vec2f cSemiAxes = cSize / 2.f;
-
-			return ((cPosition - cSemiAxes).Squared() / cSemiAxes.Squared()).Sum() <= 1.f;
+			return ((cCoordsPosition - cSemiAxes).Squared() / cSemiAxes.Squared()).Sum() <= 1.f;
 		}
 
 		default:
+			BM_CORE_NOT_IMPLEMENTED();
 			return false;
 		}
 	}

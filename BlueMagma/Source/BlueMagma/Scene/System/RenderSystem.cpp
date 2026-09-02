@@ -71,6 +71,8 @@ namespace BM
 		static inline sf::Shader s_CircleShader{ std::string_view(s_CircleFrag), sf::Shader::Type::Fragment };
 	}
 
+	//======================================================================================
+
 	using namespace Component;
 
 	static inline void UpdateTextCache(const TextRender& textRender) noexcept
@@ -131,6 +133,8 @@ namespace BM
 		}
 	}
 
+	//======================================================================================
+
 	static inline void BuildText(const Transform& transform, const TextRender& textRender, RenderCommand& outCommand) noexcept
 	{
 		sf::Text& text = GetCachedText(textRender);
@@ -184,6 +188,8 @@ namespace BM
 		return command;
 	}
 
+	//======================================================================================
+
 	template<typename TRenderComp>
 	static inline Vec2f GetRenderSize(const TRenderComp& render) noexcept
 	{
@@ -198,6 +204,8 @@ namespace BM
 
 		return Vec2f::Zero();
 	}
+
+	//======================================================================================
 
 	template<typename TRenderComp>
 	static inline void CollectRender(Scene& scene, RectFloat cameraBounds, std::vector<RenderCommand>& outCommands) noexcept
@@ -216,6 +224,8 @@ namespace BM
 			outCommands.push_back(BuildRenderCommand(scene.GetEntity(entity), transform, render, cSize));
 		}
 	}
+
+	//======================================================================================
 
 	void RenderSystem::OnRender(Scene& scene) const noexcept
 	{

@@ -18,6 +18,8 @@ namespace BM
 		}
 	};
 
+	//======================================================================================
+
 	class EventDispatcher
 	{
 		template<typename TEvent>

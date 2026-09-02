@@ -34,6 +34,8 @@ namespace BM
 			return sf::Vector2<UValue>(static_cast<UValue>(X), static_cast<UValue>(Y));
 		}
 
+		//======================================================================================
+
 		constexpr Vec2<float> Center() const noexcept {
 			return Vec2<float>(*this) / 2.f;
 		}
@@ -84,6 +86,8 @@ namespace BM
 			return sqrt(SquaredDistance(vec));
 		}
 
+		//======================================================================================
+
 		constexpr bool operator==(const Vec2& vec) const noexcept {
 			return X == vec.X && Y == vec.Y;
 		}
@@ -97,6 +101,40 @@ namespace BM
 		constexpr bool operator!=(const TValue& value) const noexcept {
 			return !(*this == value);
 		}
+
+		//======================================================================================
+
+		constexpr bool operator>(const Vec2& vec) const noexcept {
+			return X > vec.X && Y > vec.Y;
+		}
+		constexpr bool operator>(const TValue& value) const noexcept {
+			return X > value && Y > value;
+		}
+
+		constexpr bool operator>=(const Vec2& vec) const noexcept {
+			return X >= vec.X && Y >= vec.Y;
+		}
+		constexpr bool operator>=(const TValue& value) const noexcept {
+			return X >= value && Y >= value;
+		}
+
+		//======================================================================================
+
+		constexpr bool operator<(const Vec2& vec) const noexcept {
+			return X < vec.X && Y < vec.Y;
+		}
+		constexpr bool operator<(const TValue& value) const noexcept {
+			return X < value && Y < value;
+		}
+
+		constexpr bool operator<=(const Vec2& vec) const noexcept {
+			return X <= vec.X && Y <= vec.Y;
+		}
+		constexpr bool operator<=(const TValue& value) const noexcept {
+			return X <= value && Y <= value;
+		}
+
+		//======================================================================================
 
 		constexpr Vec2 operator+(const Vec2& vec) const noexcept {
 			return Vec2(X + vec.X, Y + vec.Y);
@@ -123,6 +161,8 @@ namespace BM
 		constexpr Vec2 operator/(const TValue& value) const noexcept {
 			return Vec2(X / value, Y / value);
 		}
+
+		//======================================================================================
 
 		constexpr Vec2& operator+=(const Vec2& vec) noexcept {
 			*this = *this + vec;
@@ -157,6 +197,8 @@ namespace BM
 			*this = *this / value;
 			return *this;
 		}
+
+		//======================================================================================
 
 		static constexpr Vec2 Zero() noexcept {
 			return Vec2(0);

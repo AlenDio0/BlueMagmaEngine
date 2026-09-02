@@ -53,12 +53,16 @@ namespace BM
 	};
 }
 
+//======================================================================================
+
 #ifdef BM_ENABLE_LOG
 
 #define BM_LOG_INIT(...)				BM::Log::Init(__VA_ARGS__)
 
 #define BM_LOG(type, level, ...)		BM::Log::type##Log(BM::Log::level, std::format(__VA_ARGS__))
 #define BM_LOG_FN(type, ...)			BM##type##DEBUG("{}({}) [{}:{}]", __FUNCTION__, std::format("" __VA_ARGS__), BM_FILENAME, __LINE__)
+
+//======================================================================================
 
 #else
 
@@ -70,6 +74,8 @@ namespace BM
 #define BM_LOG_FN(...)
 
 #endif
+
+//======================================================================================
 
 #define BM_CORE_TRACE(...)		BM_LOG(Core, Trace, __VA_ARGS__)
 #define BM_CORE_DEBUG(...)		BM_LOG(Core, Debug, __VA_ARGS__)

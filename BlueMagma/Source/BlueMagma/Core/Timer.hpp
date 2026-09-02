@@ -23,6 +23,8 @@ namespace BM
 		std::chrono::steady_clock::time_point m_StartPoint;
 	};
 
+	//======================================================================================
+
 	class ScopeTimer
 	{
 	public:

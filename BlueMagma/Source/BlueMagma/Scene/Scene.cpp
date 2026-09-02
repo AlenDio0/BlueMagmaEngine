@@ -28,6 +28,8 @@ namespace BM
 		}
 	}
 
+	//======================================================================================
+
 	Scene::Scene() noexcept
 	{
 		OnDestroy<Parent>().connect<RemoveChild>();

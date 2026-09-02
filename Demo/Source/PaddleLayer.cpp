@@ -114,7 +114,7 @@ void PaddleLayer::OnTick(float timeStep) noexcept
 			textRender.Text = std::format("{:.3f}", m_BallSpeedFactor);
 			});
 		const float cSpeedProgress = BM::Utils::InverseLerp(m_BallSpeedFactor, 1.f, 3.f);
-		BM::Color cSpeedProgressColor = BM::Color::Lerp(BM::ColorDef::Green, BM::ColorDef::Red, cSpeedProgress);
+		BM::Color cSpeedProgressColor = BM::Utils::Lerp(BM::ColorDef::Green, BM::ColorDef::Red, cSpeedProgress);
 		m_BallSpeedFactorText.Patch<BM::Component::ColorMaterial>([&](auto& material) {
 			material.Color = cSpeedProgressColor;
 			});
@@ -495,13 +495,13 @@ void PaddleLayer::UpdateWindowTitle() noexcept
 
 	struct BotLabel {
 		bool* EnabledPtr = nullptr;
-		const char* Label = nullptr;
+		std::string_view Label;
 	};
 
 	const BotLabel sBots[]{ { &m_IsLeftBot, "LBot" }, { &m_IsRightBot, "RBot" } };
 	auto botsView = sBots
 		| std::views::filter([](const BotLabel& botLabel) { return *botLabel.EnabledPtr; })
-		| std::views::transform([](const BotLabel& bot) { return std::string_view(bot.Label); });
+		| std::views::transform([](const BotLabel& bot) { return bot.Label; });
 
 	title += BM::Utils::JoinWith(botsView, " | ");
 

@@ -3,6 +3,13 @@
 
 namespace BM
 {
+	inline static std::vector<WindowMode> GetFullscreenModesImpl() noexcept {
+		auto fullscreenModes = sf::VideoMode::getFullscreenModes() | std::views::transform([](auto mode) { return WindowMode(mode); });
+		return std::vector<WindowMode>(fullscreenModes.begin(), fullscreenModes.end());
+	}
+
+	//======================================================================================
+
 	WindowMode::WindowMode() noexcept
 		: WindowMode(GetDesktopMode())
 	{
@@ -23,11 +30,6 @@ namespace BM
 		auto mode = sf::VideoMode::getDesktopMode();
 		mode.size.y += 1u;
 		return mode;
-	}
-
-	inline static std::vector<WindowMode> GetFullscreenModesImpl() noexcept {
-		auto fullscreenModes = sf::VideoMode::getFullscreenModes() | std::views::transform([](auto mode) { return WindowMode(mode); });
-		return std::vector<WindowMode>(fullscreenModes.begin(), fullscreenModes.end());
 	}
 
 	const std::vector<WindowMode>& WindowMode::GetFullscreenModes() noexcept

@@ -25,6 +25,8 @@ namespace BM
 		*/
 	};
 
+	//======================================================================================
+
 	class Texture : public AssetHandle, public sf::Texture
 	{
 	public:
@@ -48,6 +50,8 @@ namespace BM
 		};
 	};
 
+	//======================================================================================
+
 	class Font : public AssetHandle, public sf::Font
 	{
 	public:
@@ -63,6 +67,8 @@ namespace BM
 			return *sFont;
 		}
 	};
+
+	//======================================================================================
 
 	class SoundBuffer : public AssetHandle, public sf::SoundBuffer
 	{

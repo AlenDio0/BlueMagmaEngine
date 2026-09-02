@@ -8,6 +8,8 @@ namespace BM
 	struct Parent { EntityHandle Handle; };
 	struct Children { std::vector<EntityHandle> Handles; };
 
+	//======================================================================================
+
 	class Entity
 	{
 	public:
@@ -42,6 +44,8 @@ namespace BM
 			return children;
 		}
 
+		//======================================================================================
+
 		template<class... TComp>
 		inline bool HasAll() const noexcept {
 			return m_ScenePtr->HasAllComponent<TComp...>(m_Handle);
@@ -50,6 +54,9 @@ namespace BM
 		inline bool HasAny() const noexcept {
 			return m_ScenePtr->HasAnyComponent<TComp...>(m_Handle);
 		}
+
+		//======================================================================================
+
 		template<class TComp>
 		inline decltype(auto) Get() const noexcept {
 			return m_ScenePtr->GetComponent<TComp>(m_Handle);
@@ -75,6 +82,8 @@ namespace BM
 		inline void Remove() noexcept {
 			m_ScenePtr->RemoveComponent<TComp>(m_Handle);
 		}
+
+		//======================================================================================
 
 		template<class TComp>
 		inline decltype(auto) TryGet() const noexcept {

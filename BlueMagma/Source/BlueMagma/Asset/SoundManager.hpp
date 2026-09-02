@@ -26,6 +26,8 @@ namespace BM
 		float Attenuation = 1.f;
 	};
 
+	//======================================================================================
+
 	class SoundManager
 	{
 	private:

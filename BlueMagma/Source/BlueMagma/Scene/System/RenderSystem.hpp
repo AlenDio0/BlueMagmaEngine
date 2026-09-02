@@ -34,6 +34,8 @@ namespace BM
 
 		using ShapeVariant = std::variant<Component::RectShape, Component::CircleShape, SpriteData, TextData>;
 
+		//======================================================================================
+
 		struct MaterialType
 		{
 			Color Color = ColorDef::White;
@@ -51,6 +53,8 @@ namespace BM
 		template<typename TShape>
 		inline const TShape& GetShape() const noexcept { return std::get<TShape>(Shape); }
 	};
+
+	//======================================================================================
 
 	class RenderSystem : public ISystem
 	{

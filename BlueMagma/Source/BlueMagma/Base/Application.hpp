@@ -19,6 +19,8 @@ namespace BM
 		float TimeScale = 1.f;
 	};
 
+	//======================================================================================
+
 	class Application
 	{
 	public:
@@ -30,6 +32,8 @@ namespace BM
 
 		static Application& Get() noexcept;
 
+		//======================================================================================
+
 		void SetDefaultWindowCloseEvent(bool flag) noexcept;
 		void SetStopOnWindowCloseEvent(bool flag) noexcept;
 		void SetTPSLimit(uint32_t tps) noexcept;
@@ -38,13 +42,19 @@ namespace BM
 
 		const ApplicationContext& GetContext() const noexcept;
 
+		//======================================================================================
+
 		void Run();
 		void Stop();
+
+		//======================================================================================
 
 		void CreateOrReplaceWindow(WindowContext windowContext = {}) noexcept;
 
 		Window& GetWindow() noexcept;
 		Renderer& GetRenderer() noexcept;
+
+		//======================================================================================
 
 		template<std::derived_from<Layer> TLayer, typename... TArgs>
 		inline void QueuePushLayer(TArgs&&... args) noexcept {

@@ -4,9 +4,24 @@
 
 namespace BM
 {
+	static inline void PlayCopy(sf::Sound sound, std::chrono::milliseconds delay) noexcept {
+		try
+		{
+			sound.setLooping(false);
+			sound.play();
+
+			while (sound.getStatus() == sf::SoundSource::Status::Playing)
+				std::this_thread::sleep_for(delay);
+		}
+		catch (...) {}
+	}
+
+	//======================================================================================
+
 	SoundManager::SoundManager(const SoundContext& context) noexcept
 		: m_Context(context)
-	{}
+	{
+	}
 
 	void SoundManager::SetContext(const SoundContext& context, bool update) noexcept
 	{
@@ -59,18 +74,6 @@ namespace BM
 			sound.play();
 
 			while (wait && sound.getStatus() == sf::SoundSource::Status::Playing)
-				std::this_thread::sleep_for(delay);
-		}
-		catch (...) {}
-	}
-
-	static inline void PlayCopy(sf::Sound sound, std::chrono::milliseconds delay) noexcept {
-		try
-		{
-			sound.setLooping(false);
-			sound.play();
-
-			while (sound.getStatus() == sf::SoundSource::Status::Playing)
 				std::this_thread::sleep_for(delay);
 		}
 		catch (...) {}

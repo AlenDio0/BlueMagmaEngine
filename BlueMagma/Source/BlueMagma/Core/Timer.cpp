@@ -5,7 +5,8 @@ namespace BM
 {
 	Timer::Timer() noexcept
 		: m_StartPoint(Now())
-	{}
+	{
+	}
 
 	Timer Timer::Restart() noexcept
 	{
@@ -46,9 +47,12 @@ namespace BM
 		return std::chrono::steady_clock::now();
 	}
 
+	//======================================================================================
+
 	ScopeTimer::ScopeTimer(std::string_view message) noexcept
 		: m_Message(message)
-	{}
+	{
+	}
 
 	ScopeTimer::~ScopeTimer() noexcept
 	{

@@ -1,20 +1,9 @@
 #pragma once
-#include "Utils.hpp"
 #include <SFML/Graphics/Color.hpp>
 #include <cstdint>
 
 namespace BM
 {
-	namespace ColorImpl
-	{
-		static constexpr uint8_t IntToChannel(int value) noexcept {
-			return static_cast<uint8_t>(std::clamp(value, 0, 255));
-		}
-		static constexpr uint8_t FloatToChannel(float value) noexcept {
-			return static_cast<uint8_t>(value + 0.5f);
-		}
-	}
-
 	struct Color
 	{
 		union
@@ -37,7 +26,7 @@ namespace BM
 			: Red(red), Green(green), Blue(blue), Alpha(alpha) {
 		}
 		constexpr Color(float red, float green, float blue, float alpha = 1.f) noexcept
-			: Color(ColorImpl::FloatToChannel(red * 255.f), ColorImpl::FloatToChannel(green * 255.f), ColorImpl::FloatToChannel(blue * 255.f), ColorImpl::FloatToChannel(alpha * 255.f)) {
+			: Color(FloatToChannel(red * 255.f), FloatToChannel(green * 255.f), FloatToChannel(blue * 255.f), FloatToChannel(alpha * 255.f)) {
 		}
 
 		constexpr Color(const sf::Color& color) noexcept
@@ -47,33 +36,41 @@ namespace BM
 			return sf::Color(RGBA);
 		}
 
+		//======================================================================================
+
 		constexpr bool operator==(const Color& color) const noexcept {
 			return RGBA == color.RGBA;
 		}
 
+		//======================================================================================
+
 		friend constexpr Color operator+(const Color& left, const Color& right) noexcept {
-			return Color(ColorImpl::IntToChannel(left.Red + right.Red), ColorImpl::IntToChannel(left.Green + right.Green),
-				ColorImpl::IntToChannel(left.Blue + right.Blue), ColorImpl::IntToChannel(left.Alpha + right.Alpha));
+			return Color(IntToChannel(left.Red + right.Red), IntToChannel(left.Green + right.Green),
+				IntToChannel(left.Blue + right.Blue), IntToChannel(left.Alpha + right.Alpha));
 		}
 
 		constexpr Color operator*(float value) const noexcept {
-			return Color(ColorImpl::FloatToChannel(value * Red), ColorImpl::FloatToChannel(value * Green), ColorImpl::FloatToChannel(value * Blue), ColorImpl::FloatToChannel(value * Alpha));
+			return Color(FloatToChannel(value * Red), FloatToChannel(value * Green), FloatToChannel(value * Blue), FloatToChannel(value * Alpha));
 		}
+
+		//======================================================================================
 
 		constexpr Color WithAlpha(uint8_t alpha) const noexcept {
 			return Color(Red, Green, Blue, alpha);
 		}
 		constexpr Color WithAlpha(float alpha) const noexcept {
-			return WithAlpha(ColorImpl::FloatToChannel(alpha * 255u));
+			return WithAlpha(FloatToChannel(alpha * 255u));
 		}
 
-		static constexpr Color Lerp(Color fromColor, Color toColor, float progress) noexcept {
-			return Utils::Lerp(fromColor, toColor, progress);
+	private:
+		static constexpr uint8_t IntToChannel(int value) noexcept {
+			return static_cast<uint8_t>(std::clamp(value, 0, 255));
 		}
-		static constexpr Color LerpUnclamped(Color fromColor, Color toColor, float progress) noexcept {
-			return Utils::LerpUnclamped(fromColor, toColor, progress);
+		static constexpr uint8_t FloatToChannel(float value) noexcept {
+			return static_cast<uint8_t>(value + 0.5f);
 		}
 	};
+
 	namespace ColorDef
 	{
 		inline constexpr Color Black(0.f, 0.f, 0.f);

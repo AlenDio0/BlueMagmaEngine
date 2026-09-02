@@ -24,11 +24,15 @@ namespace BM
 		};
 	}
 
+	//======================================================================================
+
 	enum class WindowState : uint8_t
 	{
 		Windowed = static_cast<uint8_t>(sf::State::Windowed),
 		Fullscreen = static_cast<uint8_t>(sf::State::Fullscreen)
 	};
+
+	//======================================================================================
 
 	struct WindowMode
 	{
@@ -42,6 +46,8 @@ namespace BM
 		static WindowMode GetDesktopMode() noexcept;
 		static const std::vector<WindowMode>& GetFullscreenModes() noexcept;
 	};
+
+	//======================================================================================
 
 	struct WindowContext
 	{

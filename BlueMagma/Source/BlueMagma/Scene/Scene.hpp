@@ -28,8 +28,12 @@ namespace BM
 		SystemRenderFn OnRender;
 	};
 
+	//======================================================================================
+
 	using Registry = entt::registry;
 	class Entity;
+
+	//======================================================================================
 
 	class Scene
 	{
@@ -37,6 +41,8 @@ namespace BM
 		Scene() noexcept;
 
 		Registry& GetRegistry() noexcept;
+
+		//======================================================================================
 
 		template<class TSystem>
 		inline void AddSystem(uint32_t priority = 0) noexcept {
@@ -65,10 +71,14 @@ namespace BM
 				});
 		}
 
+		//======================================================================================
+
 		void OnEvent(Event& event) noexcept;
 		void OnTick(float timeStep) noexcept;
 		void OnUpdate(float deltaTime) noexcept;
 		void OnRender() noexcept;
+
+		//======================================================================================
 
 		Entity CreateEntity(const Component::Transform::LocalSpace& transform = {}) noexcept;
 		Entity CreateEntityWithParent(EntityHandle parent, const Component::Transform::LocalSpace& transform = {}) noexcept;
@@ -79,8 +89,12 @@ namespace BM
 
 		bool IsValid(EntityHandle handle) const noexcept;
 
+		//======================================================================================
+
 		void AttachRenderer(Renderer& renderer) noexcept;
 		Renderer* GetRenderer() noexcept;
+
+		//======================================================================================
 
 		template<class TComp>
 		inline decltype(auto) OnConstruct() noexcept {
@@ -94,6 +108,8 @@ namespace BM
 		inline decltype(auto) OnUpdate() noexcept {
 			return m_Registry.on_update<TComp>();
 		}
+
+		//======================================================================================
 
 		template<class... TComp>
 		inline decltype(auto) View() noexcept {
@@ -138,6 +154,8 @@ namespace BM
 			return entities;
 		}
 
+		//======================================================================================
+
 		template<class TComp>
 		inline bool HasCtxComponent() const noexcept {
 			return m_Registry.ctx().find<TComp>();
@@ -161,6 +179,8 @@ namespace BM
 			return m_Registry.ctx().insert_or_assign<TComp>(std::forward<TArgs>(args)...);
 		}
 
+		//======================================================================================
+
 		template<class... TComp>
 		inline bool HasAllComponent(EntityHandle handle) const noexcept {
 			return m_Registry.all_of<TComp...>(handle);
@@ -169,6 +189,9 @@ namespace BM
 		inline bool HasAnyComponent(EntityHandle handle) const noexcept {
 			return m_Registry.any_of<TComp...>(handle);
 		}
+
+		//======================================================================================
+
 		template<class TComp>
 		inline decltype(auto) GetComponent(EntityHandle handle) const noexcept {
 			BM_CORE_ASSERT(HasAllComponent<TComp>(handle), "Entity doesn't have TComp");
@@ -194,6 +217,8 @@ namespace BM
 			BM_CORE_ASSERT(HasAllComponent<TComp>(handle), "Entity doesn't have TComp");
 			m_Registry.remove<TComp>(handle);
 		}
+
+		//======================================================================================
 
 		template<class TComp>
 		inline decltype(auto) TryGetComponent(EntityHandle handle) const noexcept {

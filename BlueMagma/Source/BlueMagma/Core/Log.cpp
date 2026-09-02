@@ -45,6 +45,8 @@ namespace BM
 		);
 	}
 
+	//======================================================================================
+
 	void Log::Init(const std::string& loggerName, Level flushOn, Level consoleLevel) noexcept
 	{
 		static bool init = false;

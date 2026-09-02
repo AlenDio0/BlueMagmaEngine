@@ -53,6 +53,8 @@ namespace BM
 			return sf::Rect<UValue>(Position, Size);
 		}
 
+		//======================================================================================
+
 		constexpr TValue Area() const noexcept {
 			return Size.Area();
 		}
@@ -68,7 +70,7 @@ namespace BM
 
 		constexpr bool Contains(const Vec2<TValue>& vec) const noexcept {
 			const Vec2<TValue> min = Min(), max = Max();
-			return (vec.X >= min.X && vec.Y >= min.Y) && (vec.X <= max.X && vec.Y <= max.Y);
+			return (vec >= min) && (vec <= max);
 		}
 		constexpr bool Intersects(const Rect<TValue>& rect) const noexcept {
 			const Vec2<TValue> min1 = Min(), min2 = rect.Min(), max1 = Max(), max2 = rect.Max();
@@ -76,6 +78,8 @@ namespace BM
 			const TValue top = Max(min1.Y, min2.Y), bottom = Min(max1.Y, max2.Y);
 			return left < right && top < bottom;
 		}
+
+		//======================================================================================
 
 		constexpr bool operator==(const Rect& rect) const noexcept {
 			return Position == rect.Position && Size == rect.Size;
@@ -96,6 +100,8 @@ namespace BM
 		constexpr bool operator!=(const TValue& value) const noexcept {
 			return !(*this == value);
 		}
+
+		//======================================================================================
 
 		constexpr Rect operator+(const Rect& rect) const noexcept {
 			return Rect(Position + rect.Position, Size + rect.Size);
@@ -140,9 +146,12 @@ namespace BM
 			return Rect(Position / value, Size / value);
 		}
 
+		//======================================================================================
+
 		static constexpr Rect<TValue> Zero() noexcept {
 			return Rect<TValue>(0);
 		}
+
 	private:
 		constexpr static inline TValue Min(const TValue& a, const TValue& b) noexcept {
 			return a < b ? a : b;

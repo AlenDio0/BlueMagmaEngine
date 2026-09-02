@@ -43,9 +43,9 @@ namespace BM
 		}
 
 		{
-			using namespace std::placeholders;
+			namespace ph = std::placeholders;
 
-#define LOAD_ASSET_TYPE(type) LoadType(#type, node, std::bind(&AssetManager::Load<type>, this, _1, _2))
+#define LOAD_ASSET_TYPE(type) LoadType(#type, node, std::bind(&AssetManager::Load<type>, this, ph::_1, ph::_2))
 			LOAD_ASSET_TYPE(Texture);
 			LOAD_ASSET_TYPE(Font);
 			LOAD_ASSET_TYPE(SoundBuffer);

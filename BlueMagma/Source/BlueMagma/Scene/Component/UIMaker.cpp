@@ -55,6 +55,11 @@ namespace BM::UIMaker
 			break;
 		case ShapeType::Circle:
 			ui.Add<CircleShape>(props.Size.X / 2.f);
+			break;
+
+		default:
+			BM_CORE_NOT_IMPLEMENTED();
+			break;
 		}
 
 		BM_CORE_TRACE("Created UI [ui: {}]", ui);

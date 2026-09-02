@@ -14,6 +14,8 @@ namespace BM
 		transform.CachedUpdated = false;
 	}
 
+	//======================================================================================
+
 	void TransformSystem::OnAttach(Scene& scene) noexcept
 	{
 		scene.OnConstruct<Transform>().connect<&TransformSystem::SetNeedUpdateZ>(this);

@@ -18,6 +18,9 @@ namespace BM
 	public:
 		bool LoadYaml(const YamlPath& yamlPath) noexcept;
 
+		//======================================================================================
+
+		void LoadAsset(const AssetKey& key, std::unique_ptr<AssetHandle> asset) noexcept;
 		template<std::derived_from<AssetHandle> TAsset>
 		inline bool Load(const AssetKey& key, const AssetPath& path) noexcept {
 			BM_CORE_FN("key: {}, path: {}", key, path.string());
@@ -36,7 +39,8 @@ namespace BM
 			LoadAsset(key, std::move(asset));
 			return true;
 		}
-		void LoadAsset(const AssetKey& key, std::unique_ptr<AssetHandle> asset) noexcept;
+
+		//======================================================================================
 
 		template<std::derived_from<AssetHandle> TAsset>
 		inline const TAsset& Get(const AssetKey& key) const noexcept {

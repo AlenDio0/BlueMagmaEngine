@@ -3,6 +3,12 @@
 
 namespace BM
 {
+	static inline auto FindLayer(auto& layers, Layer* find) noexcept {
+		return std::ranges::find(layers, find, &std::unique_ptr<Layer>::get);
+	}
+
+	//======================================================================================
+
 	void LayerMachine::Clear() noexcept
 	{
 		BM_CORE_FN();
@@ -57,10 +63,6 @@ namespace BM
 		m_OperationBuffer.clear();
 
 		return !m_Layers.empty();
-	}
-
-	static inline auto FindLayer(auto& layers, Layer* find) noexcept {
-		return std::ranges::find(layers, find, &std::unique_ptr<Layer>::get);
 	}
 
 	void LayerMachine::HandleOperation(const RemoveOperation& remove) noexcept
