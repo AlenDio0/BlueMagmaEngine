@@ -5,7 +5,7 @@
 
 namespace BM
 {
-	using LoadAssetFn = std::function<void(const AssetManager::AssetKey&, const AssetManager::AssetPath&)>;
+	using LoadAssetFn = std::function<void(const std::string&, const std::filesystem::path&)>;
 	static inline void LoadType(std::string_view type, const YAML::Node& node, const LoadAssetFn& onLoad) noexcept {
 		if (!onLoad)
 			return;
@@ -18,10 +18,7 @@ namespace BM
 		{
 			try
 			{
-				using AssetKey = AssetManager::AssetKey;
-				using AssetPath = AssetManager::AssetPath;
-
-				onLoad(asset["Key"].as<AssetKey>(), AssetPath(asset["Path"].as<std::string>()));
+				onLoad(asset["Key"].as<std::string>(), std::filesystem::path(asset["Path"].as<std::string>()));
 			}
 			catch (const std::exception&)
 			{
@@ -30,7 +27,7 @@ namespace BM
 		}
 	}
 
-	bool AssetManager::LoadYaml(const YamlPath& yamlPath) noexcept
+	bool AssetManager::LoadYaml(const std::string& yamlPath) noexcept
 	{
 		YAML::Node node;
 		try
@@ -55,7 +52,7 @@ namespace BM
 		return true;
 	}
 
-	void AssetManager::LoadAsset(const AssetKey& key, std::unique_ptr<AssetHandle> asset) noexcept
+	void AssetManager::LoadAsset(const std::string& key, std::unique_ptr<AssetHandle> asset) noexcept
 	{
 		BM_CORE_ASSERT(!m_Assets.contains(key), "Key has already been used");
 		m_Assets[key] = std::move(asset);
@@ -63,15 +60,16 @@ namespace BM
 		BM_CORE_INFO("Loaded Asset with key '{}'", key);
 	}
 
-	const AssetHandle* AssetManager::GetAsset(const AssetKey& key) const noexcept
+	const AssetHandle* AssetManager::GetAsset(const std::string& key) const noexcept
 	{
+		BM_CORE_TRACE("{}(key: '{}') Trying to retrieve an asset", __FUNCTION__, key);
 		try
 		{
 			return m_Assets.at(key).get();
 		}
 		catch (const std::exception& e)
 		{
-			BM_CORE_ERROR("{}(key: {}) Exception caught\n - {}", __FUNCTION__, key, e.what());
+			BM_CORE_ERROR("{}(key: '{}') Exception caught\n - {}", __FUNCTION__, key, e.what());
 			return nullptr;
 		}
 	}

@@ -328,9 +328,18 @@ bool GameLayer::OnKeyPressed(const BM::EventHandle::KeyPressed& keyPressed) noex
 		break;
 
 	case Key::C:
-		GetWindow().SetTitle("Cat Application");
-		GetWindow().SetIconFromPath("Asset/cat.png");
-		break;
+	{
+		static bool sState = false;
+
+		std::string title = sState ? BM::WindowContext().Title : "Cat Window";
+		std::filesystem::path path = sState ? BM::WindowContext().IconPath : std::filesystem::path("Asset") / "Cat.png";
+
+		sState = !sState;
+
+		GetWindow().SetTitle(title);
+		GetWindow().SetIconFromPath(path);
+	}
+	break;
 
 	case Key::B:
 		m_MainCamera = BM::Camera2D(GetWindow().GetSize());

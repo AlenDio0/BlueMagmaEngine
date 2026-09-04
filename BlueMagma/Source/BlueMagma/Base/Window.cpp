@@ -23,6 +23,8 @@ namespace BM
 		if (!m_Handle)
 			m_Handle = std::make_unique<sf::RenderWindow>();
 
+		Close();
+
 		m_Handle->create(sf::VideoMode(Context.InitialMode.Size, Context.InitialMode.BitsPerPixel), {}, Context.InitialStyle, static_cast<sf::State>(Context.InitialState));
 
 		if (!m_Renderer)
@@ -53,8 +55,7 @@ namespace BM
 
 	void Window::ApplyContext() noexcept
 	{
-		BM_CORE_DEBUG("{}()\n - Title: '{}'\n - FPSLimit: {}\n - VSync: {}\n - IconPath: '{}'", __FUNCTION__,
-			Context.Title, Context.FPSLimit, Context.VSync, Context.IconPath.string());
+		BM_CORE_FN();
 
 		SetTitle(Context.Title);
 		SetFPSLimit(Context.FPSLimit);
@@ -65,6 +66,12 @@ namespace BM
 	void BM::Window::Close() const noexcept
 	{
 		BM_CORE_FN();
+
+		if (!IsOpen())
+		{
+			BM_CORE_DEBUG("Window was already closed, nothing changed");
+			return;
+		}
 
 		GetHandle().close();
 
@@ -85,17 +92,15 @@ namespace BM
 
 	void Window::UpdateModeFocus() const noexcept
 	{
-		static bool sFocusSwitch = true;
-
-		if (!sFocusSwitch && HasFocus())
+		if (!m_FocusState && HasFocus())
 		{
 			SetSize(Context.InitialMode.Size);
-			sFocusSwitch = true;
+			m_FocusState = true;
 		}
-		else if (sFocusSwitch && !HasFocus())
+		else if (m_FocusState && !HasFocus())
 		{
 			SetSize(BM::Vec2i::Zero());
-			sFocusSwitch = false;
+			m_FocusState = false;
 		}
 	}
 
@@ -129,7 +134,7 @@ namespace BM
 
 	void Window::SetTitle(const std::string& title) noexcept
 	{
-		BM_CORE_FN("title: {}", title);
+		BM_CORE_FN("title: '{}'", title);
 
 		Context.Title = title;
 		GetHandle().setTitle(title);
@@ -153,15 +158,18 @@ namespace BM
 
 	void Window::SetIconFromPath(const std::filesystem::path& iconPath) noexcept
 	{
-		BM_CORE_FN("iconPath: {}", iconPath.string());
+		BM_CORE_FN("iconPath: '{}'", iconPath.string());
 
 		Context.IconPath = iconPath;
-		if (!iconPath.empty())
+
+		sf::Image icon;
+		if (iconPath.empty() || !icon.loadFromFile(iconPath))
 		{
-			sf::Image icon;
-			if (icon.loadFromFile(iconPath))
-				SetIcon(icon);
+			BM_CORE_DEBUG("Icon path is empty or invalid, nothing changed");
+			return;
 		}
+
+		SetIcon(icon);
 	}
 
 	void Window::SetIcon(const sf::Image& icon) const noexcept

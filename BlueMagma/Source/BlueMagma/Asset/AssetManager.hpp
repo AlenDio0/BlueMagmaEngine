@@ -12,17 +12,14 @@ namespace BM
 	class AssetManager
 	{
 	public:
-		using AssetKey = std::string;
-		using AssetPath = AssetHandle::AssetPath;
-		using YamlPath = std::string;
 	public:
-		bool LoadYaml(const YamlPath& yamlPath) noexcept;
+		bool LoadYaml(const std::string& yamlPath) noexcept;
 
 		//======================================================================================
 
-		void LoadAsset(const AssetKey& key, std::unique_ptr<AssetHandle> asset) noexcept;
+		void LoadAsset(const std::string& key, std::unique_ptr<AssetHandle> asset) noexcept;
 		template<std::derived_from<AssetHandle> TAsset>
-		inline bool Load(const AssetKey& key, const AssetPath& path) noexcept {
+		inline bool Load(const std::string& key, const std::filesystem::path& path) noexcept {
 			BM_CORE_FN("key: {}, path: {}", key, path.string());
 			std::unique_ptr<AssetHandle> asset;
 
@@ -32,7 +29,7 @@ namespace BM
 			}
 			catch (const std::exception& e)
 			{
-				BM_CORE_ERROR("{}(key: {}, path: {}) Exception caught\n - {}", __FUNCTION__, key, path.string(), e.what());
+				BM_CORE_ERROR("{}(key: '{}', path: '{}') Exception caught\n - {}", __FUNCTION__, key, path.string(), e.what());
 				return false;
 			}
 
@@ -43,15 +40,15 @@ namespace BM
 		//======================================================================================
 
 		template<std::derived_from<AssetHandle> TAsset>
-		inline const TAsset& Get(const AssetKey& key) const noexcept {
+		inline const TAsset& Get(const std::string& key) const noexcept {
 			if (auto asset = dynamic_cast<const TAsset*>(GetAsset(key)))
 				return *asset;
 
-			BM_CORE_WARN("{}(key: {}) Invalid Asset conversion or Asset not found\n - Returned a default asset", __FUNCTION__, key);
+			BM_CORE_WARN("{}(key: '{}') Invalid Asset conversion or Asset not found\n - Returned a default asset", __FUNCTION__, key);
 			return TAsset::GetDefault();
 		}
-		const AssetHandle* GetAsset(const AssetKey& key) const noexcept;
+		const AssetHandle* GetAsset(const std::string& key) const noexcept;
 	private:
-		std::unordered_map<AssetKey, std::unique_ptr<AssetHandle>> m_Assets;
+		std::unordered_map<std::string, std::unique_ptr<AssetHandle>> m_Assets;
 	};
 }

@@ -17,6 +17,7 @@ namespace BM
 
 	Application::~Application() noexcept
 	{
+		BM_CORE_INFO("Application destroyed");
 		s_Instance = nullptr;
 	}
 
@@ -116,7 +117,6 @@ namespace BM
 	void Application::Stop()
 	{
 		BM_CORE_FN();
-
 		m_Running = false;
 	}
 
