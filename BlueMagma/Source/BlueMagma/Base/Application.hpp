@@ -58,7 +58,7 @@ namespace BM
 
 		template<std::derived_from<Layer> TLayer, typename... TArgs>
 		inline void QueuePushLayer(TArgs&&... args) noexcept {
-			BM_CORE_FN();
+			BM_CORE_DEBUG_FN_ARGS(args...);
 			Layers.QueuePush(std::move(std::make_unique<TLayer>(std::forward<TArgs>(args)...)));
 		}
 	private:

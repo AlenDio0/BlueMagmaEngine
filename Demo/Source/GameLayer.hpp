@@ -1,10 +1,10 @@
 #pragma once
-#include <BlueMagma/Layer/AppLayer.hpp>
+#include <BlueMagma/Base/Layer/AppLayer.hpp>
+#include <BlueMagma/Base/Asset/SoundManager.hpp>
 #include <BlueMagma/Core/Camera2D.hpp>
+#include <BlueMagma/Core/Timer.hpp>
 #include <BlueMagma/Scene/Scene.hpp>
 #include <BlueMagma/Scene/Entity.hpp>
-#include <BlueMagma/Core/Timer.hpp>
-#include <BlueMagma/Asset/SoundManager.hpp>
 #include <string>
 
 class GameLayer : public BM::AppLayer

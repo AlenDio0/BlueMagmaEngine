@@ -25,6 +25,8 @@ namespace BM
 
 	void SoundManager::SetContext(const SoundContext& context, bool update) noexcept
 	{
+		BM_CORE_FN_ARGS(update);
+
 		m_Context = context;
 
 		if (update)
@@ -36,6 +38,8 @@ namespace BM
 
 	void SoundManager::SetContext(const std::string& key, const SoundContext& context) noexcept
 	{
+		BM_CORE_FN_ARGS(key);
+
 		try
 		{
 			SetContext(*Get(key), context);
@@ -50,9 +54,13 @@ namespace BM
 
 	void SoundManager::Add(const std::string& key, const BM::SoundBuffer& buffer, const SoundContext& context) noexcept
 	{
-		BM_CORE_FN("key: {}", key);
+		BM_CORE_DEBUG_FN_ARGS(key);
 
-		BM_CORE_ASSERT(!m_Sounds.contains(key), "Key has already been used");
+		if (m_Sounds.contains(key))
+		{
+			BM_CORE_WARN_FN_ARGS(key);
+			BM_CORE_WARN_FN("Already found another sound related to key, replacing asset");
+		}
 
 		try
 		{
@@ -64,7 +72,7 @@ namespace BM
 
 	void SoundManager::Play(const std::string& key, bool loop, bool wait, milliseconds delay) noexcept
 	{
-		BM_CORE_FN("key: {}, loop: {}, wait: {}", key, loop, wait);
+		BM_CORE_FN_ARGS(key, loop, wait);
 
 		try
 		{
@@ -81,7 +89,7 @@ namespace BM
 
 	void SoundManager::PlayThread(const std::string& key, milliseconds delay) noexcept
 	{
-		BM_CORE_FN("key: {}", key);
+		BM_CORE_FN_ARGS(key);
 
 		try
 		{
@@ -93,7 +101,7 @@ namespace BM
 
 	void SoundManager::Stop(const std::string& key) noexcept
 	{
-		BM_CORE_FN("key: {}", key);
+		BM_CORE_FN_ARGS(key);
 
 		try
 		{
@@ -104,7 +112,7 @@ namespace BM
 
 	void SoundManager::Pause(const std::string& key) noexcept
 	{
-		BM_CORE_FN("key: {}", key);
+		BM_CORE_FN_ARGS(key);
 
 		try
 		{
@@ -115,6 +123,8 @@ namespace BM
 
 	sf::Sound* SoundManager::Get(const std::string& key) noexcept
 	{
+		BM_CORE_FN_ARGS(key);
+
 		try
 		{
 			return &m_Sounds.at(key);
@@ -127,6 +137,8 @@ namespace BM
 
 	void SoundManager::SetContext(sf::Sound& sound, const SoundContext& context) const noexcept
 	{
+		BM_CORE_FN("Setting context to a sound");
+
 		sound.setVolume(context.Volume);
 		sound.setPitch(context.Pitch);
 		sound.setPan(context.Pan);

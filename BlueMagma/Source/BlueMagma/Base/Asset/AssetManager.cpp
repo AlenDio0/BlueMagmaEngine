@@ -54,22 +54,31 @@ namespace BM
 
 	void AssetManager::LoadAsset(const std::string& key, std::unique_ptr<AssetHandle> asset) noexcept
 	{
-		BM_CORE_ASSERT(!m_Assets.contains(key), "Key has already been used");
+		BM_CORE_FN_ARGS(key);
+
+		if (m_Assets.contains(key))
+		{
+			BM_CORE_WARN_FN_ARGS(key);
+			BM_CORE_WARN_FN("Already found another asset related to key, replacing asset");
+		}
+
 		m_Assets[key] = std::move(asset);
 
-		BM_CORE_INFO("Loaded Asset with key '{}'", key);
+		BM_CORE_INFO_FN("Loaded asset (key: '{}')", key);
 	}
 
 	const AssetHandle* AssetManager::GetAsset(const std::string& key) const noexcept
 	{
-		BM_CORE_TRACE("{}(key: '{}') Trying to retrieve an asset", __FUNCTION__, key);
+		BM_CORE_FN_ARGS(key);
+
 		try
 		{
 			return m_Assets.at(key).get();
 		}
 		catch (const std::exception& e)
 		{
-			BM_CORE_ERROR("{}(key: '{}') Exception caught\n - {}", __FUNCTION__, key, e.what());
+			BM_CORE_ERROR_FN_ARGS(key);
+			BM_CORE_ERROR_FN("Cannot find asset, exception caught: {}", e.what());
 			return nullptr;
 		}
 	}

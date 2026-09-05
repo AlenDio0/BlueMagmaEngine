@@ -75,8 +75,7 @@ namespace BM
 
 	using namespace Component;
 
-	static inline void UpdateTextCache(const TextRender& textRender) noexcept
-	{
+	static inline void UpdateTextCache(const TextRender& textRender) noexcept {
 		auto& [fontPtr, text, size, lastFontPtr, lastText, lastSize, cachedText, cachedBounds] = textRender;
 		if (fontPtr != lastFontPtr || text != lastText || size != lastSize)
 		{
@@ -92,20 +91,17 @@ namespace BM
 		}
 	}
 
-	static inline sf::Text& GetCachedText(const TextRender& textRender) noexcept
-	{
+	static inline sf::Text& GetCachedText(const TextRender& textRender) noexcept {
 		UpdateTextCache(textRender);
 		return textRender.CachedText;
 	}
 
-	static inline RectFloat GetCachedTextBounds(const TextRender& textRender) noexcept
-	{
+	static inline RectFloat GetCachedTextBounds(const TextRender& textRender) noexcept {
 		UpdateTextCache(textRender);
 		return textRender.CachedBounds;
 	}
 
-	static inline std::array<sf::Vertex, 6> BuildQuad(const Transform& transform, Color color, Vec2f size, RectFloat coords) noexcept
-	{
+	static inline std::array<sf::Vertex, 6> BuildQuad(const Transform& transform, Color color, Vec2f size, RectFloat coords) noexcept {
 		const auto cMatrix = RenderSystem::GetRenderStates(transform, size).transform;
 		const Vec2f cMin = coords.Min(), cMax = coords.Max();
 		return { {
@@ -118,8 +114,7 @@ namespace BM
 			} };
 	}
 
-	static inline void PopulateRenderCommand(Entity entity, RenderCommand& command) noexcept
-	{
+	static inline void PopulateRenderCommand(Entity entity, RenderCommand& command) noexcept {
 		if (auto* outline = entity.TryGet<Outline>())
 			command.Outline = *outline;
 
@@ -135,8 +130,7 @@ namespace BM
 
 	//======================================================================================
 
-	static inline void BuildText(const Transform& transform, const TextRender& textRender, RenderCommand& outCommand) noexcept
-	{
+	static inline void BuildText(const Transform& transform, const TextRender& textRender, RenderCommand& outCommand) noexcept {
 		sf::Text& text = GetCachedText(textRender);
 		text.setFillColor(outCommand.Material.Color);
 		text.setOutlineThickness(outCommand.Outline.Thickness);
@@ -149,8 +143,7 @@ namespace BM
 		};
 	}
 
-	static inline void BuildSprite(const Transform& transform, const SpriteShape& sprite, Vec2f size, RenderCommand& outCommand) noexcept
-	{
+	static inline void BuildSprite(const Transform& transform, const SpriteShape& sprite, Vec2f size, RenderCommand& outCommand) noexcept {
 		const auto& texture = sprite.TexturePtr;
 		if (!texture)
 			return;
@@ -162,8 +155,7 @@ namespace BM
 	}
 
 	template<typename TRenderComp>
-	static inline RenderCommand BuildRenderCommand(Entity entity, const Transform& transform, const TRenderComp& render, Vec2f size) noexcept
-	{
+	static inline RenderCommand BuildRenderCommand(Entity entity, const Transform& transform, const TRenderComp& render, Vec2f size) noexcept {
 		RenderCommand command{ .Z = transform.Global.Z };
 		PopulateRenderCommand(entity, command);
 
@@ -191,8 +183,7 @@ namespace BM
 	//======================================================================================
 
 	template<typename TRenderComp>
-	static inline Vec2f GetRenderSize(const TRenderComp& render) noexcept
-	{
+	static inline Vec2f GetRenderSize(const TRenderComp& render) noexcept {
 		if constexpr (std::is_same_v<TRenderComp, RectShape>)
 			return render.Size;
 		else if constexpr (std::is_same_v<TRenderComp, CircleShape>)
@@ -208,8 +199,7 @@ namespace BM
 	//======================================================================================
 
 	template<typename TRenderComp>
-	static inline void CollectRender(Scene& scene, RectFloat cameraBounds, std::vector<RenderCommand>& outCommands) noexcept
-	{
+	static inline void CollectRender(Scene& scene, RectFloat cameraBounds, std::vector<RenderCommand>& outCommands) noexcept {
 		auto view = scene.View<Transform, TRenderComp>();
 		for (const auto& [entity, transform, render] : view.each())
 		{
@@ -231,7 +221,17 @@ namespace BM
 	{
 		Renderer* renderer = scene.GetRenderer();
 		if (!renderer)
+		{
+			static bool sLogWarned = false;
+			if (!sLogWarned)
+			{
+				BM_CORE_WARN_FN("Scene doesn't have a Renderer attached");
+				sLogWarned = true;
+			}
+
 			return;
+		}
+
 		const RectFloat cCameraBounds = renderer->GetCamera().GetBounds();
 
 		static std::vector<RenderCommand> sRenderCommands;

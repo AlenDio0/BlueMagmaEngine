@@ -44,8 +44,8 @@ namespace BM::UI
 		const Vec2f cSize = widget.Size;
 
 		Vec2f coords = point;
-		if (auto renderer = registry.ctx().get<Renderer*>())
-			coords = renderer->PixelToCoords(point);
+		if (auto renderer = registry.ctx().find<Renderer*>())
+			coords = (*renderer)->PixelToCoords(point);
 
 		const auto cMatrix = Transform2D::ToMatrix({ position, scale, origin, rotation }, { Vec2f(0.f), cSize });
 		const Vec2f cCoordsPosition = cMatrix.getInverse().transformPoint(coords);

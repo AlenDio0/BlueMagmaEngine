@@ -2,7 +2,7 @@
 #include "Core/Vec2.hpp"
 #include "Core/Color.hpp"
 #include "Core/Transform2D.hpp"
-#include "Asset/Asset.hpp"
+#include "Base/Asset/Asset.hpp"
 #include "Core/Rect.hpp"
 #include <SFML/Graphics/Text.hpp>
 #include <string>

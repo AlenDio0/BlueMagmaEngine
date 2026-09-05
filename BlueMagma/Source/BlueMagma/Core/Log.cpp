@@ -53,7 +53,7 @@ namespace BM
 		BM_CORE_ASSERT(!init, "Log has already been initialized");
 
 		if (consoleLevel != Off)
-			AddConsoleSink(consoleLevel);
+			AddConsoleSink(consoleLevel, consoleLevel);
 
 		auto& [sinks, coreLogger, appLogger] = s_Log;
 		if (!init)
@@ -82,6 +82,8 @@ namespace BM
 
 		coreLogger->flush_on(ConvertLevel(flushOn));
 		appLogger->flush_on(ConvertLevel(flushOn));
+
+		BM_CORE_INFO("{:=^64}", " LOGGING INITIALIZED ");
 
 		BM_CORE_FN("loggerName: {}, flushOn: {}, consoleLevel: {}", loggerName, (int)flushOn, (int)consoleLevel);
 		BM_CORE_TRACE("CoreLogger Sinks: {}, AppLogger Sinks: {}", coreLogger->sinks().size(), appLogger->sinks().size());

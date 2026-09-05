@@ -8,8 +8,7 @@ namespace BM
 	Application::Application(const ApplicationContext& appContext) noexcept
 		: m_Context(appContext)
 	{
-		BM_CORE_DEBUG("{}()\n - DefaultWindowCloseEvent: {}\n - StopOnWindowCloseEvent: {}\n - TPSLimit: {}\n - MaxLagTime: {}\n - TimeScale: {}", __FUNCTION__,
-			appContext.DefaultWindowCloseEvent, appContext.StopOnWindowCloseEvent, appContext.TPSLimit, appContext.MaxLagTime, appContext.TimeScale);
+		BM_CORE_DEBUG_FN_ARGS(appContext.DefaultWindowCloseEvent, appContext.StopOnWindowCloseEvent, appContext.TPSLimit, appContext.MaxLagTime, appContext.TimeScale);
 
 		BM_CORE_ASSERT(s_Instance == nullptr, "Application already created");
 		s_Instance = this;
@@ -17,7 +16,7 @@ namespace BM
 
 	Application::~Application() noexcept
 	{
-		BM_CORE_INFO("Application destroyed");
+		BM_CORE_INFO_FN("Application is being destroyed");
 		s_Instance = nullptr;
 	}
 
@@ -29,36 +28,31 @@ namespace BM
 
 	void Application::SetDefaultWindowCloseEvent(bool flag) noexcept
 	{
-		BM_CORE_FN("flag: {}", flag);
-
+		BM_CORE_FN_ARGS(flag);
 		m_Context.DefaultWindowCloseEvent = flag;
 	}
 
 	void Application::SetStopOnWindowCloseEvent(bool flag) noexcept
 	{
-		BM_CORE_FN("flag: {}", flag);
-
+		BM_CORE_FN_ARGS(flag);
 		m_Context.StopOnWindowCloseEvent = flag;
 	}
 
 	void Application::SetTPSLimit(uint32_t tps) noexcept
 	{
-		BM_CORE_FN("tps: {}", tps);
-
+		BM_CORE_FN_ARGS(tps);
 		m_Context.TPSLimit = tps;
 	}
 
 	void Application::SetMaxLagTime(float lag) noexcept
 	{
-		BM_CORE_FN("lag: {}", lag);
-
+		BM_CORE_FN_ARGS(lag);
 		m_Context.MaxLagTime = lag;
 	}
 
 	void Application::SetTimeScale(float timeScale) noexcept
 	{
-		BM_CORE_FN("timeScale: {}", timeScale);
-
+		BM_CORE_FN_ARGS(timeScale);
 		m_Context.TimeScale = timeScale;
 	}
 
@@ -69,7 +63,7 @@ namespace BM
 
 	void Application::Run()
 	{
-		BM_CORE_FN();
+		BM_CORE_INFO_FN("Application is starting");
 
 		m_Running = true;
 
@@ -116,13 +110,13 @@ namespace BM
 
 	void Application::Stop()
 	{
-		BM_CORE_FN();
+		BM_CORE_INFO_FN("Application is stopping");
 		m_Running = false;
 	}
 
 	void Application::CreateOrReplaceWindow(WindowContext windowContext) noexcept
 	{
-		BM_CORE_FN();
+		BM_CORE_DEBUG_FN("Creating or replacing a window with a new window context");
 
 		if (!windowContext.EventCallback)
 			windowContext.EventCallback = [&](Event& event) { EventCallback(event); };

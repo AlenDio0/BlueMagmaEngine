@@ -46,6 +46,9 @@ namespace BM
 
 		template<class TSystem>
 		inline void AddSystem(uint32_t priority = 0) noexcept {
+			BM_CORE_DEBUG_FN_ARGS(priority);
+			BM_CORE_INFO_FN("System is being added");
+
 			std::type_index cTypeId(typeid(TSystem));
 			if (std::ranges::any_of(m_Systems, [&](const auto& system) { return cTypeId == system.Id; }))
 				return;
@@ -65,6 +68,7 @@ namespace BM
 		}
 		template<class TSystem>
 		inline void RemoveSystem() noexcept {
+			BM_CORE_INFO_FN("System is being removed");
 			std::type_index cTypeId(typeid(TSystem));
 			std::erase_if(m_Systems, [&](const auto& system) {
 				return cTypeId == system.Id;

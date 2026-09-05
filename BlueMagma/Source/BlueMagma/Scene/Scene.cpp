@@ -5,7 +5,7 @@
 namespace BM
 {
 	static inline void RemoveChild(Registry& registry, EntityHandle child) noexcept {
-		BM_CORE_FN("child: {}", child);
+		BM_CORE_FN_ARGS(child);
 
 		EntityHandle parent = registry.get<Parent>(child).Handle;
 		if (registry.valid(parent) && registry.all_of<Children>(parent))
@@ -16,7 +16,8 @@ namespace BM
 	}
 
 	static inline void DestroyChildren(Registry& registry, EntityHandle entity) noexcept {
-		BM_CORE_FN("entity: {}", entity);
+		BM_CORE_FN_ARGS(entity);
+
 		if (registry.all_of<Children>(entity))
 		{
 			std::vector<EntityHandle> children = registry.get<Children>(entity).Handles;
@@ -70,11 +71,15 @@ namespace BM
 		Entity entity = GetEntity(m_Registry.create());
 		entity.Add<Component::Transform>(transform);
 
+		BM_CORE_FN("Entity created (entity: '{}')", entity);
+
 		return entity;
 	}
 
 	Entity Scene::CreateEntityWithParent(EntityHandle parent, const Component::Transform::LocalSpace& transform) noexcept
 	{
+		BM_CORE_FN_ARGS(parent);
+
 		Entity parentEntity = GetEntity(parent);
 		BM_CORE_ASSERT(parentEntity.IsValid());
 
@@ -88,12 +93,17 @@ namespace BM
 
 	void Scene::Clear() noexcept
 	{
+		BM_CORE_DEBUG_FN("Scene is being cleared");
+
 		m_Registry.clear();
+		m_Registry.ctx().clear();
+
+		BM_CORE_INFO_FN("Scene cleared");
 	}
 
 	void Scene::Destroy(EntityHandle handle) noexcept
 	{
-		BM_CORE_FN("handle: {}", handle);
+		BM_CORE_FN_ARGS(handle);
 		m_Registry.destroy(handle);
 	}
 
@@ -104,6 +114,7 @@ namespace BM
 
 	void Scene::AttachRenderer(Renderer& renderer) noexcept
 	{
+		BM_CORE_FN("Scene is attaching a renderer");
 		AddOrReplaceCtxComponent<Renderer*>(&renderer);
 	}
 

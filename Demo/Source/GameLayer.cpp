@@ -64,7 +64,7 @@ void GameLayer::OnAttach() noexcept
 	m_MouseRender.Add<Comp::ColorMaterial>(BM::ColorDef::Clear);
 	m_MouseRender.Add<Comp::Outline>(BM::ColorDef::Red.WithAlpha(0.35f), 5.f);
 
-	InitExample();
+	//InitExample();
 	InitUIExample();
 
 	m_Scene.OnDestroy<Comp::Widget>().connect<&GameLayer::UpdateMouseCursor>(this);

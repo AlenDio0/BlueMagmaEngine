@@ -13,7 +13,7 @@ namespace BM::UIMaker
 
 	Entity AddTextChild(Entity entity, const TextProps& props) noexcept
 	{
-		BM_CORE_FN("entity: {}", entity);
+		BM_CORE_FN_ARGS(entity);
 
 		Entity text = entity.CreateChild(props.Transform);
 		text.Add<TextRender>(props.Text);
@@ -21,12 +21,15 @@ namespace BM::UIMaker
 		if (props.Outline)
 			text.Add<Outline>(props.Outline.value());
 
+		BM_CORE_DEBUG_FN("Added text child to entity (entity: {}, text: {})", entity, text);
+
 		return text;
 	}
 
 	void AddWidgetColor(Entity entity, float hoverFactor, float focusFactor) noexcept
 	{
-		BM_CORE_FN("entity: {}", entity);
+		BM_CORE_DEBUG_FN_ARGS(entity, hoverFactor, focusFactor);
+
 		const Color cColor = entity.AddOrGet<ColorMaterial>().Color;
 
 		Color hoverColor = (cColor * hoverFactor).WithAlpha(1.f);
@@ -39,10 +42,11 @@ namespace BM::UIMaker
 
 	Entity CreateUI(Scene& scene, const UIProps& props) noexcept
 	{
-		BM_CORE_FN();
 		Entity ui = scene.CreateEntity(props.Transform);
+
 		ui.Add<Widget>(props.Size, props.Shape);
 		ui.Add<ColorMaterial>(props.Color);
+
 		if (props.Outline)
 			ui.Add<Outline>(props.Outline.value());
 
@@ -62,7 +66,8 @@ namespace BM::UIMaker
 			break;
 		}
 
-		BM_CORE_TRACE("Created UI [ui: {}]", ui);
+		BM_CORE_DEBUG_FN("Created UI entity (ui: '{}')", ui);
+
 		return ui;
 	}
 
@@ -71,7 +76,8 @@ namespace BM::UIMaker
 		Entity button = CreateUI(scene, props);
 		button.Add<Clickable>(onClick);
 
-		BM_CORE_DEBUG("Created Button [button: {}]", button);
+		BM_CORE_DEBUG_FN("Created UI Button entity (button: '{}')", button);
+
 		return button;
 	}
 
@@ -95,7 +101,8 @@ namespace BM::UIMaker
 		input.CursorChild = cursor;
 		inputText.Add<InputText>(std::move(input));
 
-		BM_CORE_DEBUG("Created InputText [input: {}, text: {}, cursor: {}]", inputText, text, cursor);
+		BM_CORE_DEBUG_FN("Created UI InputText entity (inputText: '{}', text: '{}', cursor: '{}')", inputText, text, cursor);
+
 		return inputText;
 	}
 }

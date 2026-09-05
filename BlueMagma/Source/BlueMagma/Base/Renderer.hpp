@@ -20,8 +20,7 @@ namespace BM
 		void Display() noexcept;
 
 		void Draw(const sf::Drawable& drawable, const sf::RenderStates& states = sf::RenderStates::Default) noexcept;
-		void Draw(const sf::Vertex* vertices, size_t vertexCount, sf::PrimitiveType type,
-			sf::RenderStates states = sf::RenderStates::Default) noexcept;
+		void Draw(const sf::Vertex* vertices, size_t vertexCount, sf::PrimitiveType type, const sf::RenderStates& states = sf::RenderStates::Default) noexcept;
 
 		void SetView(const sf::View& view) noexcept;
 		void SetCamera(const Camera2D& camera) noexcept;

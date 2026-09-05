@@ -11,19 +11,19 @@ namespace BM
 
 	void LayerMachine::Clear() noexcept
 	{
-		BM_CORE_FN();
+		BM_CORE_FN("LayerMachine is being cleared");
 
 		const size_t cSize = m_Layers.size();
 		for (size_t i = 0; i < cSize; i++)
 			QueueRemove(m_Layers.at(i).get());
 		ProcessLayerChanges();
 
-		BM_CORE_INFO("{}() Cleared {} layers", __FUNCTION__, cSize);
+		BM_CORE_INFO_FN("Cleared {} layers", cSize);
 	}
 
 	void LayerMachine::QueueRemove(Layer* layer) noexcept
 	{
-		BM_CORE_FN("layer: {}", (void*)layer);
+		BM_CORE_DEBUG_FN_ARGS((void*)layer);
 
 		if (!layer)
 			return;
@@ -33,7 +33,7 @@ namespace BM
 
 	void LayerMachine::QueueTransition(Layer* fromLayer, std::unique_ptr<Layer> toLayer) noexcept
 	{
-		BM_CORE_FN("fromLayer: {}, toLayer: {}", (void*)fromLayer, (void*)toLayer.get());
+		BM_CORE_DEBUG_FN_ARGS((void*)fromLayer, (void*)toLayer.get());
 
 		if (!fromLayer || !toLayer)
 			return;
@@ -43,7 +43,7 @@ namespace BM
 
 	void LayerMachine::QueuePush(std::unique_ptr<Layer> layer) noexcept
 	{
-		BM_CORE_FN("layer: {}", (void*)layer.get());
+		BM_CORE_DEBUG_FN_ARGS((void*)layer.get());
 
 		if (!layer)
 			return;
@@ -67,7 +67,8 @@ namespace BM
 
 	void LayerMachine::HandleOperation(const RemoveOperation& remove) noexcept
 	{
-		BM_CORE_INFO("Removing Layer [Layer: {}]", (void*)remove.RemoveLayer);
+		BM_CORE_DEBUG_FN_ARGS((void*)remove.RemoveLayer);
+		BM_CORE_INFO_FN("Removing Layer");
 
 		if (auto find = FindLayer(m_Layers, remove.RemoveLayer); find != m_Layers.end())
 		{
@@ -80,8 +81,8 @@ namespace BM
 
 	void LayerMachine::HandleOperation(TransitionOperation& transition) noexcept
 	{
-		BM_CORE_INFO("Transitioning Layer [FromLayer: {}, ToLayer: {}]",
-			(void*)transition.FromLayer, (void*)transition.ToLayer.get());
+		BM_CORE_DEBUG_FN_ARGS((void*)transition.FromLayer, (void*)transition.ToLayer.get());
+		BM_CORE_INFO_FN("Transitioning Layer");
 
 		if (auto find = FindLayer(m_Layers, transition.FromLayer); find != m_Layers.end())
 		{
@@ -97,7 +98,8 @@ namespace BM
 
 	void LayerMachine::HandleOperation(PushOperation& push) noexcept
 	{
-		BM_CORE_INFO("Pushing Layer [Layer: {}]", (void*)push.PushLayer.get());
+		BM_CORE_INFO_FN_ARGS((void*)push.PushLayer.get());
+		BM_CORE_INFO_FN("Pushing Layer");
 
 		m_Layers.push_back(std::move(push.PushLayer));
 		m_Layers.back()->OnAttach();

@@ -5,7 +5,7 @@
 #include "Core/Vec2.hpp"
 #include "Core/Rect.hpp"
 #include "Core/Color.hpp"
-#include "Asset/Asset.hpp"
+#include "Base/Asset/Asset.hpp"
 #include <SFML/Graphics/RenderStates.hpp>
 #include <SFML/Graphics/Shader.hpp>
 #include <SFML/Graphics/Vertex.hpp>

@@ -24,7 +24,7 @@ namespace BM
 		m_HandlePtr->draw(drawable, states);
 	}
 
-	void Renderer::Draw(const sf::Vertex* vertices, size_t vertexCount, sf::PrimitiveType type, sf::RenderStates states) noexcept
+	void Renderer::Draw(const sf::Vertex* vertices, size_t vertexCount, sf::PrimitiveType type, const sf::RenderStates& states) noexcept
 	{
 		m_HandlePtr->draw(vertices, vertexCount, type, states);
 	}

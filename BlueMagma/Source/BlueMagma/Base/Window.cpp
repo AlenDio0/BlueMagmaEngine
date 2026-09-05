@@ -17,13 +17,13 @@ namespace BM
 
 	void BM::Window::Create() noexcept
 	{
-		BM_CORE_DEBUG("{}()\n - InitialStyle: {}\n - InitialState: {}", __FUNCTION__,
-			static_cast<uint8_t>(Context.InitialStyle), static_cast<uint8_t>(Context.InitialState));
+		BM_CORE_DEBUG_FN_ARGS(Context.InitialStyle, static_cast<uint8_t>(Context.InitialState));
 
 		if (!m_Handle)
 			m_Handle = std::make_unique<sf::RenderWindow>();
 
-		Close();
+		if (IsOpen())
+			Close();
 
 		m_Handle->create(sf::VideoMode(Context.InitialMode.Size, Context.InitialMode.BitsPerPixel), {}, Context.InitialStyle, static_cast<sf::State>(Context.InitialState));
 
@@ -32,30 +32,32 @@ namespace BM
 
 		ApplyContext();
 
-		BM_CORE_INFO("Window created");
+		BM_CORE_INFO_FN("Window created");
 	}
 
 	void BM::Window::Destroy() noexcept
 	{
-		BM_CORE_FN();
+		BM_CORE_DEBUG_FN("Window is being destroyed");
 
 		Close();
 
 		m_Renderer.reset();
 		m_Handle.reset();
 
-		BM_CORE_INFO("Window destroyed");
+		BM_CORE_INFO_FN("Window destroyed");
 	}
 
 	void Window::ReplaceContext(const WindowContext& context) noexcept
 	{
+		BM_CORE_FN("Replacing window context");
+
 		Context = context;
 		ApplyContext();
 	}
 
 	void Window::ApplyContext() noexcept
 	{
-		BM_CORE_FN();
+		BM_CORE_FN("Applying window context");
 
 		SetTitle(Context.Title);
 		SetFPSLimit(Context.FPSLimit);
@@ -65,17 +67,17 @@ namespace BM
 
 	void BM::Window::Close() const noexcept
 	{
-		BM_CORE_FN();
+		BM_CORE_DEBUG_FN("Window is being closed");
 
 		if (!IsOpen())
 		{
-			BM_CORE_DEBUG("Window was already closed, nothing changed");
+			BM_CORE_DEBUG_FN("Window was already closed, nothing changed");
 			return;
 		}
 
 		GetHandle().close();
 
-		BM_CORE_INFO("Window closed");
+		BM_CORE_INFO_FN("Window closed");
 	}
 
 	void Window::PollEvents() const noexcept
@@ -106,35 +108,31 @@ namespace BM
 
 	bool Window::SetActive(bool active) const noexcept
 	{
-		BM_CORE_FN("active: {}", active);
-
+		BM_CORE_DEBUG_FN_ARGS(active);
 		return GetHandle().setActive(active);
 	}
 
 	void Window::RequestFocus() const noexcept
 	{
-		BM_CORE_FN();
-
+		BM_CORE_DEBUG_FN("Window is requesting focus");
 		GetHandle().requestFocus();
 	}
 
 	void Window::SetMousePosition(Vec2i point) const noexcept
 	{
-		BM_CORE_FN("point: {}", point);
-
+		BM_CORE_FN_ARGS(point);
 		sf::Mouse::setPosition(point, GetHandle());
 	}
 
 	void Window::SetSize(Vec2u size) const noexcept
 	{
-		BM_CORE_FN("size: {}", size);
-
+		BM_CORE_FN_ARGS(size);
 		GetHandle().setSize(size);
 	}
 
 	void Window::SetTitle(const std::string& title) noexcept
 	{
-		BM_CORE_FN("title: '{}'", title);
+		BM_CORE_FN_ARGS(title);
 
 		Context.Title = title;
 		GetHandle().setTitle(title);
@@ -142,7 +140,7 @@ namespace BM
 
 	void Window::SetFPSLimit(uint32_t fps) noexcept
 	{
-		BM_CORE_FN("fps: {}", fps);
+		BM_CORE_FN_ARGS(fps);
 
 		Context.FPSLimit = fps;
 		GetHandle().setFramerateLimit(fps);
@@ -150,7 +148,7 @@ namespace BM
 
 	void Window::SetVSync(bool vsync) noexcept
 	{
-		BM_CORE_FN("vsync: {}", vsync);
+		BM_CORE_FN_ARGS(vsync);
 
 		Context.VSync = vsync;
 		GetHandle().setVerticalSyncEnabled(vsync);
@@ -158,14 +156,15 @@ namespace BM
 
 	void Window::SetIconFromPath(const std::filesystem::path& iconPath) noexcept
 	{
-		BM_CORE_FN("iconPath: '{}'", iconPath.string());
+		BM_CORE_FN_ARGS(iconPath.string());
 
 		Context.IconPath = iconPath;
 
 		sf::Image icon;
 		if (iconPath.empty() || !icon.loadFromFile(iconPath))
 		{
-			BM_CORE_DEBUG("Icon path is empty or invalid, nothing changed");
+			BM_CORE_WARN_FN_ARGS(iconPath.string());
+			BM_CORE_WARN_FN("Icon path is empty or invalid, nothing changed");
 			return;
 		}
 
@@ -174,15 +173,13 @@ namespace BM
 
 	void Window::SetIcon(const sf::Image& icon) const noexcept
 	{
-		BM_CORE_FN();
-
+		BM_CORE_FN("Setting icon from image");
 		GetHandle().setIcon(icon);
 	}
 
 	void Window::SetPosition(Vec2i point) const noexcept
 	{
-		BM_CORE_FN();
-
+		BM_CORE_FN_ARGS(point);
 		GetHandle().setPosition(point);
 	}
 

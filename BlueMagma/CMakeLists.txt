@@ -4,6 +4,8 @@ set(SOURCES
     Source/BlueMagma.hpp
     Source/bmpch.hpp
     Source/bmpch.cpp
+
+    # Core
     Source/BlueMagma/Core/Log.hpp
     Source/BlueMagma/Core/Log.cpp
     Source/BlueMagma/Core/Assert.hpp
@@ -19,6 +21,8 @@ set(SOURCES
     Source/BlueMagma/Core/Timer.cpp
     Source/BlueMagma/Core/Camera2D.hpp
     Source/BlueMagma/Core/Camera2D.cpp
+
+    # Base
     Source/BlueMagma/Base/Application.hpp
     Source/BlueMagma/Base/Application.cpp
     Source/BlueMagma/Base/WindowContext.hpp
@@ -28,22 +32,32 @@ set(SOURCES
     Source/BlueMagma/Base/Renderer.hpp
     Source/BlueMagma/Base/Renderer.cpp
     Source/BlueMagma/Base/EventDispatcher.hpp
-    Source/BlueMagma/Layer/Layer.hpp
-    Source/BlueMagma/Layer/AppLayer.hpp
-    Source/BlueMagma/Layer/AppLayer.cpp
-    Source/BlueMagma/Layer/LayerMachine.hpp
-    Source/BlueMagma/Layer/LayerMachine.cpp
-    Source/BlueMagma/Asset/DefaultFont.hpp
-    Source/BlueMagma/Asset/Asset.hpp
-    Source/BlueMagma/Asset/AssetManager.hpp
-    Source/BlueMagma/Asset/AssetManager.cpp
-    Source/BlueMagma/Asset/SoundManager.hpp
-    Source/BlueMagma/Asset/SoundManager.cpp
+    # Base/Asset
+    Source/BlueMagma/Base/Asset/DefaultFont.hpp
+    Source/BlueMagma/Base/Asset/Asset.hpp
+    Source/BlueMagma/Base/Asset/AssetManager.hpp
+    Source/BlueMagma/Base/Asset/AssetManager.cpp
+    Source/BlueMagma/Base/Asset/SoundManager.hpp
+    Source/BlueMagma/Base/Asset/SoundManager.cpp
+    # Base/Layer
+    Source/BlueMagma/Base/Layer/Layer.hpp
+    Source/BlueMagma/Base/Layer/AppLayer.hpp
+    Source/BlueMagma/Base/Layer/AppLayer.cpp
+    Source/BlueMagma/Base/Layer/LayerMachine.hpp
+    Source/BlueMagma/Base/Layer/LayerMachine.cpp
+
+    # Scene
     Source/BlueMagma/Scene/Scene.hpp
     Source/BlueMagma/Scene/Scene.cpp
     Source/BlueMagma/Scene/EntityHandle.hpp
     Source/BlueMagma/Scene/Entity.hpp
     Source/BlueMagma/Scene/Entity.cpp
+    # Scene/Component
+    Source/BlueMagma/Scene/Component/Base.hpp
+    Source/BlueMagma/Scene/Component/UI.hpp
+    Source/BlueMagma/Scene/Component/UIMaker.hpp
+    Source/BlueMagma/Scene/Component/UIMaker.cpp
+    # Scene/System
     Source/BlueMagma/Scene/System/ISystem.hpp
     Source/BlueMagma/Scene/System/TransformSystem.hpp
     Source/BlueMagma/Scene/System/TransformSystem.cpp
@@ -59,10 +73,6 @@ set(SOURCES
     Source/BlueMagma/Scene/System/UI/InputTextSystem.cpp
     Source/BlueMagma/Scene/System/UI/UISystem.hpp
     Source/BlueMagma/Scene/System/UI/UISystem.cpp
-    Source/BlueMagma/Scene/Component/Base.hpp
-    Source/BlueMagma/Scene/Component/UI.hpp
-    Source/BlueMagma/Scene/Component/UIMaker.hpp
-    Source/BlueMagma/Scene/Component/UIMaker.cpp
 )
 
 # Library

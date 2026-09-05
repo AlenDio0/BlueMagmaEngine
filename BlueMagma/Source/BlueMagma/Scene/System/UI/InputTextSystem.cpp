@@ -246,7 +246,7 @@ namespace BM::UI
 				break;
 			case Key::Delete:
 				if (cursorIndex < cTextSize)
-					inputText.Patch<InputText>([&](auto& input) { input.Text.erase(cursorIndex, 1); });
+					inputText.Patch<InputText>([&](auto& input) { input.Text.erase(cursorIndex, 1ull); });
 				break;
 			case Key::Left:
 				inputText.Patch<InputText>([&](auto& input) {
@@ -254,7 +254,7 @@ namespace BM::UI
 				resetBlink = true;
 				break;
 			case Key::Home:
-				inputText.Patch<InputText>([&](auto& input) { input.CursorIndex = 0; });
+				inputText.Patch<InputText>([&](auto& input) { input.CursorIndex = 0ull; });
 				resetBlink = true;
 				break;
 

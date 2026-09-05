@@ -49,14 +49,16 @@ namespace BM
 
 	//======================================================================================
 
-	ScopeTimer::ScopeTimer(std::string_view message) noexcept
-		: m_Message(message)
+	ScopeTimer::ScopeTimer(std::string_view label) noexcept
+		: m_Label(label)
 	{
 	}
 
 	ScopeTimer::~ScopeTimer() noexcept
 	{
-		const float cElapsed = m_Timer.AsMilli();
-		BM_CORE_DEBUG("{} - {}ms", m_Message, cElapsed);
+		const float cElapsedSeconds = m_Timer.AsSeconds();
+		const float cElapsedMs = m_Timer.AsMilli();
+
+		BM_CORE_INFO("Timer Stopped - {} took {:.3f}s ({}ms) to finish", m_Label, cElapsedSeconds, cElapsedMs);
 	}
 }

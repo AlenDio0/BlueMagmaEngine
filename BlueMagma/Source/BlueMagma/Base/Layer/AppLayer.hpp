@@ -4,7 +4,7 @@
 #include "Base/Window.hpp"
 #include "Base/Renderer.hpp"
 #include "LayerMachine.hpp"
-#include "Asset/AssetManager.hpp"
+#include "Base/Asset/AssetManager.hpp"
 #include <concepts>
 #include <memory>
 
@@ -30,7 +30,7 @@ namespace BM
 
 		template<std::derived_from<Layer> TLayer, typename... TArgs>
 		inline void QueueTransitionTo(TArgs&&... args) noexcept {
-			BM_CORE_FN();
+			BM_CORE_FN_ARGS(args...);
 			QueueTransition(std::move(std::make_unique<TLayer>(std::forward<TArgs>(args)...)));
 		}
 		void QueueRemoveLayer() noexcept;

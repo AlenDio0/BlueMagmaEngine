@@ -1,10 +1,10 @@
 #pragma once
-#include <BlueMagma/Layer/AppLayer.hpp>
+#include <BlueMagma/Base/Layer/AppLayer.hpp>
 #include <BlueMagma/Core/Camera2D.hpp>
+#include <BlueMagma/Core/Vec2.hpp>
 #include <BlueMagma/Scene/Scene.hpp>
 #include <BlueMagma/Scene/Component/Base.hpp>
 #include <BlueMagma/Scene/Entity.hpp>
-#include <BlueMagma/Core/Vec2.hpp>
 #include <SFML/Window/Keyboard.hpp>
 
 class PaddleLayer : public BM::AppLayer

@@ -49,6 +49,8 @@ namespace BM
 		AddOrGet<Children>();
 		Patch<Children>([&](auto& children) { children.Handles.push_back(child); });
 
+		BM_CORE_FN("Entity created a child (entity: '{}', child: '{}')", m_Handle, child);
+
 		return child;
 	}
 

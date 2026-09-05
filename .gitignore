@@ -12,3 +12,6 @@
 # Log
 Log/
 *.log
+
+# Temp
+*.TMP

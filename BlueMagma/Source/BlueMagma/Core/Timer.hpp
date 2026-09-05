@@ -28,10 +28,10 @@ namespace BM
 	class ScopeTimer
 	{
 	public:
-		explicit ScopeTimer(std::string_view message) noexcept;
+		explicit ScopeTimer(std::string_view label) noexcept;
 		~ScopeTimer() noexcept;
 	private:
 		Timer m_Timer;
-		std::string m_Message;
+		std::string m_Label;
 	};
 }
