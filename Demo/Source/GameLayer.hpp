@@ -1,8 +1,8 @@
 #pragma once
-#include <BlueMagma/Base/Layer/AppLayer.hpp>
-#include <BlueMagma/Base/Asset/SoundManager.hpp>
-#include <BlueMagma/Core/Camera2D.hpp>
+#include <BlueMagma/Framework/Layer/AppLayer.hpp>
 #include <BlueMagma/Core/Timer.hpp>
+#include <BlueMagma/Asset/SoundManager.hpp>
+#include <BlueMagma/Graphics/Camera2D.hpp>
 #include <BlueMagma/Scene/Scene.hpp>
 #include <BlueMagma/Scene/Entity.hpp>
 #include <string>

@@ -1,16 +1,18 @@
 #pragma once
 #include "ISystem.hpp"
+#include "Math/Vec2.hpp"
+#include "Math/Rect.hpp"
+#include "Math/Color.hpp"
+#include "Graphics/Renderer.hpp"
+#include "Asset/Asset.hpp"
 #include "Scene/Component/Base.hpp"
-#include "Base/Renderer.hpp"
-#include "Core/Vec2.hpp"
-#include "Core/Rect.hpp"
-#include "Core/Color.hpp"
-#include "Base/Asset/Asset.hpp"
+
 #include <SFML/Graphics/RenderStates.hpp>
 #include <SFML/Graphics/Shader.hpp>
 #include <SFML/Graphics/Vertex.hpp>
 #include <SFML/Graphics/Transform.hpp>
 #include <SFML/Graphics/Text.hpp>
+
 #include <vector>
 #include <array>
 #include <variant>

@@ -1,7 +1,7 @@
 #pragma once
-#include <BlueMagma/Base/Layer/AppLayer.hpp>
-#include <BlueMagma/Core/Camera2D.hpp>
-#include <BlueMagma/Core/Vec2.hpp>
+#include <BlueMagma/Framework/Layer/AppLayer.hpp>
+#include <BlueMagma/Math/Vec2.hpp>
+#include <BlueMagma/Graphics/Camera2D.hpp>
 #include <BlueMagma/Scene/Scene.hpp>
 #include <BlueMagma/Scene/Component/Base.hpp>
 #include <BlueMagma/Scene/Entity.hpp>

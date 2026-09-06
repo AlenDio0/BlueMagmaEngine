@@ -1,5 +1,6 @@
 #include "bmpch.hpp"
 #include "Window.hpp"
+
 #include <SFML/Window/Mouse.hpp>
 #include <SFML/Window/VideoMode.hpp>
 

@@ -1,36 +1,23 @@
 #pragma once
-#include <SFML/Window/Event.hpp>
+#include "Event.hpp"
+
 #include <functional>
 
 #define BM_EVENT_FN(fn, ...) [&](const auto& e) -> bool { return fn(e, ##__VA_ARGS__); }
 
 namespace BM
 {
-	using EventHandle = sf::Event;
-
-	struct Event
-	{
-		EventHandle Handle;
-		bool Done = false;
-
-		inline Event(EventHandle handle) noexcept
-			: Handle(handle) {
-		}
-	};
-
-	//======================================================================================
-
 	class EventDispatcher
 	{
 		template<typename TEvent>
 		using OnEvent = std::function<bool(const TEvent&)>;
 	public:
-		inline explicit EventDispatcher(Event& event)
+		constexpr explicit EventDispatcher(Event& event) noexcept
 			: m_EventPtr(&event) {
 		}
 
 		template<typename TEvent>
-		inline bool Dispatch(const OnEvent<TEvent>& handler) noexcept {
+		constexpr bool Dispatch(const OnEvent<TEvent>& handler) noexcept {
 			if (m_EventPtr->Done)
 				return false;
 

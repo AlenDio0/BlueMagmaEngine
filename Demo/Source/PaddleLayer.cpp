@@ -1,7 +1,7 @@
 #include "PaddleLayer.hpp"
 #include <BlueMagma/Scene/System/TransformSystem.hpp>
 #include <BlueMagma/Scene/System/RenderSystem.hpp>
-#include <BlueMagma/Core/Color.hpp>
+#include <BlueMagma/Math/Color.hpp>
 #include <BlueMagma/Core/Utils.hpp>
 #include <BlueMagma/Core/Random.hpp>
 #include <SFML/System/Angle.hpp>

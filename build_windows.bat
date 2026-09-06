@@ -2,18 +2,22 @@
 
 set "BUILD_DIR=build_windows"
 
-if exist "%BUILD_DIR%" (
-    set /p answer="Do you want to cleanup last build? [y/N]: "
-
-    if /i "%answer%"=="y" (
-        echo Cleaning last build...
-        rmdir /s /q "%BUILD_DIR%"
-    ) else (
-        echo Cleanup last build - skipped.
-    )
-) else (
+if not exist "%BUILD_DIR%" (
     mkdir "%BUILD_DIR%"
+    goto :cmake
 )
+
+set /p answer="Do you want to cleanup last build? [y/N]: "
+
+if /i "%answer%"=="y" (
+    echo Cleaning last build...
+    rmdir /s /q "%BUILD_DIR%"
+    mkdir "%BUILD_DIR%"
+) else (
+    echo Cleanup last build - skipped.
+)
+
+:cmake
 
 cd "%BUILD_DIR%"
 

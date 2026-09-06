@@ -1,9 +1,11 @@
 #pragma once
 #include "Asset.hpp"
+
+#include <SFML/Audio/Sound.hpp>
+
 #include <limits>
 #include <unordered_map>
 #include <string>
-#include <SFML/Audio/Sound.hpp>
 
 
 namespace BM

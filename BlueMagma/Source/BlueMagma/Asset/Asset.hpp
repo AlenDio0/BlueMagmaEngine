@@ -1,19 +1,19 @@
 #pragma once
 #include "DefaultFont.hpp"
-#include "Core/Vec2.hpp"
-#include <cstdint>
-#include <filesystem>
+#include "Math/Vec2.hpp"
+
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/Graphics/Image.hpp>
 #include <SFML/Graphics/Font.hpp>
 #include <SFML/Audio/SoundBuffer.hpp>
 
+#include <cstdint>
+#include <filesystem>
+
 namespace BM
 {
 	class AssetHandle
 	{
-	public:
-		using AssetPath = std::filesystem::path;
 	public:
 		inline AssetHandle() noexcept = default;
 		inline virtual ~AssetHandle() noexcept = default;
@@ -32,7 +32,7 @@ namespace BM
 	public:
 		inline Texture()
 			: sf::Texture() {}
-		inline explicit Texture(const AssetPath& path)
+		inline explicit Texture(const std::filesystem::path& path)
 			: sf::Texture(path) {}
 		inline explicit Texture(const sf::Image& image)
 			: sf::Texture(image) {}
@@ -57,7 +57,7 @@ namespace BM
 	public:
 		inline Font()
 			: sf::Font() {}
-		inline explicit Font(const AssetPath& path)
+		inline explicit Font(const std::filesystem::path& path)
 			: sf::Font(path) {}
 		inline explicit Font(const void* data, size_t bytesSize)
 			: sf::Font(data, bytesSize) {}
@@ -75,7 +75,7 @@ namespace BM
 	public:
 		inline SoundBuffer()
 			: sf::SoundBuffer() {}
-		inline explicit SoundBuffer(const AssetPath& path)
+		inline explicit SoundBuffer(const std::filesystem::path& path)
 			: sf::SoundBuffer(path) {}
 
 		inline static const SoundBuffer& GetDefault() noexcept {

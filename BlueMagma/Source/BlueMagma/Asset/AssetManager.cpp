@@ -1,7 +1,9 @@
 #include "bmpch.hpp"
 #include "AssetManager.hpp"
-#include <functional>
+
 #include <yaml-cpp/yaml.h>
+
+#include <functional>
 
 namespace BM
 {

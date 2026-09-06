@@ -1,10 +1,9 @@
 #pragma once
 #include "Scene/System/ISystem.hpp"
-#include "Base/EventDispatcher.hpp"
-#include "Scene/Scene.hpp"
-#include "Scene/EntityHandle.hpp"
-#include "Scene/Component/UI.hpp"
+
 #include "Core/Timer.hpp"
+#include "Scene/Scene.hpp"
+#include "Scene/Component/UI.hpp"
 
 namespace BM::UI
 {

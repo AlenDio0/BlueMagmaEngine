@@ -1,5 +1,6 @@
 #pragma once
 #include <SFML/Graphics/Color.hpp>
+
 #include <cstdint>
 
 namespace BM

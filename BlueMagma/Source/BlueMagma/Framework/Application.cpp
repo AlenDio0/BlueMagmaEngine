@@ -1,6 +1,8 @@
 #include "bmpch.hpp"
 #include "Application.hpp"
+
 #include "Core/Timer.hpp"
+
 #include <algorithm>
 
 namespace BM

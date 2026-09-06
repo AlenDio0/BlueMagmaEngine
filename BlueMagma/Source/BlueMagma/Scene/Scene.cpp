@@ -1,5 +1,6 @@
 #include "bmpch.hpp"
 #include "Scene.hpp"
+
 #include "Entity.hpp"
 
 namespace BM

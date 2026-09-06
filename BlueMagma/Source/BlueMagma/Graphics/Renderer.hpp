@@ -1,7 +1,9 @@
 #pragma once
-#include "Core/Color.hpp"
-#include "Core/Vec2.hpp"
-#include "Core/Camera2D.hpp"
+#include "Camera2D.hpp"
+
+#include "Math/Color.hpp"
+#include "Math/Vec2.hpp"
+
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/RenderStates.hpp>
 #include <SFML/Graphics/Drawable.hpp>

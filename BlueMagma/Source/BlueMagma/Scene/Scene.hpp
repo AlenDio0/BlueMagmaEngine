@@ -1,12 +1,14 @@
 #pragma once
-#include "Core/Assert.hpp"
-#include "System/ISystem.hpp"
 #include "EntityHandle.hpp"
 #include "Component/Base.hpp"
-#include "Base/EventDispatcher.hpp"
-#include "Base/Renderer.hpp"
+#include "System/ISystem.hpp"
+#include "Core/Assert.hpp"
+#include "Event/Event.hpp"
+#include "Graphics/Renderer.hpp"
+
 #include <entt/entt.hpp>
 #include <entt/entity/fwd.hpp>
+
 #include <vector>
 #include <typeindex>
 #include <algorithm>

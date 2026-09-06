@@ -1,8 +1,10 @@
 #pragma once
-#include "Core/Vec2.hpp"
-#include "EventDispatcher.hpp"
+#include "Math/Vec2.hpp"
+#include "Event/EventDispatcher.hpp"
+
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Window/WindowEnums.hpp>
+
 #include <string>
 #include <cstdint>
 #include <vector>

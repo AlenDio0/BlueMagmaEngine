@@ -1,5 +1,7 @@
 #include "bmpch.hpp"
 #include "WidgetSystem.hpp"
+
+#include "Event/EventDispatcher.hpp"
 #include "Scene/Scene.hpp"
 
 namespace BM::UI

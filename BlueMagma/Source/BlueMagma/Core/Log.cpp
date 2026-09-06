@@ -1,5 +1,6 @@
 #include "bmpch.hpp"
 #include "Log.hpp"
+
 #include <spdlog/spdlog.h>
 #include <spdlog/common.h>
 #include <spdlog/logger.h>

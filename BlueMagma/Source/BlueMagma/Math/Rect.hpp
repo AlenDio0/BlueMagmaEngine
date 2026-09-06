@@ -1,6 +1,8 @@
 #pragma once
 #include "Vec2.hpp"
+
 #include <SFML/Graphics/Rect.hpp>
+
 #include <format>
 
 namespace BM

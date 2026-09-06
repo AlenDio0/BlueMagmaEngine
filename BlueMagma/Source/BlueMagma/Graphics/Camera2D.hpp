@@ -1,7 +1,8 @@
 #pragma once
-#include "Vec2.hpp"
-#include "Rect.hpp"
-#include "Base/EventDispatcher.hpp"
+#include "Math/Vec2.hpp"
+#include "Math/Rect.hpp"
+#include "Event/Event.hpp"
+
 #include <SFML/Graphics/View.hpp>
 
 namespace BM

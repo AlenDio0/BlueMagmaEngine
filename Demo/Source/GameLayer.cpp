@@ -1,9 +1,9 @@
 #include "GameLayer.hpp"
 #include "DemoLayer.hpp"
 #include "PaddleLayer.hpp"
-#include <BlueMagma/Base/Application.hpp>
+#include <BlueMagma/Framework/Application.hpp>
 #include <BlueMagma/Core/Log.hpp>
-#include <BlueMagma/Core/Color.hpp>
+#include <BlueMagma/Math/Color.hpp>
 #include <BlueMagma/Core/Random.hpp>
 #include <Scene/Entity.hpp>
 #include <Scene/System/TransformSystem.hpp>

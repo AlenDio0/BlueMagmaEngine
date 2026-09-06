@@ -1,6 +1,6 @@
 #pragma once
-#include <BlueMagma/Base/Layer/AppLayer.hpp>
-#include <BlueMagma/Base/Asset/SoundManager.hpp>
+#include <BlueMagma/Framework/Layer/AppLayer.hpp>
+#include <BlueMagma/Asset/SoundManager.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 
 class DemoLayer : public BM::AppLayer

@@ -1,10 +1,9 @@
 #pragma once
 #include "Layer.hpp"
-#include "Base/Application.hpp"
-#include "Base/Window.hpp"
-#include "Base/Renderer.hpp"
 #include "LayerMachine.hpp"
-#include "Base/Asset/AssetManager.hpp"
+
+#include "Framework/Application.hpp"
+
 #include <concepts>
 #include <memory>
 

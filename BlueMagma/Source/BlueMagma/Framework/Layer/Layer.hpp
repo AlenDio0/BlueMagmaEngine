@@ -1,5 +1,5 @@
 #pragma once
-#include "Base/EventDispatcher.hpp"
+#include "Event/Event.hpp"
 
 namespace BM
 {

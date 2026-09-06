@@ -1,8 +1,10 @@
 #pragma once
-#include "Window.hpp"
-#include "EventDispatcher.hpp"
 #include "Layer/LayerMachine.hpp"
+
+#include "Event/Event.hpp"
+#include "Graphics/Window.hpp"
 #include "Asset/AssetManager.hpp"
+
 #include <concepts>
 #include <memory>
 #include <cstdint>

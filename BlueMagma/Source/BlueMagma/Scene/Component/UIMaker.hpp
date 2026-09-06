@@ -1,9 +1,10 @@
 #pragma once
-#include "Scene/Scene.hpp"
-#include "Scene/Entity.hpp"
 #include "Base.hpp"
 #include "UI.hpp"
-#include "Core/Vec2.hpp"
+#include "Math/Vec2.hpp"
+#include "Scene/Scene.hpp"
+#include "Scene/Entity.hpp"
+
 #include <optional>
 
 namespace BM::UIMaker

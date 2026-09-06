@@ -1,7 +1,10 @@
 #include "bmpch.hpp"
 #include "TransformSystem.hpp"
+
 #include "Scene/Scene.hpp"
+
 #include <entt/entity/fwd.hpp>
+
 #include <SFML/System/Angle.hpp>
 
 namespace BM

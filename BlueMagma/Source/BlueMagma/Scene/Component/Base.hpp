@@ -1,10 +1,12 @@
 #pragma once
-#include "Core/Vec2.hpp"
-#include "Core/Color.hpp"
-#include "Core/Transform2D.hpp"
-#include "Base/Asset/Asset.hpp"
-#include "Core/Rect.hpp"
+#include "Math/Vec2.hpp"
+#include "Math/Rect.hpp"
+#include "Math/Color.hpp"
+#include "Math/Transform2D.hpp"
+#include "Asset/Asset.hpp"
+
 #include <SFML/Graphics/Text.hpp>
+
 #include <string>
 #include <cstdint>
 #include <optional>

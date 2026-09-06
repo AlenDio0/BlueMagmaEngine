@@ -1,9 +1,12 @@
 #pragma once
 #include "WindowContext.hpp"
 #include "Renderer.hpp"
-#include "Core/Vec2.hpp"
+
+#include "Math/Vec2.hpp"
+
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/Image.hpp>
+
 #include <memory>
 #include <string>
 #include <cstdint>

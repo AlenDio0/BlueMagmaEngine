@@ -1,6 +1,5 @@
 #pragma once
 #include "Scene/System/ISystem.hpp"
-#include "Base/EventDispatcher.hpp"
 
 namespace BM::UI
 {

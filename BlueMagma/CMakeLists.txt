@@ -9,42 +9,50 @@ set(SOURCES
     Source/BlueMagma/Core/Log.hpp
     Source/BlueMagma/Core/Log.cpp
     Source/BlueMagma/Core/Assert.hpp
-    Source/BlueMagma/Core/Utils.hpp
-    Source/BlueMagma/Core/Utils.cpp
-    Source/BlueMagma/Core/Vec2.hpp
-    Source/BlueMagma/Core/Rect.hpp
-    Source/BlueMagma/Core/Color.hpp
-    Source/BlueMagma/Core/Transform2D.hpp
     Source/BlueMagma/Core/Random.hpp
     Source/BlueMagma/Core/Random.cpp
+    Source/BlueMagma/Core/Utils.hpp
+    Source/BlueMagma/Core/Utils.cpp
     Source/BlueMagma/Core/Timer.hpp
     Source/BlueMagma/Core/Timer.cpp
-    Source/BlueMagma/Core/Camera2D.hpp
-    Source/BlueMagma/Core/Camera2D.cpp
+    
+    # Math
+    Source/BlueMagma/Math/Vec2.hpp
+    Source/BlueMagma/Math/Rect.hpp
+    Source/BlueMagma/Math/Color.hpp
+    Source/BlueMagma/Math/Transform2D.hpp
+    
+    # Event
+    Source/BlueMagma/Event/Event.hpp
+    Source/BlueMagma/Event/EventDispatcher.hpp
 
-    # Base
-    Source/BlueMagma/Base/Application.hpp
-    Source/BlueMagma/Base/Application.cpp
-    Source/BlueMagma/Base/WindowContext.hpp
-    Source/BlueMagma/Base/WindowContext.cpp
-    Source/BlueMagma/Base/Window.hpp
-    Source/BlueMagma/Base/Window.cpp
-    Source/BlueMagma/Base/Renderer.hpp
-    Source/BlueMagma/Base/Renderer.cpp
-    Source/BlueMagma/Base/EventDispatcher.hpp
-    # Base/Asset
-    Source/BlueMagma/Base/Asset/DefaultFont.hpp
-    Source/BlueMagma/Base/Asset/Asset.hpp
-    Source/BlueMagma/Base/Asset/AssetManager.hpp
-    Source/BlueMagma/Base/Asset/AssetManager.cpp
-    Source/BlueMagma/Base/Asset/SoundManager.hpp
-    Source/BlueMagma/Base/Asset/SoundManager.cpp
-    # Base/Layer
-    Source/BlueMagma/Base/Layer/Layer.hpp
-    Source/BlueMagma/Base/Layer/AppLayer.hpp
-    Source/BlueMagma/Base/Layer/AppLayer.cpp
-    Source/BlueMagma/Base/Layer/LayerMachine.hpp
-    Source/BlueMagma/Base/Layer/LayerMachine.cpp
+    # Graphics
+    Source/BlueMagma/Graphics/Camera2D.hpp
+    Source/BlueMagma/Graphics/Camera2D.cpp
+    Source/BlueMagma/Graphics/Renderer.hpp
+    Source/BlueMagma/Graphics/Renderer.cpp
+    Source/BlueMagma/Graphics/WindowContext.hpp
+    Source/BlueMagma/Graphics/WindowContext.cpp
+    Source/BlueMagma/Graphics/Window.hpp
+    Source/BlueMagma/Graphics/Window.cpp
+
+    # Framework
+    Source/BlueMagma/Framework/Application.hpp
+    Source/BlueMagma/Framework/Application.cpp
+    # Framework/Layer
+    Source/BlueMagma/Framework/Layer/Layer.hpp
+    Source/BlueMagma/Framework/Layer/AppLayer.hpp
+    Source/BlueMagma/Framework/Layer/AppLayer.cpp
+    Source/BlueMagma/Framework/Layer/LayerMachine.hpp
+    Source/BlueMagma/Framework/Layer/LayerMachine.cpp
+
+    # Asset
+    Source/BlueMagma/Asset/DefaultFont.hpp
+    Source/BlueMagma/Asset/Asset.hpp
+    Source/BlueMagma/Asset/AssetManager.hpp
+    Source/BlueMagma/Asset/AssetManager.cpp
+    Source/BlueMagma/Asset/SoundManager.hpp
+    Source/BlueMagma/Asset/SoundManager.cpp
 
     # Scene
     Source/BlueMagma/Scene/Scene.hpp

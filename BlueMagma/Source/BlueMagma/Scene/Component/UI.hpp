@@ -1,8 +1,9 @@
 #pragma once
+#include "Math/Vec2.hpp"
+#include "Math/Color.hpp"
+#include "Event/Event.hpp"
 #include "Scene/Entity.hpp"
-#include "Core/Vec2.hpp"
-#include "Core/Color.hpp"
-#include "Base/EventDispatcher.hpp"
+
 #include <functional>
 #include <string>
 #include <cstdint>
