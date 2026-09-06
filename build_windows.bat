@@ -9,7 +9,7 @@ if exist "%BUILD_DIR%" (
         echo Cleaning last build...
         rmdir /s /q "%BUILD_DIR%"
     ) else (
-        echo "Cleanup last build - skipped."
+        echo Cleanup last build - skipped.
     )
 ) else (
     mkdir "%BUILD_DIR%"
@@ -26,15 +26,23 @@ if %errorlevel% neq 0 (
     exit /b 1
 )
 
-echo Starting build...
-cmake --build . --config Release
+set /p answer="Do you want to build the project? [y/N]: "
 
-if %errorlevel% equ 0 (
-    echo Build completed!
-    pause
-    exit /b 0
+if /i "%answer%"=="y" (
+    echo Starting build...
+    cmake --build . --config Release
+
+    if %errorlevel% equ 0 (
+        echo Build completed!
+    ) else (
+        echo Error during build!
+        pause
+        exit /b 1
+    )
 ) else (
-    echo Error during build!
-    pause
-    exit /b 1
+    echo Build project - skipped.
 )
+
+echo Building finished!
+pause
+exit /b 0

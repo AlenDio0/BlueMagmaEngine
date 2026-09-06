@@ -47,13 +47,21 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-echo "Starting build..."
-cmake --build . --config Release
+read -p "Do you want to build the project? [y/N]: " answer
 
-if [ $? -eq 0 ]; then
-    echo "Build completed!"
-    exit 0
+if [[ "$answer" =~ ^[Yy]$ ]]; then
+    echo "Starting build..."
+    cmake --build . --config Release
+
+    if [ $? -eq 0 ]; then
+        echo "Build completed!"
+    else
+        echo "Error during build!"
+        exit 1
+    fi
 else
-    echo "Error during build!"
-    exit 1
+    echo "Build project - skipped."
 fi
+
+echo "Building finished!"
+exit 0
