@@ -54,6 +54,10 @@ chmod +x ./build_macos.sh
 ./build_macos.sh
 ```
 
+## Examples
+<img width="640" height="360" alt="Paddle Example Screenshot" src="https://github.com/user-attachments/assets/add6fbc7-a05d-4a2a-8a94-25ca087a3f7f" />
+<img width="640" height="360" alt="Demo Example Screenshot" src="https://github.com/user-attachments/assets/d83d4fa5-cda8-4579-b639-22a243cd1251" />
+
 ## External libraries
 - ### [SFML](https://github.com/SFML/SFML.git)
 - ### [yaml-cpp](https://github.com/jbeder/yaml-cpp.git)
