@@ -90,6 +90,8 @@ namespace BM
 		Entity CreateEntityWithParent(EntityHandle parent, const Component::Transform::LocalSpace& transform = {}) noexcept;
 		Entity GetEntity(EntityHandle handle) noexcept;
 
+		void ClearEntities() noexcept;
+		void ClearContext() noexcept;
 		void Clear() noexcept;
 		void Destroy(EntityHandle handle) noexcept;
 

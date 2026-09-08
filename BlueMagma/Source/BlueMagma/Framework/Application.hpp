@@ -13,13 +13,17 @@ namespace BM
 {
 	struct ApplicationContext
 	{
-		bool DefaultWindowCloseEvent = true;
-		bool StopOnWindowCloseEvent = true;
-
 		uint32_t TPSLimit = 30u;
 		float MaxLagTime = 1.f;
 		float TimeScale = 1.f;
+
+		bool DefaultWindowCloseEvent = true;
+		bool StopOnWindowCloseEvent = true;
 	};
+
+	//======================================================================================
+
+	class AppLayer;
 
 	//======================================================================================
 
@@ -30,9 +34,7 @@ namespace BM
 		AssetManager Assets;
 	public:
 		Application(const ApplicationContext& appContext = {}) noexcept;
-		~Application() noexcept;
-
-		static Application& Get() noexcept;
+		virtual ~Application() noexcept;
 
 		//======================================================================================
 
@@ -58,10 +60,13 @@ namespace BM
 
 		//======================================================================================
 
-		template<std::derived_from<Layer> TLayer, typename... TArgs>
+		template<std::derived_from<AppLayer> TAppLayer, typename... TArgs>
 		inline void QueuePushLayer(TArgs&&... args) noexcept {
-			BM_CORE_DEBUG_FN_ARGS(args...);
-			Layers.QueuePush(std::move(std::make_unique<TLayer>(std::forward<TArgs>(args)...)));
+			BM_CORE_DEBUG_FN("Requested to push an AppLayer into the LayerMachine");
+
+			auto layer = std::make_unique<TAppLayer>(std::forward<TArgs>(args)...);
+			layer->AttachApplication(this);
+			Layers.QueuePush(std::move(layer));
 		}
 	private:
 		void EventCallback(Event& event) noexcept;
@@ -73,7 +78,5 @@ namespace BM
 		std::unique_ptr<Window> m_Window;
 
 		bool m_Running = false;
-	private:
-		static inline Application* s_Instance = nullptr;
 	};
 }

@@ -19,18 +19,24 @@
 #include <cctype>
 
 GameLayer::GameLayer() noexcept
-	: m_ActiveCameraPtr(&m_MainCamera), m_MainCamera(GetRenderer().GetCamera()), m_ButtonCamera(GetRenderer().GetCamera()),
-	m_ButtonSpeedFactor(1.f)
+	: m_ActiveCameraPtr(&m_MainCamera), m_ButtonSpeedFactor(1.f)
 {
-	m_ButtonCamera.SetViewport({ 0.75f, 0.5f, 0.25f, 0.5f }, GetWindow().GetSize());
-
-	m_SoundManager.Add("sound", GetAsset<BM::SoundBuffer>("Generic"));
-
-	m_Scene.AttachRenderer(GetRenderer());
-
 	m_Scene.AddSystem<BM::TransformSystem>(100);
 	m_Scene.AddSystem<BM::UISystem>(200);
 	m_Scene.AddSystem<BM::RenderSystem>();
+}
+
+void GameLayer::OnAttachApplication() noexcept
+{
+	BM_FN();
+
+	m_Scene.AttachRenderer(GetRenderer());
+
+	m_MainCamera = BM::Camera2D(GetRenderer().GetCamera());
+	m_ButtonCamera = BM::Camera2D(GetRenderer().GetCamera());
+
+	m_ButtonCamera.SetViewport({ 0.75f, 0.5f, 0.25f, 0.5f }, GetWindow().GetSize());
+
 }
 
 void GameLayer::OnAttach() noexcept
@@ -312,7 +318,7 @@ bool GameLayer::OnKeyPressed(const BM::EventHandle::KeyPressed& keyPressed) noex
 		using Key = sf::Keyboard::Key;
 
 	case Key::P:
-		QueueTransitionTo<PaddleLayer>();
+		QueueTransitionTo<Paddle::PaddleLayer>();
 		break;
 	case Key::G:
 		QueueTransitionTo<GameLayer>();

@@ -3,9 +3,16 @@
 
 namespace BM
 {
+	void AppLayer::AttachApplication(Application* applicationPtr) noexcept
+	{
+		m_ApplicationPtr = applicationPtr;
+		OnAttachApplication();
+	}
+
 	Application& AppLayer::GetApp() const noexcept
 	{
-		return Application::Get();
+		BM_CORE_ASSERT(m_ApplicationPtr != nullptr, "Application is not accessible");
+		return *m_ApplicationPtr;
 	}
 
 	Window& AppLayer::GetWindow() const noexcept

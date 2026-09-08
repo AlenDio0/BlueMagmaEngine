@@ -10,6 +10,7 @@ namespace BM
 	class Camera2D
 	{
 	public:
+		Camera2D() noexcept;
 		explicit Camera2D(RectFloat rect) noexcept;
 		explicit Camera2D(Vec2f size) noexcept;
 		explicit Camera2D(const sf::View& view, float zoomFactor = 1.f) noexcept;

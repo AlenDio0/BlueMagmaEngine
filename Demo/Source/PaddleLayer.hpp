@@ -7,80 +7,104 @@
 #include <BlueMagma/Scene/Entity.hpp>
 #include <SFML/Window/Keyboard.hpp>
 
-class PaddleLayer : public BM::AppLayer
+namespace Paddle
 {
-public:
-	PaddleLayer() noexcept;
+	namespace Component
+	{
+		struct Score
+		{
+			uint32_t Score;
+			BM::Entity Text;
+		};
 
-	virtual void OnAttach() noexcept override;
+		struct BotTag {};
 
-	virtual void OnEvent(BM::Event& event) noexcept override;
-	virtual void OnTick(float timeStep) noexcept override;
-	virtual void OnUpdate(float deltaTime) noexcept override;
-	virtual void OnRender() noexcept override;
-private:
-	bool OnKeyPressed(const BM::EventHandle::KeyPressed& keyPressed) noexcept;
+		struct Bot
+		{
+			float TargetY = 0.f;
+			float TargetOffsetY = 0.f;
+		};
+	}
 
-	BM::Entity CreatePaddle(BM::Component::Transform::LocalSpace transform) noexcept;
+	inline const BM::WindowContext g_WindowContext{ .InitialMode{{1280u, 720u}}, .SavePositionMemoryOnClose = false, .UsePositionMemoryOnOpen = false };
 
-	void TickBotPaddle(BM::Entity paddle, float timeStep) noexcept;
+	class PaddleLayer : public BM::AppLayer
+	{
+	public:
+		PaddleLayer(const BM::WindowContext& windowContext = g_WindowContext, bool desktopMode = false) noexcept;
 
-	void UpdatePlayerPaddle(BM::Entity paddle, sf::Keyboard::Key upKey, sf::Keyboard::Key downKey, float deltaTime) noexcept;
-	void UpdateBotPaddle(BM::Entity paddle, float targetY, float deltaTime) noexcept;
-	void UpdatePaddle(BM::Entity paddle, float directionY, float deltaTime) noexcept;
-	void UpdateBall(float deltaTime) noexcept;
+		virtual void OnAttachApplication() noexcept override;
 
-	bool CheckPaddleCollision(BM::Entity paddle) const noexcept;
-	void HandlePaddleCollision(BM::Entity paddle) noexcept;
+		virtual void OnAttach() noexcept override;
 
-	float PredictBallTargetY(float paddleX) const noexcept;
+		virtual void OnEvent(BM::Event& event) noexcept override;
+		virtual void OnTick(float timeStep) noexcept override;
+		virtual void OnUpdate(float deltaTime) noexcept override;
+		virtual void OnRender() noexcept override;
+	private:
+		void InitEntities() noexcept;
 
-	float CalculatePaddleSpeed() const noexcept;
-	float CalculateBallSpeed() const noexcept;
+		bool OnKeyPressed(const BM::EventHandle::KeyPressed& keyPressed) noexcept;
+		bool OnResized(const BM::EventHandle::Resized& resized) noexcept;
 
-	void ResetPaddle() noexcept;
-	void ResetBall() noexcept;
-	void StartBall() noexcept;
+		BM::Entity CreatePaddle(const BM::Component::Transform::LocalSpace& transform, const BM::Component::TextRender& textRender, BM::Component::Transform::LocalSpace scoreTransform) noexcept;
 
-	void StartNewGame() noexcept;
+		void TickBotPaddle(BM::Entity paddle, float timeStep) noexcept;
 
-	void UpdateWindowTitle() noexcept;
-private:
-	const char* m_WindowTitle = "Paddle Game";
-	BM::WindowContext m_WindowContext = GetWindow().Context;
+		void UpdatePlayerPaddle(BM::Entity paddle, sf::Keyboard::Key upKey, sf::Keyboard::Key downKey, float deltaTime) noexcept;
+		void UpdateBotPaddle(BM::Entity paddle, float deltaTime) noexcept;
+		void UpdatePaddle(BM::Entity paddle, float directionY, float deltaTime) noexcept;
+		void UpdateBall(float deltaTime) noexcept;
 
-	size_t m_TickFromStartCounter = 0ull;
+		void AddScore(BM::Entity entity) noexcept;
+		void PatchScore(BM::Entity entity, uint32_t score) noexcept;
 
-	BM::Camera2D m_MainCamera;
+		bool IsBot(BM::Entity entity) const noexcept;
+		void ToggleBot(BM::Entity entity) noexcept;
 
-	BM::Scene m_Scene;
+		bool CheckPaddleCollision(BM::Entity paddle) const noexcept;
+		void HandlePaddleCollision(BM::Entity paddle) noexcept;
 
-	BM::Entity m_LeftPaddle;
-	BM::Entity m_RightPaddle;
+		float PredictBallTargetY(float paddleX) const noexcept;
 
-	bool m_IsLeftBot = false;
-	bool m_IsRightBot = false;
-	float m_LeftBotTargetY = 0.f;
-	float m_RightBotTargetY = 0.f;
-	float m_LeftBotTargetOffsetY = 0.f;
-	float m_RightBotTargetOffsetY = 0.f;
+		float GetPaddleSpeed() const noexcept;
+		float GetBallSpeed() const noexcept;
 
-	BM::Entity m_Ball;
-	BM::Vec2f m_BallVelocity{};
-	float m_BallSpeedFactor = 1.f;
+		void ResetPaddle() noexcept;
+		void ResetBall() noexcept;
+		void StartBall() noexcept;
 
-	BM::Entity m_BallSpeedFactorText;
+		void StartNewGame() noexcept;
 
-	BM::Entity m_TimerText;
-	uint16_t m_Timer = 0u;
+		void SetDesktopMode(bool desktopMode) noexcept;
+		void UpdateWindowTitle() noexcept;
+	private:
+		const char* m_WindowTitle = "Paddle Game";
+		BM::WindowContext m_WindowContext;
 
-	BM::Entity m_LeftScoreText;
-	BM::Entity m_RightScoreText;
-	uint16_t m_LeftScore = 0u;
-	uint16_t m_RightScore = 0u;
+		size_t m_TickFromStartCounter = 0ull;
 
-	//BM::Entity m_FPSText;
-	//BM::Entity m_TPSText;
+		BM::Camera2D m_MainCamera;
 
-	bool m_DesktopMode = false;
-};
+		BM::Scene m_Scene;
+
+		BM::Entity m_Background;
+
+		BM::Entity m_LeftPaddle;
+		BM::Entity m_RightPaddle;
+
+		BM::Entity m_Ball;
+		BM::Vec2f m_BallVelocity{};
+		float m_BallSpeedFactor = 1.f;
+
+		BM::Entity m_BallSpeedFactorText;
+
+		BM::Entity m_TimerText;
+		uint16_t m_Timer = 0u;
+
+		//BM::Entity m_FPSText;
+		//BM::Entity m_TPSText;
+
+		bool m_DesktopMode = false;
+	};
+}

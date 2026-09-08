@@ -3,6 +3,11 @@
 
 namespace BM
 {
+	Camera2D::Camera2D::Camera2D() noexcept
+		: Camera2D(Vec2f::Zero())
+	{
+	}
+
 	Camera2D::Camera2D(RectFloat rect) noexcept
 		: Camera2D(rect.Size, rect.Center())
 	{

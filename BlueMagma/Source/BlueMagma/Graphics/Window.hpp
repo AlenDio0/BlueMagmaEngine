@@ -60,6 +60,7 @@ namespace BM
 		std::unique_ptr<Renderer> m_Renderer;
 		std::unique_ptr<sf::RenderWindow> m_Handle;
 
+		mutable Vec2i m_WindowPosition{ -1, -1 };
 		mutable bool m_FocusState = false;
 	};
 }

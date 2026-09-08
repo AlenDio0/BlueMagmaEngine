@@ -57,14 +57,19 @@ namespace BM
 		uint32_t InitialStyle = WindowStyle::Default;
 		WindowState InitialState = WindowState::Windowed;
 
+		bool SavePositionMemoryOnClose = true;
+		bool UsePositionMemoryOnOpen = true;
+
+		bool VSync = false;
+
 		std::string Title = "BlueMagma Window";
 
 		uint32_t FPSLimit = 0u;
-		bool VSync = false;
 
 		std::filesystem::path IconPath = "";
 
 		using EventCallbackFn = std::function<void(Event&)>;
 		EventCallbackFn EventCallback = nullptr;
+
 	};
 }

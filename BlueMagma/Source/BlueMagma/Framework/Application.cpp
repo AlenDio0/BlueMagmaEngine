@@ -10,22 +10,13 @@ namespace BM
 	Application::Application(const ApplicationContext& appContext) noexcept
 		: m_Context(appContext)
 	{
-		BM_CORE_DEBUG_FN_ARGS(appContext.DefaultWindowCloseEvent, appContext.StopOnWindowCloseEvent, appContext.TPSLimit, appContext.MaxLagTime, appContext.TimeScale);
-
-		BM_CORE_ASSERT(s_Instance == nullptr, "Application already created");
-		s_Instance = this;
+		BM_CORE_DEBUG_FN_ARGS(appContext.TPSLimit, appContext.MaxLagTime, appContext.TimeScale);
+		BM_CORE_DEBUG_FN_ARGS(appContext.DefaultWindowCloseEvent, appContext.StopOnWindowCloseEvent);
 	}
 
 	Application::~Application() noexcept
 	{
 		BM_CORE_INFO_FN("Application is being destroyed");
-		s_Instance = nullptr;
-	}
-
-	Application& Application::Get() noexcept
-	{
-		BM_CORE_ASSERT(s_Instance != nullptr, "Application not created");
-		return *s_Instance;
 	}
 
 	void Application::SetDefaultWindowCloseEvent(bool flag) noexcept
@@ -124,14 +115,12 @@ namespace BM
 			windowContext.EventCallback = [&](Event& event) { EventCallback(event); };
 
 		if (m_Window)
-		{
 			m_Window->Context = windowContext;
-			m_Window->ApplyContext();
-		}
 		else
 			m_Window = std::make_unique<Window>(windowContext);
 
 		m_Window->Create();
+
 	}
 
 	Window& Application::GetWindow() noexcept

@@ -12,6 +12,8 @@ class GameLayer : public BM::AppLayer
 public:
 	GameLayer() noexcept;
 
+	virtual void OnAttachApplication() noexcept override;
+
 	virtual void OnAttach() noexcept override;
 	virtual void OnDetach() noexcept override;
 	virtual void OnTransition() noexcept override;

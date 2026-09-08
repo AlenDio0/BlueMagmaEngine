@@ -18,7 +18,9 @@ namespace BM
 
 	void BM::Window::Create() noexcept
 	{
+		BM_CORE_DEBUG_FN_ARGS(Context.InitialMode.Size, Context.InitialMode.BitsPerPixel);
 		BM_CORE_DEBUG_FN_ARGS(Context.InitialStyle, static_cast<uint8_t>(Context.InitialState));
+		BM_CORE_DEBUG_FN_ARGS(Context.SavePositionMemoryOnClose, Context.UsePositionMemoryOnOpen);
 
 		if (!m_Handle)
 			m_Handle = std::make_unique<sf::RenderWindow>();
@@ -32,6 +34,9 @@ namespace BM
 			m_Renderer = std::make_unique<Renderer>(*m_Handle);
 
 		ApplyContext();
+
+		if (Context.UsePositionMemoryOnOpen && m_WindowPosition != Vec2i(-1, -1))
+			SetPosition(m_WindowPosition);
 
 		BM_CORE_INFO_FN("Window created");
 	}
@@ -74,6 +79,10 @@ namespace BM
 		{
 			BM_CORE_DEBUG_FN("Window was already closed, nothing changed");
 			return;
+		}
+		else if (Context.SavePositionMemoryOnClose)
+		{
+			m_WindowPosition = GetPosition();
 		}
 
 		GetHandle().close();

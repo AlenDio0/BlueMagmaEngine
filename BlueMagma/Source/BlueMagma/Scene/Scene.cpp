@@ -92,14 +92,32 @@ namespace BM
 		return Entity(this, handle);
 	}
 
-	void Scene::Clear() noexcept
+	void Scene::ClearEntities() noexcept
 	{
-		BM_CORE_DEBUG_FN("Scene is being cleared");
+		BM_CORE_FN("Scene entities is being cleared");
 
 		m_Registry.clear();
+
+		BM_CORE_DEBUG_FN("Scene entities cleared");
+	}
+
+	void Scene::ClearContext() noexcept
+	{
+		BM_CORE_FN("Scene context is being cleared");
+
 		m_Registry.ctx().clear();
 
-		BM_CORE_INFO_FN("Scene cleared");
+		BM_CORE_DEBUG_FN("Scene context cleared");
+	}
+
+	void Scene::Clear() noexcept
+	{
+		BM_CORE_FN("Scene is being cleared");
+
+		ClearEntities();
+		ClearContext();
+
+		BM_CORE_DEBUG_FN("Scene cleared");
 	}
 
 	void Scene::Destroy(EntityHandle handle) noexcept

@@ -48,15 +48,20 @@ namespace BM
 		{
 			const auto& local = transform.Local;
 
-			const float cParentRadiansRotation = sf::degrees(parentGlobal.Rotation).asRadians();
-			const float cCosRotation = std::cos(cParentRadiansRotation);
-			const float cSinRotation = std::sin(cParentRadiansRotation);
-
 			const Vec2f cScaledOffset = local.State.Position * parentGlobal.Scale;
-			const Vec2f cPositionOffset{ cScaledOffset.X * cCosRotation - cScaledOffset.Y * cSinRotation,
-				cScaledOffset.X * cSinRotation + cScaledOffset.Y * cCosRotation };
+			Vec2f positionOffset = cScaledOffset;
 
-			global.Position = parentGlobal.Position + cPositionOffset;
+			const float cParentRadiansRotation = sf::degrees(parentGlobal.Rotation).wrapUnsigned().asRadians();
+			if (cParentRadiansRotation != 0.f)
+			{
+				const float cCosRotation = std::cos(cParentRadiansRotation);
+				const float cSinRotation = std::sin(cParentRadiansRotation);
+
+				positionOffset.X = cScaledOffset.X * cCosRotation - cScaledOffset.Y * cSinRotation;
+				positionOffset.Y = cScaledOffset.X * cSinRotation + cScaledOffset.Y * cCosRotation;
+			}
+
+			global.Position = parentGlobal.Position + positionOffset;
 			global.Scale = parentGlobal.Scale * local.State.Scale;
 			global.Rotation = parentGlobal.Rotation + local.State.Rotation;
 			global.Z = parentGlobal.Z + local.Z;
