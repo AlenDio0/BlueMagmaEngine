@@ -1,8 +1,6 @@
 #include "bmpch.hpp"
 #include "Renderer.hpp"
 
-#include "Core/Assert.hpp"
-
 namespace BM
 {
 	Renderer::Renderer(sf::RenderWindow& handle) noexcept

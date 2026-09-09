@@ -3,19 +3,19 @@
 
 namespace BM
 {
-	Random::Random(uint32_t seed) noexcept
+	Random::Random(uint64_t seed) noexcept
 	{
 		SetSeed(seed);
 	}
 
-	void Random::SetSeed(uint32_t seed) noexcept
+	void Random::SetSeed(uint64_t seed) noexcept
 	{
 		m_Engine.seed(seed);
 	}
 
-	size_t Random::Generate(size_t min, size_t max) noexcept
+	uint64_t Random::Generate(uint64_t min, uint64_t max) noexcept
 	{
-		std::uniform_int_distribution<size_t> distribution{ min, max };
+		std::uniform_int_distribution<uint64_t> distribution{ min, max };
 		return distribution(m_Engine);
 	}
 

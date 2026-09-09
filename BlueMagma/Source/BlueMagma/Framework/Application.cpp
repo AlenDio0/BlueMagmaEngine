@@ -120,7 +120,6 @@ namespace BM
 			m_Window = std::make_unique<Window>(windowContext);
 
 		m_Window->Create();
-
 	}
 
 	Window& Application::GetWindow() noexcept
