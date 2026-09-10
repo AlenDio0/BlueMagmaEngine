@@ -31,7 +31,7 @@ namespace Paddle
 	class PaddleLayer : public BM::AppLayer
 	{
 	public:
-		PaddleLayer(const BM::WindowContext& windowContext = g_WindowContext, bool desktopMode = false) noexcept;
+		PaddleLayer() noexcept;
 
 		virtual void OnAttachApplication() noexcept override;
 
@@ -80,11 +80,13 @@ namespace Paddle
 		void UpdateWindowTitle() noexcept;
 	private:
 		const char* m_WindowTitle = "Paddle Game";
-		BM::WindowContext m_WindowContext;
+		BM::WindowContext m_WindowContext = g_WindowContext;
 
 		size_t m_TickFromStartCounter = 0ull;
 
 		BM::Camera2D m_MainCamera;
+
+		const BM::Font* m_MainFontPtr = nullptr;
 
 		BM::Scene m_Scene;
 

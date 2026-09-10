@@ -19,22 +19,23 @@ namespace BM
 			uniform bool uHasTexture;
 
 			void main() {
-				vec2 pixelCoord = gl_TexCoord[0].xy - 0.5;
+				vec2 pixelCoord = (gl_TexCoord[0].xy - 0.5) * uSize;
 				vec2 center = uSize * 0.5;
 
-				vec2 fullSize = uSize + 2.0;
-				vec2 cornerOffset = abs(pixelCoord * fullSize) - center + uCorner;
-				
+				vec2 cornerOffset = abs(pixelCoord) - center + vec2(uCorner);
 				float distance = length(max(cornerOffset, 0.0)) + min(max(cornerOffset.x, cornerOffset.y), 0.0) - uCorner;
 
-				float alpha = 1.0 - smoothstep(0.0, 1.0, distance);
+				float pixelSize = fwidth(distance);
+
+				float alpha = 1.0 - smoothstep(-pixelSize, 0.0, distance);
 				if (alpha <= 0.0)
 					discard;
 
 				vec4 finalColor = uHasTexture ? texture2D(uTexture, gl_TexCoord[0].xy) * gl_Color : gl_Color;
+        
 				if (uOutline > 0.0)
 				{
-					float outlineFactor = smoothstep(-uOutline - 1.0, -uOutline, distance);
+					float outlineFactor = smoothstep(-uOutline - pixelSize, -uOutline, distance);
 					finalColor = mix(gl_Color, uOutlineColor, outlineFactor);
 				}
 
@@ -49,19 +50,22 @@ namespace BM
 			uniform bool uHasTexture;
 
 			void main() {
-				vec2 pixelCoord = gl_TexCoord[0].xy - 0.5;
+				vec2 pixelCoord = (gl_TexCoord[0].xy - 0.5) * uRadius * 2.0;
 
-				float fullRadius = uRadius + 1.0;
-				float distance = (length(pixelCoord) * fullRadius * 2.0) - uRadius;
+				float distance = length(pixelCoord) - uRadius;
 
-				float alpha = 1.0 - smoothstep(0.0, 1.0, distance);
+				float pixelSize = fwidth(distance);
+
+				float alpha = 1.0 - smoothstep(-pixelSize, 0.0, distance);
 				if (alpha <= 0.0)
 					discard;
 
 				vec4 finalColor = uHasTexture ? texture2D(uTexture, gl_TexCoord[0].xy) * gl_Color : gl_Color;
+        
 				if (uOutline > 0.0)
 				{
-					float outlineFactor = smoothstep(-uOutline - 1.0, -uOutline, distance);
+					// Outline nitido calcolato sui pixel effettivi
+					float outlineFactor = smoothstep(-uOutline - pixelSize, -uOutline, distance);
 					finalColor = mix(gl_Color, uOutlineColor, outlineFactor);
 				}
 
@@ -220,7 +224,7 @@ namespace BM
 
 	void RenderSystem::OnRender(Scene& scene) const noexcept
 	{
-		Renderer* renderer = scene.GetRenderer();
+		auto renderer = scene.GetRenderer().lock();
 		if (!renderer)
 		{
 			static bool sLogWarned = false;

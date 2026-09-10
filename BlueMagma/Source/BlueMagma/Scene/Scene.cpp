@@ -131,18 +131,17 @@ namespace BM
 		return m_Registry.valid(handle);
 	}
 
-	void Scene::AttachRenderer(Renderer& renderer) noexcept
+	void Scene::AttachRenderer(std::weak_ptr<Renderer> renderer) noexcept
 	{
 		BM_CORE_FN("Scene is attaching a renderer");
-		AddOrReplaceCtxComponent<Renderer*>(&renderer);
+		AddOrReplaceCtxComponent<RendererComponent>(RendererComponent{ std::move(renderer) });
 	}
 
-	Renderer* Scene::GetRenderer() noexcept
+	std::weak_ptr<Renderer> Scene::GetRenderer() noexcept
 	{
-		auto renderer = TryGetCtxComponent<Renderer*>();
-		if (!renderer)
-			return nullptr;
+		if (auto rendererComponent = TryGetCtxComponent<RendererComponent>())
+			return rendererComponent->Renderer;
 
-		return *renderer;
+		return {};
 	}
 }

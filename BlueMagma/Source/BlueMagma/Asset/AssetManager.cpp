@@ -54,7 +54,7 @@ namespace BM
 		return true;
 	}
 
-	void AssetManager::LoadAsset(const std::string& key, std::unique_ptr<AssetHandle> asset) noexcept
+	void AssetManager::LoadAsset(const std::string& key, std::shared_ptr<AssetHandle> asset) noexcept
 	{
 		BM_CORE_FN_ARGS(key);
 
@@ -69,19 +69,19 @@ namespace BM
 		BM_CORE_INFO_FN("Loaded asset (key: '{}')", key);
 	}
 
-	const AssetHandle* AssetManager::GetAsset(const std::string& key) const noexcept
+	std::weak_ptr<AssetHandle> AssetManager::GetAsset(const std::string& key) noexcept
 	{
 		BM_CORE_FN_ARGS(key);
 
 		try
 		{
-			return m_Assets.at(key).get();
+			return m_Assets.at(key);
 		}
 		catch (const std::exception& e)
 		{
 			BM_CORE_ERROR_FN_ARGS(key);
 			BM_CORE_ERROR_FN("Cannot find asset, exception caught: {}", e.what());
-			return nullptr;
+			return {};
 		}
 	}
 }

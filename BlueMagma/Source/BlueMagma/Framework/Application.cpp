@@ -72,7 +72,8 @@ namespace BM
 				break;
 			}
 
-			GetWindow().PollEvents();
+			if (m_Window)
+				m_Window->PollEvents();
 
 			const auto& layers = Layers.GetLayers();
 
@@ -90,12 +91,16 @@ namespace BM
 			for (const auto& layer : layers)
 				layer->OnUpdate(deltaTime);
 
-			GetRenderer().Clear();
+			std::shared_ptr<Renderer> renderer = GetRenderer().lock();
+
+			if (renderer)
+				renderer->Clear();
 
 			for (const auto& layer : layers)
 				layer->OnRender();
 
-			GetRenderer().Display();
+			if (renderer)
+				renderer->Display();
 		}
 
 		Layers.Clear();
@@ -122,15 +127,17 @@ namespace BM
 		m_Window->Create();
 	}
 
-	Window& Application::GetWindow() noexcept
+	std::weak_ptr<Window> Application::GetWindow() noexcept
 	{
-		BM_CORE_ASSERT(m_Window != nullptr, "Window not created");
-		return *m_Window;
+		return m_Window;
 	}
 
-	Renderer& Application::GetRenderer() noexcept
+	std::weak_ptr<Renderer> Application::GetRenderer() noexcept
 	{
-		return GetWindow().GetRenderer();
+		if (m_Window)
+			return m_Window->GetRenderer();
+
+		return {};
 	}
 
 	void Application::EventCallback(Event& event) noexcept

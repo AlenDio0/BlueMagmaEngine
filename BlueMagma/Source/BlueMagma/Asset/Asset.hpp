@@ -63,8 +63,14 @@ namespace BM
 			: sf::Font(data, bytesSize) {}
 
 		inline static const Font& GetDefault() noexcept {
-			static Font* sFont = new Font{ DefaultFont::s_TinyTTFBytes, DefaultFont::s_TinyTTFLength };
+			static Font* sFont = new Font(CreateDefault());
 			return *sFont;
+		}
+	private:
+		inline static const Font CreateDefault() noexcept {
+			Font font{ DefaultFont::s_TinyTTFBytes, DefaultFont::s_TinyTTFLength };
+			font.setSmooth(false);
+			return font;
 		}
 	};
 

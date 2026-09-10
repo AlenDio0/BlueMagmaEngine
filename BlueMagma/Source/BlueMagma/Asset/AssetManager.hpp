@@ -18,15 +18,16 @@ namespace BM
 
 		//======================================================================================
 
-		void LoadAsset(const std::string& key, std::unique_ptr<AssetHandle> asset) noexcept;
+		void LoadAsset(const std::string& key, std::shared_ptr<AssetHandle> asset) noexcept;
+
 		template<std::derived_from<AssetHandle> TAsset>
 		inline bool Load(const std::string& key, const std::filesystem::path& path) noexcept {
 			BM_CORE_DEBUG_FN_ARGS(key, path.string());
-			std::unique_ptr<AssetHandle> asset;
+			std::shared_ptr<AssetHandle> asset;
 
 			try
 			{
-				asset = std::make_unique<TAsset>(path);
+				asset = std::make_shared<TAsset>(path);
 			}
 			catch (const std::exception& e)
 			{
@@ -42,8 +43,16 @@ namespace BM
 		//======================================================================================
 
 		template<std::derived_from<AssetHandle> TAsset>
-		inline const TAsset& Get(const std::string& key) const noexcept {
-			if (auto asset = dynamic_cast<const TAsset*>(GetAsset(key)))
+		inline std::weak_ptr<TAsset> Retrieve(const std::string& key) noexcept {
+			if (auto asset = std::dynamic_pointer_cast<TAsset>(GetAsset(key).lock()))
+				return asset;
+
+			return {};
+		}
+
+		template<std::derived_from<AssetHandle> TAsset>
+		inline const TAsset& Get(const std::string& key) noexcept {
+			if (const TAsset* asset = dynamic_cast<const TAsset*>(GetAsset(key).lock().get()))
 				return *asset;
 
 			BM_CORE_WARN_FN_ARGS(key);
@@ -51,8 +60,9 @@ namespace BM
 
 			return TAsset::GetDefault();
 		}
-		const AssetHandle* GetAsset(const std::string& key) const noexcept;
+
+		std::weak_ptr<AssetHandle> GetAsset(const std::string& key) noexcept;
 	private:
-		std::unordered_map<std::string, std::unique_ptr<AssetHandle>> m_Assets;
+		std::unordered_map<std::string, std::shared_ptr<AssetHandle>> m_Assets;
 	};
 }

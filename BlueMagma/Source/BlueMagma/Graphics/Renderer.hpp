@@ -1,10 +1,10 @@
 #pragma once
 #include "Camera2D.hpp"
+#include "WindowHandle.hpp"
 
 #include "Math/Color.hpp"
 #include "Math/Vec2.hpp"
 
-#include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/RenderStates.hpp>
 #include <SFML/Graphics/Drawable.hpp>
 #include <SFML/Graphics/Vertex.hpp>
@@ -16,7 +16,7 @@ namespace BM
 	class Renderer
 	{
 	public:
-		explicit Renderer(sf::RenderWindow& handle) noexcept;
+		explicit Renderer(std::weak_ptr<WindowHandle> handle) noexcept;
 
 		void Clear(Color color = ColorDef::Black) noexcept;
 		void Display() noexcept;
@@ -38,10 +38,11 @@ namespace BM
 		const Camera2D& GetCamera() const noexcept;
 		Camera2D GetDefaultCamera() const noexcept;
 
-		sf::RenderWindow& GetHandle() noexcept;
-		operator sf::RenderWindow& () noexcept;
+		std::weak_ptr<WindowHandle> GetHandle() const noexcept;
 	private:
-		sf::RenderWindow* m_HandlePtr = nullptr;
+		std::shared_ptr<WindowHandle> GetHandleRef() const noexcept;
+	private:
+		std::weak_ptr<WindowHandle> m_Handle;
 		Camera2D m_Camera;
 	};
 }

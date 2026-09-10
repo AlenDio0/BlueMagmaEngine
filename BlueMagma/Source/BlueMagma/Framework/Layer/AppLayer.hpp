@@ -26,8 +26,8 @@ namespace BM
 	protected:
 		Application& GetApp() const noexcept;
 
-		Window& GetWindow() const noexcept;
-		Renderer& GetRenderer() const noexcept;
+		std::weak_ptr<Window> GetWindow() const noexcept;
+		std::weak_ptr<Renderer> GetRenderer() const noexcept;
 		LayerMachine& GetLayers() const noexcept;
 		AssetManager& GetAssets() const noexcept;
 

@@ -32,6 +32,13 @@ namespace BM
 
 	//======================================================================================
 
+	struct RendererComponent
+	{
+		std::weak_ptr<Renderer> Renderer;
+	};
+
+	//======================================================================================
+
 	using Registry = entt::registry;
 	class Entity;
 
@@ -99,8 +106,8 @@ namespace BM
 
 		//======================================================================================
 
-		void AttachRenderer(Renderer& renderer) noexcept;
-		Renderer* GetRenderer() noexcept;
+		void AttachRenderer(std::weak_ptr<Renderer> renderer) noexcept;
+		std::weak_ptr<Renderer> GetRenderer() noexcept;
 
 		//======================================================================================
 

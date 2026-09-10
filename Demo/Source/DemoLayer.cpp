@@ -8,11 +8,14 @@ DemoLayer::DemoLayer() noexcept
 {
 }
 
-void DemoLayer::OnTransition() noexcept
+void DemoLayer::OnAttachApplication() noexcept
 {
-	m_Sprite.setTexture(GetAsset<BM::Texture>("Cat"));
+	m_Sprite.setTexture(GetAsset<BM::Texture>("Cat"), true);
 	m_Sprite.setOrigin(BM::Vec2f(m_Sprite.getTexture().getSize()).Center());
-	m_Sprite.setPosition(GetWindow().GetSize().Center());
+
+	if (auto window = GetWindow().lock())
+		m_Sprite.setPosition(window->GetSize().Center());
+
 	m_Sprite.setScale(BM::Vec2f(300.f) / m_Sprite.getTexture().getSize());
 
 	m_SoundManager.Add("transition", GetAsset<BM::SoundBuffer>("Generic"));
@@ -28,8 +31,12 @@ void DemoLayer::OnEvent(BM::Event& event) noexcept
 
 void DemoLayer::OnRender() noexcept
 {
-	GetRenderer().ResetCamera();
-	GetRenderer().Draw(m_Sprite);
+	auto renderer = GetRenderer().lock();
+	if (!renderer)
+		return;
+
+	renderer->ResetCamera();
+	renderer->Draw(m_Sprite);
 }
 
 bool DemoLayer::OnKeyPressed(const BM::EventHandle::KeyPressed& keyPressed) noexcept
@@ -56,8 +63,12 @@ bool DemoLayer::OnKeyPressed(const BM::EventHandle::KeyPressed& keyPressed) noex
 
 bool DemoLayer::OnMousePressed(const BM::EventHandle::MouseButtonPressed& mousePressed) noexcept
 {
-	GetRenderer().ResetCamera();
-	m_Sprite.setPosition(GetRenderer().PixelToCoords(mousePressed.position));
+	auto renderer = GetRenderer().lock();
+	if (!renderer)
+		return false;
+
+	renderer->ResetCamera();
+	m_Sprite.setPosition(renderer->PixelToCoords(mousePressed.position));
 
 	return true;
 }

@@ -55,8 +55,8 @@ namespace BM
 
 		void CreateOrReplaceWindow(WindowContext windowContext = {}) noexcept;
 
-		Window& GetWindow() noexcept;
-		Renderer& GetRenderer() noexcept;
+		std::weak_ptr<Window> GetWindow() noexcept;
+		std::weak_ptr<Renderer> GetRenderer() noexcept;
 
 		//======================================================================================
 
@@ -75,7 +75,7 @@ namespace BM
 	private:
 		ApplicationContext m_Context;
 
-		std::unique_ptr<Window> m_Window;
+		std::shared_ptr<Window> m_Window;
 
 		bool m_Running = false;
 	};

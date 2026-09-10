@@ -1,10 +1,10 @@
 #pragma once
+#include "WindowHandle.hpp"
 #include "WindowContext.hpp"
 #include "Renderer.hpp"
 
 #include "Math/Vec2.hpp"
 
-#include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/Image.hpp>
 
 #include <memory>
@@ -54,11 +54,13 @@ namespace BM
 		Vec2i GetPosition() const noexcept;
 		Vec2i GetMousePosition() const noexcept;
 
-		Renderer& GetRenderer() noexcept;
-		sf::RenderWindow& GetHandle() const noexcept;
+		std::weak_ptr<Renderer> GetRenderer() noexcept;
+		std::weak_ptr<WindowHandle> GetHandle() const noexcept;
 	private:
-		std::unique_ptr<Renderer> m_Renderer;
-		std::unique_ptr<sf::RenderWindow> m_Handle;
+		std::shared_ptr<WindowHandle> GetHandleRef() const noexcept;
+	private:
+		std::shared_ptr<Renderer> m_Renderer;
+		std::shared_ptr<WindowHandle> m_Handle;
 
 		mutable Vec2i m_WindowPosition{ -1, -1 };
 		mutable bool m_FocusState = false;

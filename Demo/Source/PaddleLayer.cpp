@@ -14,8 +14,7 @@
 
 namespace Paddle
 {
-	PaddleLayer::PaddleLayer(const BM::WindowContext& windowContext, bool desktopMode) noexcept
-		: m_WindowContext(windowContext), m_DesktopMode(desktopMode)
+	PaddleLayer::PaddleLayer() noexcept
 	{
 		m_Scene.AddSystem<BM::TransformSystem>(100);
 		m_Scene.AddSystem<BM::RenderSystem>();
@@ -24,6 +23,8 @@ namespace Paddle
 	void PaddleLayer::OnAttachApplication() noexcept
 	{
 		m_Scene.AttachRenderer(GetRenderer());
+
+		m_MainFontPtr = &GetAsset<BM::Font>("Minecraft Nearest");
 	}
 
 	void PaddleLayer::OnAttach() noexcept
@@ -44,7 +45,6 @@ namespace Paddle
 		BM::EventDispatcher dispatcher(event);
 
 		dispatcher.Dispatch<BM::EventHandle::KeyPressed>(BM_EVENT_FN(OnKeyPressed));
-		dispatcher.Dispatch<BM::EventHandle::Resized>(BM_EVENT_FN(m_MainCamera.OnViewportResizeEvent));
 		dispatcher.Dispatch<BM::EventHandle::Resized>(BM_EVENT_FN(OnResized));
 	}
 
@@ -107,13 +107,18 @@ namespace Paddle
 
 	void PaddleLayer::OnRender() noexcept
 	{
-		GetRenderer().SetCamera(m_MainCamera);
+		auto renderer = GetRenderer().lock();
+		if (!renderer)
+			return;
+
+		renderer->SetCamera(m_MainCamera);
 		m_Scene.OnRender();
 	}
 
 	void PaddleLayer::InitEntities() noexcept
 	{
-		m_MainCamera = BM::Camera2D(GetWindow().GetSize());
+		if (auto window = GetWindow().lock())
+			m_MainCamera = BM::Camera2D(window->GetSize());
 
 		m_Scene.ClearEntities();
 
@@ -132,13 +137,12 @@ namespace Paddle
 		m_Ball.Add<BM::Component::CircleShape>(cBackgroundSize.Y / 48.f);
 		m_Ball.Add<BM::Component::ColorMaterial>(BM::ColorDef::White);
 
-		const BM::Font& cFont = GetAsset<BM::Font>("Minecraft");
 		const uint32_t cCharacterSize = (uint32_t)(cBackgroundSize.Y / 20.f);
 		const float cPaddingX = cBackgroundSize.X / 90.f;
 		const float cPaddingY = cBackgroundSize.Y / 32.f;
 		const float cSpaceX = cBackgroundSize.X / 32.f;
 
-		const BM::Component::TextRender cTextRender{ .FontPtr = &cFont, .Text = "0", .CharSize = cCharacterSize };
+		const BM::Component::TextRender cTextRender{ .FontPtr = m_MainFontPtr, .Text = "0", .CharSize = cCharacterSize };
 
 		m_LeftPaddle = CreatePaddle({}, cTextRender, { .State{.Position{cPaddingX * 3.f, cPaddingY }} });
 		m_RightPaddle = CreatePaddle({ .State{.Origin{1.f, 0.f}} }, cTextRender, { .State{.Position{cBackgroundSize.X - (cPaddingX * 3.f), cPaddingY }, .Origin{1.f, 0.f}} });
@@ -168,7 +172,7 @@ namespace Paddle
 			QueueTransitionTo<GameLayer>();
 			break;
 		case Key::N:
-			QueueTransitionTo<PaddleLayer>(m_WindowContext, m_DesktopMode);
+			QueueTransitionTo<PaddleLayer>();
 			break;
 
 		case Key::L:
@@ -190,7 +194,8 @@ namespace Paddle
 			break;
 
 		case Key::F:
-			QueueTransitionTo<PaddleLayer>(m_WindowContext, !m_DesktopMode);
+			m_DesktopMode = !m_DesktopMode;
+			SetDesktopMode(m_DesktopMode);
 			break;
 
 		default:
@@ -264,8 +269,11 @@ namespace Paddle
 
 	void PaddleLayer::UpdatePlayerPaddle(BM::Entity paddle, sf::Keyboard::Key upKey, sf::Keyboard::Key downKey, float deltaTime) noexcept
 	{
-		if (!GetWindow().HasFocus())
-			return;
+		if (auto window = GetWindow().lock())
+		{
+			if (!window->HasFocus())
+				return;
+		}
 
 		namespace Keyboard = sf::Keyboard;
 		float directionY = 0.f;
@@ -538,8 +546,6 @@ namespace Paddle
 
 			windowContext.UsePositionMemoryOnOpen = false;
 			windowContext.SavePositionMemoryOnClose = true;
-
-			m_MainCamera.SetSize(m_WindowContext.InitialMode.Size);
 		}
 
 		GetApp().CreateOrReplaceWindow(windowContext);
@@ -547,6 +553,10 @@ namespace Paddle
 
 	void PaddleLayer::UpdateWindowTitle() noexcept
 	{
+		auto window = GetWindow().lock();
+		if (!window)
+			return;
+
 		std::string title = std::format("{} ~ ", m_WindowTitle);
 
 		struct BotLabel {
@@ -564,7 +574,7 @@ namespace Paddle
 			title += BM::Utils::JoinWith(botsView, " | ");
 		}
 
-		GetWindow().SetTitle(title);
+		window->SetTitle(title);
 		m_WindowContext.Title = title;
 	}
 }

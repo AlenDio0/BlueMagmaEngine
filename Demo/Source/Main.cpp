@@ -28,10 +28,20 @@ static inline void RunApplication(BM::Vec2u windowSize) {
 	BM::ApplicationContext appContext{};
 	BM::Application application(appContext);
 
-	BM::WindowContext windowContext{ .InitialMode{ windowSize } };
-	application.CreateOrReplaceWindow(windowContext);
 	if (!application.Assets.LoadYaml("Config/LoadAsset.yml"))
 		BM_ERROR("Couldn't load Asset Yaml");
+
+	application.GetRenderer();
+
+	if (auto font = application.Assets.Retrieve<BM::Font>("Minecraft").lock())
+	{
+		BM::Font newFont(*font);
+		newFont.setSmooth(false);
+		application.Assets.LoadAsset("Minecraft Nearest", std::make_shared<BM::Font>(newFont));
+	}
+
+	BM::WindowContext windowContext{ .InitialMode{ windowSize } };
+	application.CreateOrReplaceWindow(windowContext);
 
 	BM::ScopeTimer timer("Main Application");
 

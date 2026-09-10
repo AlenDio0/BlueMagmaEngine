@@ -184,7 +184,7 @@ namespace BM::UI
 			dispatched = true;
 
 			Vec2f coords = mousePressed.position;
-			if (auto renderer = scene.GetRenderer())
+			if (auto renderer = scene.GetRenderer().lock())
 				coords = renderer->PixelToCoords(mousePressed.position);
 
 			scene.PatchComponent<InputText>(entity, [&](auto& input) {

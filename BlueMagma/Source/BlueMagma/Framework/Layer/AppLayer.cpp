@@ -15,14 +15,14 @@ namespace BM
 		return *m_ApplicationPtr;
 	}
 
-	Window& AppLayer::GetWindow() const noexcept
+	std::weak_ptr<Window> AppLayer::GetWindow() const noexcept
 	{
 		return GetApp().GetWindow();
 	}
 
-	Renderer& AppLayer::GetRenderer() const noexcept
+	std::weak_ptr<Renderer> AppLayer::GetRenderer() const noexcept
 	{
-		return GetWindow().GetRenderer();
+		return GetApp().GetRenderer();
 	}
 
 	LayerMachine& AppLayer::GetLayers() const noexcept

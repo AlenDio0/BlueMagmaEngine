@@ -23,15 +23,18 @@ namespace BM
 		BM_CORE_DEBUG_FN_ARGS(Context.SavePositionMemoryOnClose, Context.UsePositionMemoryOnOpen);
 
 		if (!m_Handle)
-			m_Handle = std::make_unique<sf::RenderWindow>();
+			m_Handle = std::make_shared<WindowHandle>();
 
 		if (IsOpen())
 			Close();
 
-		m_Handle->create(sf::VideoMode(Context.InitialMode.Size, Context.InitialMode.BitsPerPixel), {}, Context.InitialStyle, static_cast<sf::State>(Context.InitialState));
+		// TODO: Add in WindowContext a wrapper of sf::ContextSettings to apply in Window::Create() and possibly in Window::ApplyContext()
+
+		m_Handle->create(sf::VideoMode(Context.InitialMode.Size, Context.InitialMode.BitsPerPixel), {},
+			Context.InitialStyle, static_cast<sf::State>(Context.InitialState));
 
 		if (!m_Renderer)
-			m_Renderer = std::make_unique<Renderer>(*m_Handle);
+			m_Renderer = std::make_shared<Renderer>(m_Handle);
 
 		ApplyContext();
 
@@ -85,7 +88,7 @@ namespace BM
 			m_WindowPosition = GetPosition();
 		}
 
-		GetHandle().close();
+		GetHandleRef()->close();
 
 		BM_CORE_INFO_FN("Window closed");
 	}
@@ -95,7 +98,7 @@ namespace BM
 		if (!Context.EventCallback)
 			return;
 
-		while (auto ev = GetHandle().pollEvent())
+		while (auto ev = GetHandleRef()->pollEvent())
 		{
 			Event event = static_cast<EventHandle>(ev.value());
 			Context.EventCallback(event);
@@ -119,25 +122,25 @@ namespace BM
 	bool Window::SetActive(bool active) const noexcept
 	{
 		BM_CORE_DEBUG_FN_ARGS(active);
-		return GetHandle().setActive(active);
+		return GetHandleRef()->setActive(active);
 	}
 
 	void Window::RequestFocus() const noexcept
 	{
 		BM_CORE_DEBUG_FN("Window is requesting focus");
-		GetHandle().requestFocus();
+		GetHandleRef()->requestFocus();
 	}
 
 	void Window::SetMousePosition(Vec2i point) const noexcept
 	{
 		BM_CORE_FN_ARGS(point);
-		sf::Mouse::setPosition(point, GetHandle());
+		sf::Mouse::setPosition(point, *GetHandleRef());
 	}
 
 	void Window::SetSize(Vec2u size) const noexcept
 	{
 		BM_CORE_FN_ARGS(size);
-		GetHandle().setSize(size);
+		GetHandleRef()->setSize(size);
 	}
 
 	void Window::SetTitle(const std::string& title) noexcept
@@ -145,7 +148,7 @@ namespace BM
 		BM_CORE_FN_ARGS(title);
 
 		Context.Title = title;
-		GetHandle().setTitle(title);
+		GetHandleRef()->setTitle(title);
 	}
 
 	void Window::SetFPSLimit(uint32_t fps) noexcept
@@ -153,7 +156,7 @@ namespace BM
 		BM_CORE_FN_ARGS(fps);
 
 		Context.FPSLimit = fps;
-		GetHandle().setFramerateLimit(fps);
+		GetHandleRef()->setFramerateLimit(fps);
 	}
 
 	void Window::SetVSync(bool vsync) noexcept
@@ -161,7 +164,7 @@ namespace BM
 		BM_CORE_FN_ARGS(vsync);
 
 		Context.VSync = vsync;
-		GetHandle().setVerticalSyncEnabled(vsync);
+		GetHandleRef()->setVerticalSyncEnabled(vsync);
 	}
 
 	void Window::SetIconFromPath(const std::filesystem::path& iconPath) noexcept
@@ -184,23 +187,23 @@ namespace BM
 	void Window::SetIcon(const sf::Image& icon) const noexcept
 	{
 		BM_CORE_FN("Setting icon from image");
-		GetHandle().setIcon(icon);
+		GetHandleRef()->setIcon(icon);
 	}
 
 	void Window::SetPosition(Vec2i point) const noexcept
 	{
 		BM_CORE_FN_ARGS(point);
-		GetHandle().setPosition(point);
+		GetHandleRef()->setPosition(point);
 	}
 
 	bool Window::IsOpen() const noexcept
 	{
-		return m_Handle && GetHandle().isOpen();
+		return m_Handle && GetHandleRef()->isOpen();
 	}
 
 	bool Window::HasFocus() const noexcept
 	{
-		return GetHandle().hasFocus();
+		return GetHandleRef()->hasFocus();
 	}
 
 	Vec2i Window::GetMousePosition() const noexcept
@@ -210,22 +213,27 @@ namespace BM
 
 	Vec2u Window::GetSize() const noexcept
 	{
-		return GetHandle().getSize();
+		return GetHandleRef()->getSize();
 	}
 
 	Vec2i Window::GetPosition() const noexcept
 	{
-		return GetHandle().getPosition();
+		return GetHandle().lock()->getPosition();
 	}
 
-	Renderer& Window::GetRenderer() noexcept
+	std::weak_ptr<Renderer> Window::GetRenderer() noexcept
 	{
-		return *m_Renderer;
+		return m_Renderer;
 	}
 
-	sf::RenderWindow& Window::GetHandle() const noexcept
+	std::weak_ptr<WindowHandle> Window::GetHandle() const noexcept
+	{
+		return GetHandleRef();
+	}
+
+	std::shared_ptr<WindowHandle> Window::GetHandleRef() const noexcept
 	{
 		BM_CORE_ASSERT(m_Handle != nullptr, "Window Handle not created");
-		return *m_Handle;
+		return m_Handle;
 	}
 }

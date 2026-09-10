@@ -29,6 +29,7 @@ set(SOURCES
     # Graphics
     Source/BlueMagma/Graphics/Camera2D.hpp
     Source/BlueMagma/Graphics/Camera2D.cpp
+    Source/BlueMagma/Graphics/WindowHandle.hpp
     Source/BlueMagma/Graphics/Renderer.hpp
     Source/BlueMagma/Graphics/Renderer.cpp
     Source/BlueMagma/Graphics/WindowContext.hpp

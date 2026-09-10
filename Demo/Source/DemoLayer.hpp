@@ -8,7 +8,7 @@ class DemoLayer : public BM::AppLayer
 public:
 	DemoLayer() noexcept;
 
-	virtual void OnTransition() noexcept override;
+	virtual void OnAttachApplication() noexcept override;
 
 	virtual void OnEvent(BM::Event& event) noexcept override;
 	virtual void OnRender() noexcept override;
