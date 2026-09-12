@@ -56,27 +56,30 @@ namespace BM
 
 	//======================================================================================
 
-	template<typename... TArgs>
-	constexpr std::string UnpackFnArgs(std::string_view argNames, TArgs&&... args) noexcept {
-		if constexpr (sizeof...(TArgs) == 0)
-			return "";
+	namespace LogUtils
+	{
+		template<typename... TArgs>
+		constexpr std::string UnpackFnArgs(std::string_view argNames, TArgs&&... args) noexcept {
+			if constexpr (sizeof...(TArgs) == 0)
+				return "";
 
-		auto names = Utils::SplitWith(argNames, ",");
-		auto iterator = names.begin();
+			auto names = Utils::SplitWith(argNames, ",");
+			auto iterator = names.begin();
 
-		std::string unpacked;
-		auto unpackArg = [&](const auto& argValue) {
-			if (!unpacked.empty())
-				unpacked += ", ";
+			std::string unpacked;
+			auto unpackArg = [&](const auto& argValue) {
+				if (!unpacked.empty())
+					unpacked += ", ";
 
-			std::string_view currentArg{ (*iterator).begin(), (*iterator).end() };
+				std::string_view currentArg{ (*iterator).begin(), (*iterator).end() };
 
-			unpacked += std::format("{}: '{}'", Utils::Trim(currentArg), argValue);
-			iterator++;
-			};
+				unpacked += std::format("{}: '{}'", Utils::Trim(currentArg), argValue);
+				iterator++;
+				};
 
-		(unpackArg(std::forward<TArgs>(args)), ...);
-		return unpacked;
+			(unpackArg(std::forward<TArgs>(args)), ...);
+			return unpacked;
+		}
 	}
 }
 
@@ -86,7 +89,7 @@ namespace BM
 
 #define BM_LOG(type, level, ...)			BM::Log::type##Log(BM::Log::level, std::format(__VA_ARGS__))
 #define BM_LOG_FN(type, level, ...)			BM##type##level("{}(...) {} [{}:{}]", __FUNCTION__, std::format("" __VA_ARGS__), BM_FILENAME, __LINE__)
-#define BM_LOG_FN_ARGS(type, level, ...)	BM##type##level("{}({}) [{}:{}]", __FUNCTION__, BM::UnpackFnArgs(#__VA_ARGS__, __VA_ARGS__), BM_FILENAME, __LINE__)
+#define BM_LOG_FN_ARGS(type, level, ...)	BM##type##level("{}({}) [{}:{}]", __FUNCTION__, BM::LogUtils::UnpackFnArgs(#__VA_ARGS__, __VA_ARGS__), BM_FILENAME, __LINE__)
 
 //======================================================================================
 
