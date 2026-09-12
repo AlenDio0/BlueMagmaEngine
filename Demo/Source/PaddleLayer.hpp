@@ -3,8 +3,8 @@
 #include <BlueMagma/Math/Vec2.hpp>
 #include <BlueMagma/Graphics/Camera2D.hpp>
 #include <BlueMagma/Scene/Scene.hpp>
-#include <BlueMagma/Scene/Component/Base.hpp>
 #include <BlueMagma/Scene/Entity.hpp>
+#include <BlueMagma/Scene/Component/Render.hpp>
 #include <SFML/Window/Keyboard.hpp>
 
 namespace Paddle

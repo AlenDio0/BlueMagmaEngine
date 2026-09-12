@@ -1,7 +1,8 @@
 #include "bmpch.hpp"
 #include "WidgetColorSystem.hpp"
 
-#include "Scene/Component/Base.hpp"
+#include "Scene/Component/Core.hpp"
+#include "Scene/Component/Render.hpp"
 #include "Scene/Component/UI.hpp"
 
 namespace BM::UI

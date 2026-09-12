@@ -2,7 +2,8 @@
 #include "InputTextSystem.hpp"
 
 #include "Event/EventDispatcher.hpp"
-#include "Scene/Component/Base.hpp"
+#include "Scene/Component/Core.hpp"
+#include "Scene/Component/Render.hpp"
 
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/System/String.hpp>

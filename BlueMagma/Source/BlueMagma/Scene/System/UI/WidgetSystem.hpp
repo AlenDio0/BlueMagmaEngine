@@ -3,7 +3,7 @@
 
 #include "Math/Vec2.hpp"
 #include "Scene/EntityHandle.hpp"
-#include "Scene/Component/Base.hpp"
+#include "Scene/Component/Core.hpp"
 #include "Scene/Component/UI.hpp"
 
 #include <functional>

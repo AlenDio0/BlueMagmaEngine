@@ -320,10 +320,14 @@ namespace BM
 		states.blendMode = sf::BlendAlpha;
 		states.shader = GetRenderShader(*keyPtr);
 
-		if (keyPtr->IsShape<RenderCommand::SpriteData>())
-			states.texture = keyPtr->GetShape<RenderCommand::SpriteData>().TexturePtr;
-		else if (keyPtr->Material.TexturePtr)
+		if (keyPtr->Material.TexturePtr)
 			states.texture = keyPtr->Material.TexturePtr;
+
+		if (keyPtr->IsShape<RenderCommand::SpriteData>())
+		{
+			if (const Texture* texture = keyPtr->GetShape<RenderCommand::SpriteData>().TexturePtr)
+				states.texture = texture;
+		}
 
 		renderer.Draw(batch.data(), batch.size(), sf::PrimitiveType::Triangles, states);
 

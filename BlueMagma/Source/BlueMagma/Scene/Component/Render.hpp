@@ -2,7 +2,6 @@
 #include "Math/Vec2.hpp"
 #include "Math/Rect.hpp"
 #include "Math/Color.hpp"
-#include "Math/Transform2D.hpp"
 #include "Asset/Asset.hpp"
 
 #include <SFML/Graphics/Text.hpp>
@@ -13,63 +12,39 @@
 
 namespace BM::Component
 {
-	struct Transform
-	{
-		struct LocalSpace
-		{
-			Transform2D State{};
-			float Z = 0.f;
-		} Local;
-
-		struct GlobalSpace
-		{
-			Vec2f Position{ 0.f };
-			Vec2f Scale{ 1.f };
-			float Rotation = 0.f;
-			float Z = 0.f;
-		} Global;
-
-		bool CachedUpdated = false;
-	};
-
-	struct Hidden
-	{
-		bool Visible = false;
-	};
-
 	struct ColorMaterial
 	{
 		Color Color = ColorDef::White;
 	};
-
 	struct TextureMaterial
 	{
 		const Texture* TexturePtr = nullptr;
 		std::optional<RectInt> TextureRect{};
 	};
-
 	struct Outline
 	{
-		Color Color = ColorDef::Clear;
+		Color Color = ColorDef::Black;
 		float Thickness = 0.f;
 	};
+
+	//======================================================================================
 
 	struct RectShape
 	{
 		Vec2f Size{};
 		float Corner = 0.f;
 	};
-
 	struct CircleShape
 	{
 		float Radius = 0.f;
 	};
-
 	struct SpriteShape
 	{
 		const Texture* TexturePtr = nullptr;
 		std::optional<RectInt> TextureRect{};
 	};
+
+	//======================================================================================
 
 	struct TextRender
 	{

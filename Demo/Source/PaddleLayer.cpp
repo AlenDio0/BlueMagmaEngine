@@ -1,7 +1,7 @@
 #include "PaddleLayer.hpp"
 #include "GameLayer.hpp"
-#include <BlueMagma/Scene/System/TransformSystem.hpp>
-#include <BlueMagma/Scene/System/RenderSystem.hpp>
+#include <BlueMagma/Scene/System/Core/TransformSystem.hpp>
+#include <BlueMagma/Scene/System/Render/RenderSystem.hpp>
 #include <BlueMagma/Math/Color.hpp>
 #include <BlueMagma/Core/Utils.hpp>
 #include <BlueMagma/Core/Random.hpp>

@@ -67,10 +67,10 @@ namespace BM
 			global.Z = parentGlobal.Z + local.Z;
 		}
 
-		auto children = entity.GetChildren<Transform>();
-		for (auto child : children)
+		std::vector<Entity> children = entity.GetChildren();
+		for (Entity child : children)
 		{
-			if (child)
+			if (child && child.HasAll<Transform>())
 				UpdateTransformAndChildren(child, global, transform.CachedUpdated);
 		}
 

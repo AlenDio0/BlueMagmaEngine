@@ -1,11 +1,12 @@
 #pragma once
-#include "ISystem.hpp"
+#include "Scene/System/ISystem.hpp"
 #include "Math/Vec2.hpp"
 #include "Math/Rect.hpp"
 #include "Math/Color.hpp"
 #include "Graphics/Renderer.hpp"
 #include "Asset/Asset.hpp"
-#include "Scene/Component/Base.hpp"
+#include "Scene/Component/Core.hpp"
+#include "Scene/Component/Render.hpp"
 
 #include <SFML/Graphics/RenderStates.hpp>
 #include <SFML/Graphics/Shader.hpp>

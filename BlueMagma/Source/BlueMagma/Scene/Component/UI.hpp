@@ -22,6 +22,8 @@ namespace BM::Component
 		bool Hover = false;
 	};
 
+	//======================================================================================
+
 	struct WidgetColor
 	{
 		Color IdleColor = ColorDef::White;
@@ -29,20 +31,26 @@ namespace BM::Component
 		Color FocusColor = ColorDef::White;
 	};
 
-	using ClickFn = std::function<bool(Entity, EventHandle::MouseButtonPressed)>;
+	//======================================================================================
+
 	struct Clickable
 	{
-		ClickFn OnClick;
+		using OnClickFn = std::function<bool(Entity, EventHandle::MouseButtonPressed)>;
+
+		OnClickFn OnClick;
 	};
 
-	using PolicyFn = std::function<bool(char32_t)>;
+	//======================================================================================
+
 	struct InputText
 	{
+		using PolicyFn = std::function<bool(char32_t)>;
+
 		std::string Text = "";
 		std::string Placeholder = "";
 
 		size_t CursorIndex = 0;
-		size_t MaxLength = 0xFFFFFFFFFFFFFFFFull;
+		size_t MaxLength = SIZE_MAX;
 
 		PolicyFn Policy{ isprint };
 

@@ -62,16 +62,27 @@ set(SOURCES
     Source/BlueMagma/Scene/Entity.hpp
     Source/BlueMagma/Scene/Entity.cpp
     # Scene/Component
-    Source/BlueMagma/Scene/Component/Base.hpp
+    Source/BlueMagma/Scene/Component/Core.hpp
+    Source/BlueMagma/Scene/Component/Render.hpp
     Source/BlueMagma/Scene/Component/UI.hpp
-    Source/BlueMagma/Scene/Component/UIMaker.hpp
-    Source/BlueMagma/Scene/Component/UIMaker.cpp
+    # Scene/Component/Builder
+    Source/BlueMagma/Scene/Component/Builder/EntityBuilder.hpp
+    Source/BlueMagma/Scene/Component/Builder/EntityBuilder.inl
+    Source/BlueMagma/Scene/Component/Builder/RenderBuilder.hpp
+    Source/BlueMagma/Scene/Component/Builder/RenderBuilder.inl
+    Source/BlueMagma/Scene/Component/Builder/RenderBuilder.cpp
+    Source/BlueMagma/Scene/Component/Builder/WidgetBuilder.hpp
+    Source/BlueMagma/Scene/Component/Builder/WidgetBuilder.inl
+    Source/BlueMagma/Scene/Component/Builder/WidgetBuilder.cpp
     # Scene/System
     Source/BlueMagma/Scene/System/ISystem.hpp
-    Source/BlueMagma/Scene/System/TransformSystem.hpp
-    Source/BlueMagma/Scene/System/TransformSystem.cpp
-    Source/BlueMagma/Scene/System/RenderSystem.hpp
-    Source/BlueMagma/Scene/System/RenderSystem.cpp
+    # Scene/System/Core
+    Source/BlueMagma/Scene/System/Core/TransformSystem.hpp
+    Source/BlueMagma/Scene/System/Core/TransformSystem.cpp
+    # Scene/System/Render
+    Source/BlueMagma/Scene/System/Render/RenderSystem.hpp
+    Source/BlueMagma/Scene/System/Render/RenderSystem.cpp
+    # Scene/System/UI
     Source/BlueMagma/Scene/System/UI/WidgetSystem.hpp
     Source/BlueMagma/Scene/System/UI/WidgetSystem.cpp
     Source/BlueMagma/Scene/System/UI/WidgetColorSystem.hpp

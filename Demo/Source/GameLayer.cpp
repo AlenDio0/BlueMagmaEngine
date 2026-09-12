@@ -6,10 +6,12 @@
 #include <BlueMagma/Math/Color.hpp>
 #include <BlueMagma/Core/Random.hpp>
 #include <Scene/Entity.hpp>
-#include <Scene/System/TransformSystem.hpp>
-#include <Scene/System/RenderSystem.hpp>
+#include <Scene/System/Core/TransformSystem.hpp>
+#include <Scene/System/Render/RenderSystem.hpp>
 #include <Scene/System/UI/UISystem.hpp>
-#include <Scene/Component/UIMaker.hpp>
+#include <Scene/Component/Builder/EntityBuilder.hpp>
+#include <Scene/Component/Builder/RenderBuilder.hpp>
+#include <Scene/Component/Builder/WidgetBuilder.hpp>
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/Cursor.hpp>
 #include <format>
@@ -40,8 +42,8 @@ void GameLayer::OnAttachApplication() noexcept
 
 	m_Scene.AttachRenderer(renderer);
 
-	m_MainCamera = BM::Camera2D(renderer->GetCamera());
-	m_ButtonCamera = BM::Camera2D(renderer->GetCamera());
+	m_MainCamera = BM::Camera2D(renderer->GetDefaultCamera());
+	m_ButtonCamera = BM::Camera2D(renderer->GetDefaultCamera());
 
 	m_ButtonCamera.SetViewport({ 0.75f, 0.5f, 0.25f, 0.5f }, renderer->GetSize());
 
@@ -211,8 +213,11 @@ void GameLayer::OnUpdate(float deltaTime) noexcept
 			constexpr float cRotationSpeed = 30.f;
 			float& rotation = transform.Local.State.Rotation;
 
-			const size_t cRotationCount = (size_t)(rotation / 360.f);
-			rotation += (cRotationSpeed * (float)(cRotationCount + 1ull)) * deltaTime;
+			rotation += (cRotationSpeed * (float)(m_ButtonRotationCount + 1ull)) * deltaTime;
+
+			const size_t cCurrentRotationCount = (size_t)(rotation / 360.f);
+			m_ButtonRotationCount += cCurrentRotationCount;
+			rotation -= 360.f * cCurrentRotationCount;
 
 			m_ButtonCamera.SetCenter(transform.Global.Position);
 			});
@@ -262,26 +267,30 @@ void GameLayer::InitExample() noexcept
 		const float cBasePosY = cPercentage * cBoundSize;
 
 		const uint8_t cColor = (uint8_t)(cPercentage * 255.f);
+		const float cOutlineThickness = i % 3 && i % 4 ? 0.f : 2.f;
 
-		BM::Entity rect = m_Scene.CreateEntity({ .State{.Position{cPosX, cBasePosY}, .Rotation = 45.f}, .Z = 0.f });
-		rect.Add<Comp::RectShape>(BM::Vec2f(cBoxSize), 5.f);
-		rect.Add<Comp::ColorMaterial>(BM::Color(cColor, 0, 0));
-		rect.Add<Comp::Outline>(BM::ColorDef::Black, i % 2 ? 0.f : 2.f);
+		BM::RenderBuilder builder;
+		builder.AtX(cPosX).WithOutline({ .Color = BM::ColorDef::Black, .Thickness = cOutlineThickness });
 
-		BM::Entity circle = m_Scene.CreateEntity({ .State{.Position{cPosX, cPercentage * cBasePosY}}, .Z = 0.1f });
-		circle.Add<Comp::CircleShape>(cBoxSize / 2.f);
-		circle.Add<Comp::ColorMaterial>(BM::Color(0, cColor, 0));
-		circle.Add<Comp::Outline>(BM::ColorDef::Black, i % 2 == 0 ? 0.f : 1.f);
+		builder.ToRect().AtY(cBasePosY).AtZ(0.1f)
+			.WithColor(BM::Color(cColor, 0u, 0u))
+			.WithSize(BM::Vec2f(cBoxSize)).WithCorner(5.f)
+			.Build(m_Scene);
 
-		BM::Entity sprite = m_Scene.CreateEntity({ .State{.Position{cPosX, cBoundSize - (cPercentage * cBasePosY)},
-			.Scale{BM::Vec2f(cBoxSize) / texture->getSize()}, .Rotation = -45.f}, .Z = 0.2f, });
-		sprite.Add<Comp::SpriteShape>(texture);
-		sprite.Add<Comp::ColorMaterial>(BM::Color(cColor, cColor, cColor));
+		builder.ToCircle().AtY(cPercentage * cBasePosY).AtZ(0.2f)
+			.WithColor(BM::Color(0u, cColor, 0u))
+			.WithRadius(cBoxSize / 2.f)
+			.Build(m_Scene);
 
-		BM::Entity text = m_Scene.CreateEntity({ .State{.Position{cPosX, cBoundSize - cBasePosY}}, .Z = 0.3f });
-		text.Add<Comp::TextRender>(m_MainFontPtr, "O", (uint32_t)cBoxSize);
-		text.Add<Comp::ColorMaterial>(BM::Color(cColor, 0, cColor));
-		text.Add<Comp::Outline>(BM::ColorDef::Black, 5.f);
+		builder.ToSprite().AtY(cBoundSize - (cPercentage * cBasePosY)).WithRotation(-45.f).AtZ(0.3f)
+			.WithColor(BM::Color(cColor, cColor, cColor))
+			.WithTexture(texture).WithScaleAsSizeTexture(texture, BM::Vec2f(cBoxSize))
+			.Build(m_Scene);
+
+		builder.ToText().AtY(cBoundSize - cBasePosY).AtZ(0.4F)
+			.WithColor(BM::Color(cColor, 0u, cColor))
+			.WithFont(m_MainFontPtr).WithText("O").WithCharSize((uint32_t)cBoxSize)
+			.Build(m_Scene);
 	}
 }
 
@@ -297,29 +306,35 @@ void GameLayer::InitUIExample() noexcept
 	namespace Comp = BM::Component;
 
 	const BM::Vec2f cWindowSize = window->GetSize();
-	constexpr BM::Vec2f cUISize(200.f, 40.f);
+	constexpr BM::Vec2f cUISize(300.f, 50.f);
 
-	m_Button = BM::UIMaker::CreateButton(m_Scene,
-		{ .Transform{.State{.Position = cWindowSize.Center(), .Origin{0.5f}}, .Z = 10.f}, .Size = cUISize,
-		.Corner = 5.f, .Color{BM::ColorDef::Blue}, .Outline{{BM::ColorDef::Red, 2.f}} },
-		[&](auto entity, auto event) {
-			BM_INFO("Button pressed");
-			m_Scene.Destroy(entity);
-			return false;
-		});
-	BM::UIMaker::AddTextChild(m_Button,
-		{ .Transform{.State{.Position = BM::UIMaker::Center(cUISize, BM::Vec2f(0.5f)), .Origin = BM::Vec2f(0.5f)}, .Z = 1.f},
-		.Text{m_MainFontPtr, "Hello World!"}, .Color{BM::ColorDef::Green}, .Outline{{BM::ColorDef::Black, 1.f}} });
-	BM::UIMaker::AddWidgetColor(m_Button, 0.5f, 1.f);
+	{
+		auto onButtonClick = [&](BM::Entity entity, auto event)
+			{
+				BM_INFO("Button has been pressed, destroyed");
+				m_Scene.Destroy(entity);
+				return false;
+			};
+		m_Button = BM::ButtonBuilder().At(cWindowSize.Center()).WithOrigin(BM::Vec2f(0.5f)).AtZ(10.f)
+			.WithColor(BM::ColorDef::Blue).WithOutline({ .Color = BM::ColorDef::Red, .Thickness = 2.f })
+			.WithRectShape({ .Size = cUISize, .Corner = 10.f })
+			//.WithCircleShape(cUISize.X / 2.f).WithScale(BM::Vec2f(1.f, 0.5f))
+			.OnClick(onButtonClick)
+			.WithWidgetColor(0.5f, 1.f)
+			.Build(m_Scene);
+		BM::TextBuilder().WithParent(m_Button).AtNormalizedEntity(m_Button).WithScaleCancelEntity(m_Button)
+			.WithOrigin(BM::Vec2f(0.5f)).AtZ(1.f)
+			.WithColor(BM::ColorDef::Green).WithOutline({ .Color = BM::ColorDef::Black, .Thickness = 1.f })
+			.WithFont(m_MainFontPtr).WithText("Hello World!")
+			.Build(m_Scene);
 
-	auto text = m_Button.CreateChild({ .State{.Position{0.f, 100.f}, .Origin = BM::Vec2f(0.5f)} });
-	text.Add<Comp::TextRender>(Comp::TextRender{ .FontPtr = m_MainFontPtr, .Text = "Attached" });
+		BM::TextBuilder().WithParent(m_Button).At(BM::Vec2f(0.f, 100.f)).WithOrigin(BM::Vec2f(0.5f))
+			.WithFont(m_MainFontPtr).WithText("Attached")
+			.Build(m_Scene);
+	}
 
-	auto testButton = BM::UIMaker::CreateButton(m_Scene,
-		{ .Transform{.State{.Position{cWindowSize.Center().X, cWindowSize.Y - 200.f}, .Scale{3.f, 2.f}, .Origin{0.1f, 0.5f},
-		.Rotation = 90.f}, .Z = 10.f}, .Size = BM::Vec2f(80.f), .Shape = Comp::Widget::ShapeType::Circle,
-		.Color{BM::ColorDef::Cyan}, .Outline{{BM::ColorDef::Yellow, 1.f }} },
-		[&](BM::Entity entity, auto event) {
+	{
+		auto onEllipseButtonClick = [&](BM::Entity entity, auto event) {
 			static size_t sPressedCount = 0;
 			sPressedCount++;
 			BM_INFO("Test Button pressed {} times", sPressedCount);
@@ -327,31 +342,52 @@ void GameLayer::InitUIExample() noexcept
 			entity.Patch<Comp::Transform>([&](auto& transform) { transform.Local.State.Rotation += 10.f; });
 
 			return false;
-		});
-	BM::UIMaker::AddTextChild(testButton,
-		{ .Transform{.State{.Position = BM::UIMaker::Center(BM::Vec2f(80.f), {0.1f, 0.5f}), .Scale{1.5f / 3.f, 1.5f / 2.f}, .Origin = BM::Vec2f(0.5f)},
-		.Z = 1.f}, .Text{m_MainFontPtr, "PRESS ME"}, .Color{BM::ColorDef::White}, .Outline{{BM::ColorDef::Black, 1.f }} });
+			};
 
-	constexpr float cSpaceAxisX = 25.f;
-	constexpr float cInputX = cUISize.X + cSpaceAxisX;
+		BM::Entity ellipseButton = BM::ButtonBuilder().At({ cWindowSize.Center().X, cWindowSize.Y - 200.f })
+			.WithScale({ 3.f, 2.f }).WithOrigin({ 0.25f, 0.5f }).WithRotation(90.f).AtZ(10.f)
+			.WithColor(BM::ColorDef::Cyan).WithOutline({ .Color = BM::ColorDef::Yellow, .Thickness = 1.f })
+			.WithCircleShape(40.f)
+			.OnClick(onEllipseButtonClick)
+			.Build(m_Scene);
+		BM::TextBuilder().WithParent(ellipseButton).AtNormalizedEntity(ellipseButton)
+			.WithScaleCancelEntity(ellipseButton, BM::Vec2f(1.25f)).WithOrigin(BM::Vec2f(0.5f)).AtZ(1.f)
+			.WithColor(BM::ColorDef::White).WithOutline({ .Color = BM::ColorDef::Black, .Thickness = 1.f })
+			.WithFont(m_MainFontPtr).WithText("PRESS ME\n(now!)")
+			.Build(m_Scene);
+	}
 
-	m_InputText = BM::UIMaker::CreateInputText(m_Scene,
-		{ .Transform{.State{.Position{cWindowSize.Center().X - cInputX, cWindowSize.Y / 3.f}},
-		.Z = 10.f}, .Size = cUISize, .Corner = 5.f, .Color{BM::ColorDef::White}, .Outline{{BM::ColorDef::Black, 1.f }} },
-		{ .Transform{.State{.Position{10.f, BM::UIMaker::Center(cUISize, BM::Vec2f(0.f)).Y}, .Origin{0.f, 0.5f}}, .Z = 1.f },
-		.Text{ m_MainFontPtr }, .Color{BM::ColorDef::Black} }, { .Placeholder = "hello" });
-	BM::UIMaker::AddWidgetColor(m_InputText, 0.7f, 0.85f);
+	{
+		constexpr float cSpaceAxisX = 25.f;
+		constexpr float cInputX = cUISize.X + cSpaceAxisX;
 
-	m_FocusText = m_InputText.CreateChild({ .State{.Position{cInputX + cSpaceAxisX, cUISize.Center().Y}, .Origin{0.f, 0.5f}} });
-	m_FocusText.Add<Comp::TextRender>(m_MainFontPtr);
-	m_FocusText.Add<Comp::ColorMaterial>(BM::ColorDef::Red);
+		BM::InputTextBuilder builder;
+		builder.At(BM::Vec2f(cWindowSize.Center().X - cInputX, cWindowSize.Y / 3.f)).AtZ(10.f)
+			.WithColor(BM::ColorDef::White).WithOutline({ .Color = BM::ColorDef::Black, .Thickness = 1.f })
+			.WithRectShape({ .Size = cUISize, .Corner = 5.f });
 
-	BM::Entity pinInputText = BM::UIMaker::CreateInputText(m_Scene,
-		{ .Transform{.State{.Position{cWindowSize.Center().X - cInputX, cWindowSize.Y / 3.f}, .Scale{0.9f}, .Origin{0.7f, 0.2f}},
-		.Z = 1.f}, .Size = cUISize, .Corner = 5.f, .Color{BM::ColorDef::Magenta} },
-		{ .Transform{.State{.Position = BM::UIMaker::Center(cUISize, {0.7f, 0.2f}), .Origin = BM::Vec2f(0.5f)}, .Z = 1.f},
-		.Text{m_MainFontPtr}, .Color{BM::ColorDef::Black} }, { .Placeholder = "PIN", .Policy{isdigit} });
-	BM::UIMaker::AddWidgetColor(pinInputText, 0.75f, 1.f);
+		auto inputBuilder = builder.ToCopy();
+		m_InputText = inputBuilder.AtZ(11.f)
+			.WithWidgetColor(0.7f, 0.85f).WithPlaceholder("hello...")
+			.WithTextChild(inputBuilder.DefaultTextChildBuilder()
+				.WithFont(m_MainFontPtr)
+				.Build(m_Scene))
+			.Build(m_Scene);
+
+		m_FocusText = inputBuilder.DefaultTextChildBuilder().WithParent(m_InputText)
+			.At(BM::Vec2f(cInputX + cSpaceAxisX, cUISize.Center().Y)).WithOrigin(BM::Vec2f(0.f, 0.5f))
+			.WithFont(m_MainFontPtr)
+			.Build(m_Scene);
+
+		auto pinBuilder = builder.ToCopy();
+		pinBuilder.WithOrigin(BM::Vec2f(0.5f))
+			.WithColor(BM::ColorDef::Magenta).WithOutline({ .Thickness = 0.f })
+			.WithWidgetColor(0.75f, 1.f).WithPlaceholder("PIN...").WithPolicy(isdigit)
+			.WithTextChild(pinBuilder.DefaultTextChildBuilder(BM::Vec2f(0.1f, 0.5f)).WithOrigin(BM::Vec2f(0.f, 0.5f))
+				.WithColor(BM::ColorDef::Black).WithFont(m_MainFontPtr)
+				.Build(m_Scene))
+			.Build(m_Scene);
+	}
 }
 
 bool GameLayer::OnKeyPressed(const BM::EventHandle::KeyPressed& keyPressed) noexcept
@@ -363,6 +399,10 @@ bool GameLayer::OnKeyPressed(const BM::EventHandle::KeyPressed& keyPressed) noex
 	switch (keyPressed.code)
 	{
 		using Key = sf::Keyboard::Key;
+
+	case Key::Tab:
+		GetApp().SetTimeScale(GetApp().GetContext().TimeScale > 1.f ? 1.f : 100.f);
+		break;
 
 	case Key::G:
 		QueueTransitionTo<GameLayer>();
@@ -503,18 +543,16 @@ bool GameLayer::OnMousePressed(const BM::EventHandle::MouseButtonPressed& mouseP
 		return true;
 		};
 
-	const BM::Color cRandomColor{ (static_cast<uint32_t>(BM_RANDOM(0, 0xFFFFFFFF)) << 8) | 0xFF };
-	static float sPositionZ = 100.f;
-	sPositionZ += 0.1f;
+	const BM::Color cRandomColor = BM::Color((uint32_t)BM_RANDOM(0, 0xFFFFFF) << 8u).WithAlpha(1.f);
 
-	BM::Entity circle = BM::UIMaker::CreateButton(m_Scene,
-		{ .Transform{.State{.Position = cMouseCoords, .Origin = BM::Vec2f(0.5f)}, .Z = sPositionZ},
-		.Size = BM::Vec2f(cRadius * 2.f), .Shape = BM::Component::Widget::ShapeType::Circle,
-		.Color{BM::ColorDef::Clear}, .Outline{{cRandomColor, 10.f}} }, onCirclePressed);
+	BM::Entity circle = BM::ButtonBuilder().At(cMouseCoords).WithOrigin(BM::Vec2f(0.5f)).AtZ(50.f)
+		.WithColor(BM::ColorDef::Clear).WithOutline({ .Color = cRandomColor, .Thickness = 10.f })
+		.WithCircleShape(cRadius).OnClick(onCirclePressed)
+		.Build(m_Scene);
 
-	BM::Entity center = circle.CreateChild({ .State{.Origin = BM::Vec2f(0.5f)} });
-	center.Add<BM::Component::CircleShape>(5.f);
-	center.Add<BM::Component::ColorMaterial>(BM::ColorDef::Red);
+	BM::CircleBuilder().WithParent(circle).WithOrigin(BM::Vec2f(0.5f))
+		.WithColor(BM::ColorDef::Red).WithRadius(5.f)
+		.Build(m_Scene);
 
 	return false;
 }

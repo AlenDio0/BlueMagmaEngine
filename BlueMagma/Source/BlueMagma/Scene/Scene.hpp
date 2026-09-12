@@ -1,6 +1,6 @@
 #pragma once
 #include "EntityHandle.hpp"
-#include "Component/Base.hpp"
+#include "Component/Core.hpp"
 #include "System/ISystem.hpp"
 #include "Core/Assert.hpp"
 #include "Event/Event.hpp"

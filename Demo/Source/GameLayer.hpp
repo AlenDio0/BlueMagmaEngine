@@ -55,6 +55,8 @@ private:
 	BM::Entity m_InputText;
 	BM::Entity m_FocusText;
 
+	size_t m_ButtonRotationCount = 0ull;
+
 	BM::Entity m_MouseRender;
 
 	BM::SoundManager m_SoundManager;
