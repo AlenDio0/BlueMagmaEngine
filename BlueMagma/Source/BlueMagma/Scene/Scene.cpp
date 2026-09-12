@@ -77,19 +77,62 @@ namespace BM
 		return entity;
 	}
 
-	Entity Scene::CreateEntityWithParent(EntityHandle parent, const Component::Transform::LocalSpace& transform) noexcept
+	Entity Scene::CreateEntityWithParent(EntityHandle parentHandle, const Component::Transform::LocalSpace& transform) noexcept
 	{
-		BM_CORE_FN_ARGS(parent);
+		Entity entity = CreateEntity(transform);
+		AssignEntityParent(entity, parentHandle);
 
-		Entity parentEntity = GetEntity(parent);
-		BM_CORE_ASSERT(parentEntity.IsValid());
-
-		return parentEntity.CreateChild(transform);
+		return entity;
 	}
 
 	Entity Scene::GetEntity(EntityHandle handle) noexcept
 	{
 		return Entity(this, handle);
+	}
+
+	std::optional<Entity> Scene::GetEntityParent(EntityHandle handle) noexcept
+	{
+		if (!HasAllComponent<Parent>(handle))
+			return {};
+
+		return GetEntity(GetComponent<Parent>(handle).Handle);
+	}
+
+	std::vector<Entity> Scene::GetEntityChildren(EntityHandle handle) noexcept
+	{
+		std::vector<Entity> children;
+		if (!HasAllComponent<Children>(handle))
+			return children;
+
+		const auto& childrenHandles = GetComponent<Children>(handle).Handles;
+		children.reserve(childrenHandles.size());
+		for (EntityHandle childHandle : childrenHandles)
+			children.emplace_back(this, childHandle);
+
+		return children;
+	}
+
+	void Scene::AssignEntityParent(EntityHandle handle, EntityHandle parentHandle) noexcept
+	{
+		if (!IsValid(handle) || !IsValid(parentHandle))
+			return;
+
+		if (std::optional<Entity> actualParent = GetEntityParent(handle))
+		{
+			if (actualParent != parentHandle)
+			{
+				BM_CORE_WARN_FN("Entity already has a parent assigned, nothings changes (entity: '{}', actualParent: '{}', parent: '{}')",
+					handle, actualParent.value(), parentHandle);
+			}
+
+			return;
+		}
+
+		AddComponent<Parent>(handle, parentHandle);
+		AddOrGetComponent<Children>(parentHandle);
+		PatchComponent<Children>(parentHandle, [&](auto& children) { children.Handles.push_back(handle); });
+
+		BM_CORE_FN("Entity got assigned a parent (entity: '{}', parent: '{}')", handle, parentHandle);
 	}
 
 	void Scene::ClearEntities() noexcept

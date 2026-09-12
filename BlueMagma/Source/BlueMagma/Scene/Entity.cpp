@@ -43,29 +43,21 @@ namespace BM
 
 	Entity Entity::CreateChild(const Component::Transform::LocalSpace& transform) noexcept
 	{
-		Entity child = m_ScenePtr->CreateEntity(transform);
-		child.Add<Parent>(m_Handle);
+		return m_ScenePtr->CreateEntityWithParent(m_Handle, transform);
+	}
 
-		AddOrGet<Children>();
-		Patch<Children>([&](auto& children) { children.Handles.push_back(child); });
-
-		BM_CORE_FN("Entity created a child (entity: '{}', child: '{}')", m_Handle, child);
-
-		return child;
+	void Entity::AssignParent(EntityHandle parentHandle) noexcept
+	{
+		m_ScenePtr->AssignEntityParent(m_Handle, parentHandle);
 	}
 
 	std::vector<Entity> Entity::GetChildren() noexcept
 	{
-		std::vector<Entity> children;
-		if (!HasAll<Children>())
-			return children;
+		return m_ScenePtr->GetEntityChildren(m_Handle);
+	}
 
-		const auto& childList = Get<Children>().Handles;
-
-		children.reserve(childList.size());
-		for (auto& child : childList)
-			children.emplace_back(m_ScenePtr, child);
-
-		return children;
+	std::optional<Entity> Entity::GetParent() noexcept
+	{
+		return m_ScenePtr->GetEntityParent(m_Handle);
 	}
 }

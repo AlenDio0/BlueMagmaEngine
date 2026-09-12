@@ -29,21 +29,10 @@ namespace BM
 		operator bool() const noexcept;
 
 		Entity CreateChild(const Component::Transform::LocalSpace& transform = {}) noexcept;
+		void AssignParent(EntityHandle handle) noexcept;
 
 		std::vector<Entity> GetChildren() noexcept;
-		template<class... TComp>
-		inline std::vector<Entity> GetChildren() noexcept {
-			std::vector<Entity> children;
-
-			auto childList = GetChildren();
-			for (auto& child : childList)
-			{
-				if (child.HasAll<TComp...>())
-					children.push_back(child);
-			}
-
-			return children;
-		}
+		std::optional<Entity> GetParent() noexcept;
 
 		//======================================================================================
 

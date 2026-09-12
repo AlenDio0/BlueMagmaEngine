@@ -94,8 +94,15 @@ namespace BM
 		//======================================================================================
 
 		Entity CreateEntity(const Component::Transform::LocalSpace& transform = {}) noexcept;
-		Entity CreateEntityWithParent(EntityHandle parent, const Component::Transform::LocalSpace& transform = {}) noexcept;
+		Entity CreateEntityWithParent(EntityHandle parentHandle, const Component::Transform::LocalSpace& transform = {}) noexcept;
+
+		void AssignEntityParent(EntityHandle handle, EntityHandle parentHandle) noexcept;
+
 		Entity GetEntity(EntityHandle handle) noexcept;
+		std::optional<Entity> GetEntityParent(EntityHandle handle) noexcept;
+		std::vector<Entity> GetEntityChildren(EntityHandle handle) noexcept;
+
+		//======================================================================================
 
 		void ClearEntities() noexcept;
 		void ClearContext() noexcept;
