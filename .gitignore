@@ -1,7 +1,10 @@
 # Build Directories
-[Oo]ut/
-[Bb]uild*/
-[Bb]in/
+build/
+build_windows/
+build_linux/
+build_macos/
+out/
+bin/
 
 # IDE Directories
 .cache/
