@@ -1,80 +1,17 @@
 #include "bmpch.hpp"
 #include "RenderSystem.hpp"
 
+#include "Shader/RectFrag.hpp"
+#include "Shader/CircleFrag.hpp"
+
 #include "Math/Transform2D.hpp"
 #include "Scene/Scene.hpp"
 #include "Scene/Entity.hpp"
 
 namespace BM
 {
-	namespace Shader
-	{
-		static constexpr const char* s_RectFrag = R"(
-			uniform vec2 uSize;
-			uniform float uCorner;
-			uniform float uOutline;
-			uniform vec4 uOutlineColor;
-
-			uniform sampler2D uTexture;
-			uniform bool uHasTexture;
-
-			void main() {
-				vec2 pixelCoord = (gl_TexCoord[0].xy - 0.5) * uSize;
-				vec2 center = uSize * 0.5;
-
-				vec2 cornerOffset = abs(pixelCoord) - center + vec2(uCorner);
-				float distance = length(max(cornerOffset, 0.0)) + min(max(cornerOffset.x, cornerOffset.y), 0.0) - uCorner;
-
-				float pixelSize = fwidth(distance);
-
-				float alpha = 1.0 - smoothstep(-pixelSize, 0.0, distance);
-				if (alpha <= 0.0)
-					discard;
-
-				vec4 finalColor = uHasTexture ? texture2D(uTexture, gl_TexCoord[0].xy) * gl_Color : gl_Color;
-        
-				if (uOutline > 0.0)
-				{
-					float outlineFactor = smoothstep(-uOutline - pixelSize, -uOutline, distance);
-					finalColor = mix(gl_Color, uOutlineColor, outlineFactor);
-				}
-
-				gl_FragColor = vec4(finalColor.rgb, finalColor.a * alpha);
-			})";
-		static constexpr const char* s_CircleFrag = R"(
-			uniform float uRadius;
-			uniform float uOutline;
-			uniform vec4 uOutlineColor;
-
-			uniform sampler2D uTexture;
-			uniform bool uHasTexture;
-
-			void main() {
-				vec2 pixelCoord = (gl_TexCoord[0].xy - 0.5) * uRadius * 2.0;
-
-				float distance = length(pixelCoord) - uRadius;
-
-				float pixelSize = fwidth(distance);
-
-				float alpha = 1.0 - smoothstep(-pixelSize, 0.0, distance);
-				if (alpha <= 0.0)
-					discard;
-
-				vec4 finalColor = uHasTexture ? texture2D(uTexture, gl_TexCoord[0].xy) * gl_Color : gl_Color;
-        
-				if (uOutline > 0.0)
-				{
-					// Outline nitido calcolato sui pixel effettivi
-					float outlineFactor = smoothstep(-uOutline - pixelSize, -uOutline, distance);
-					finalColor = mix(gl_Color, uOutlineColor, outlineFactor);
-				}
-
-				gl_FragColor = vec4(finalColor.rgb, finalColor.a * alpha);
-			})";
-
-		static inline sf::Shader s_RectShader{ std::string_view(s_RectFrag), sf::Shader::Type::Fragment };
-		static inline sf::Shader s_CircleShader{ std::string_view(s_CircleFrag), sf::Shader::Type::Fragment };
-	}
+	static inline sf::Shader s_RectShader{ std::string_view(Shader::RectFrag), sf::Shader::Type::Fragment };
+	static inline sf::Shader s_CircleShader{ std::string_view(Shader::CircleFrag), sf::Shader::Type::Fragment };
 
 	//======================================================================================
 
@@ -390,7 +327,7 @@ namespace BM
 
 			const bool cHasTexture = command.Material.TexturePtr != nullptr;
 			if constexpr (std::is_same_v<TShape, RectShape>) {
-				auto& shader = Shader::s_RectShader;
+				auto& shader = s_RectShader;
 				shader.setUniform("uSize", sf::Glsl::Vec2(shape.Size));
 				shader.setUniform("uCorner", shape.Corner);
 				shader.setUniform("uOutline", command.Outline.Thickness);
@@ -399,7 +336,7 @@ namespace BM
 				return &shader;
 			}
 			else if constexpr (std::is_same_v<TShape, CircleShape>) {
-				auto& shader = Shader::s_CircleShader;
+				auto& shader = s_CircleShader;
 				shader.setUniform("uRadius", shape.Radius);
 				shader.setUniform("uOutline", command.Outline.Thickness);
 				shader.setUniform("uOutlineColor", sf::Glsl::Vec4(command.Outline.Color));

@@ -99,6 +99,10 @@ set(SOURCES
 add_library(BlueMagma STATIC)
 target_sources(BlueMagma PRIVATE ${SOURCES})
 
+# Shader Generator
+
+include(CMake/Shader.cmake)
+
 # IDE Structure
 set_target_properties(BlueMagma PROPERTIES FOLDER "BlueMagma/Core")
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${SOURCES})

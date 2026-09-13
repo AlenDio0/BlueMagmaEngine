@@ -74,14 +74,14 @@ namespace BM
 
 	namespace ColorDef
 	{
-		inline constexpr Color Black(0.f, 0.f, 0.f);
-		inline constexpr Color White(1.f, 1.f, 1.f);
-		inline constexpr Color Red(1.f, 0.f, 0.f);
-		inline constexpr Color Green(0.f, 1.f, 0.f);
-		inline constexpr Color Blue(0.f, 0.f, 1.f);
-		inline constexpr Color Yellow(1.f, 1.f, 0.f);
-		inline constexpr Color Magenta(1.f, 0.f, 1.f);
-		inline constexpr Color Cyan(0.f, 1.f, 1.f);
-		inline constexpr Color Clear(0.f, 0.f, 0.f, 0.f);
+		constexpr inline Color Black(0.f, 0.f, 0.f);
+		constexpr inline Color White(1.f, 1.f, 1.f);
+		constexpr inline Color Red(1.f, 0.f, 0.f);
+		constexpr inline Color Green(0.f, 1.f, 0.f);
+		constexpr inline Color Blue(0.f, 0.f, 1.f);
+		constexpr inline Color Yellow(1.f, 1.f, 0.f);
+		constexpr inline Color Magenta(1.f, 0.f, 1.f);
+		constexpr inline Color Cyan(0.f, 1.f, 1.f);
+		constexpr inline Color Clear(0.f, 0.f, 0.f, 0.f);
 	}
 }
