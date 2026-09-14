@@ -24,6 +24,15 @@ namespace BM
 {
 	struct RenderCommand
 	{
+		enum class ShaderType : uint8_t
+		{
+			None,
+			Rect,
+			RectTextured,
+			Circle,
+			CircleTextured,
+		};
+
 		struct SpriteData
 		{
 			const Texture* TexturePtr = nullptr;
@@ -39,17 +48,19 @@ namespace BM
 
 		//======================================================================================
 
+		ShaderType Shader = ShaderType::None;
+		float Z = 0.f;
+		Component::Outline Outline{};
+
 		struct MaterialType
 		{
 			Color Color = ColorDef::White;
 			const Texture* TexturePtr = nullptr;
 			RectFloat TextureCoords{ Vec2f(0.f), Vec2f(1.f) };
 		} Material{};
-		ShapeVariant Shape{};
 
-		float Z = 0.f;
+		ShapeVariant Shape{};
 		std::array<sf::Vertex, 6> Quad{};
-		Component::Outline Outline{};
 
 		template<typename TShape>
 		inline bool IsShape() const noexcept { return std::holds_alternative<TShape>(Shape); }

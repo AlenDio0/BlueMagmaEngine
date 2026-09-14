@@ -8,7 +8,7 @@ file(WRITE "${OUTPUT_FILE}"
 
 namespace BM::Shader
 {
-    constexpr inline const char* ${VAR_NAME} = R\"(
+    constexpr inline const char* s_${VAR_NAME} = R\"(
 ${SHADER_CONTENT}
 )\";
 }")

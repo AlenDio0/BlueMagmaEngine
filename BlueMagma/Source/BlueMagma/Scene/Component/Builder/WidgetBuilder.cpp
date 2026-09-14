@@ -80,25 +80,20 @@ namespace BM
 
 	TextBuilder InputTextBuilder::DefaultTextChildBuilder(Vec2f normalized) const noexcept
 	{
-		return TextBuilder().AtNormalized(m_Widget.Size, m_Transform.State.Origin, normalized).WithOrigin(Vec2f(0.5f))
-			.WithColor(BM::ColorDef::Black);
+		return TextBuilder().AtNormalized(m_Widget.Size, m_Transform.State.Origin, normalized)
+			.AtZ(0.1f).WithOrigin(Vec2f(0.5f)).WithColor(BM::ColorDef::Black);
 	}
 
 	RectBuilder InputTextBuilder::DefaultCursorChildBuilder() const noexcept
 	{
 		BM::Component::Transform::LocalSpace cursorTransform;
-		float cursorHeight = m_Widget.Size.Y / 1.5f;
-
 		if (m_InputText.TextChild)
-		{
 			cursorTransform = m_InputText.TextChild.Get<Component::Transform>().Local;
 
-			if (auto textRender = m_InputText.TextChild.TryGet<Component::TextRender>())
-				cursorHeight = static_cast<float>(textRender->CharSize);
-		}
+		const Vec2f cCursorSize{ 2.f, m_Widget.Size.Y / 1.5f };
 
-		return RectBuilder().WithTransform(cursorTransform).WithOrigin(Vec2f(0.5f)).AtZ(cursorTransform.Z + 1.f)
-			.WithHidden(true).WithColor(BM::ColorDef::Black).WithSize(Vec2f(2.f, cursorHeight));
+		return RectBuilder().WithTransform(cursorTransform).WithOrigin(Vec2f(0.5f)).AtZ(0.2f)
+			.WithHidden(true).WithColor(BM::ColorDef::Black).WithSize(cCursorSize);
 	}
 
 	Entity InputTextBuilder::Build(Scene& scene) noexcept

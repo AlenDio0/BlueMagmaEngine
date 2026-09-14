@@ -65,27 +65,26 @@ void GameLayer::OnAttach() noexcept
 
 	const BM::Vec2f cBackgroundSize = window->GetSize();
 
-	m_Background = m_Scene.CreateEntity({ .State{.Position{0.f}}, .Z = -1.f });
-	m_Background.Add<Comp::RectShape>(cBackgroundSize);
-	m_Background.Add<Comp::ColorMaterial>(BM::ColorDef::Green.WithAlpha(0.5f));
+	BM::RectBuilder().AtZ(-1.f).WithColor(BM::ColorDef::Green.WithAlpha(0.5F)).WithSize(cBackgroundSize)
+		.Build(m_Scene);
 
-	m_StatText = m_Scene.CreateEntity({ .State{.Position{0.f}}, .Z = 3.f });
-	m_StatText.Add<Comp::TextRender>(m_MainFontPtr, FormatStatText(0.f));
-	m_StatText.Add<Comp::ColorMaterial>(BM::ColorDef::White);
-	m_StatText.Add<Comp::Outline>(BM::ColorDef::Black, 1.f);
+	m_StatText = BM::TextBuilder().AtZ(10.f).WithOutline({ .Color = BM::ColorDef::Black, .Thickness = 1.f })
+		.WithFont(m_MainFontPtr).WithText(FormatStatText(0.f))
+		.Build(m_Scene);
 
-	constexpr float cAxisThickness = 3.f;
-	BM::Entity axisX = m_Scene.CreateEntity({ .State{.Position = cBackgroundSize.Center(), .Origin{0.5f}}, .Z = 5.f });
-	axisX.Add<Comp::RectShape>(BM::Vec2f(cBackgroundSize.X, cAxisThickness));
-	axisX.Add<Comp::ColorMaterial>(BM::ColorDef::White);
-	BM::Entity axisY = m_Scene.CreateEntity({ .State{.Position = cBackgroundSize.Center(), .Origin{0.5f}}, .Z = 5.f });
-	axisY.Add<Comp::RectShape>(BM::Vec2f(cAxisThickness, cBackgroundSize.Y));
-	axisY.Add<Comp::ColorMaterial>(BM::ColorDef::White);
+	{
+		constexpr float cAxisThickness = 3.f;
 
-	m_MouseRender = m_Scene.CreateEntity({ .State{.Position = cBackgroundSize.Center(), .Origin{0.5f}}, .Z = 10.f });
-	m_MouseRender.Add<Comp::CircleShape>(0.f);
-	m_MouseRender.Add<Comp::ColorMaterial>(BM::ColorDef::Clear);
-	m_MouseRender.Add<Comp::Outline>(BM::ColorDef::Red.WithAlpha(0.35f), 5.f);
+		BM::RectBuilder axisBuilder;
+		axisBuilder.At(cBackgroundSize.Center()).WithOrigin(BM::Vec2f(0.5f)).AtZ(5.f);
+
+		axisBuilder.WithSize(BM::Vec2f(cBackgroundSize.X, cAxisThickness)).Build(m_Scene);
+		axisBuilder.WithSize(BM::Vec2f(cAxisThickness, cBackgroundSize.X)).Build(m_Scene);
+	}
+
+	m_MouseRender = BM::CircleBuilder().At(cBackgroundSize.Center()).WithOrigin(BM::Vec2f(0.5f)).AtZ(10.f)
+		.WithColor(BM::ColorDef::Clear).WithOutline({ .Color = BM::ColorDef::Red.WithAlpha(0.3f), .Thickness = 5.f })
+		.Build(m_Scene);
 
 	if (m_InitExample)
 		InitExample();
@@ -126,16 +125,19 @@ void GameLayer::OnEvent(BM::Event& event) noexcept
 
 void GameLayer::OnUpdate(float deltaTime) noexcept
 {
-	m_FPSCounter++;
-	if (m_FPSTimer.AsSeconds() >= 1.f)
+	if (m_StatText)
 	{
-		m_FPSTimer.Restart();
+		m_FPSCounter++;
+		if (m_FPSTimer.AsSeconds() >= 1.f)
+		{
+			m_FPSTimer.Restart();
 
-		m_StatText.Patch<BM::Component::TextRender>([&](auto& text) {
-			text.Text = FormatStatText(deltaTime);
-			});
+			m_StatText.Patch<BM::Component::TextRender>([&](auto& text) {
+				text.Text = FormatStatText(deltaTime);
+				});
 
-		m_FPSCounter = 0u;
+			m_FPSCounter = 0u;
+		}
 	}
 
 	if (auto renderer = GetRenderer().lock())
@@ -269,17 +271,21 @@ void GameLayer::InitExample() noexcept
 		const uint8_t cColor = (uint8_t)(cPercentage * 255.f);
 		const float cOutlineThickness = i % 3 && i % 4 ? 0.f : 2.f;
 
+		const BM::Texture* cTexture = i % 4 && i % 5 ? texture : nullptr;
+
 		BM::RenderBuilder builder;
 		builder.AtX(cPosX).WithOutline({ .Color = BM::ColorDef::Black, .Thickness = cOutlineThickness });
 
 		builder.ToRect().AtY(cBasePosY).AtZ(0.1f)
 			.WithColor(BM::Color(cColor, 0u, 0u))
 			.WithSize(BM::Vec2f(cBoxSize)).WithCorner(5.f)
+			.WithTexture(cTexture)
 			.Build(m_Scene);
 
 		builder.ToCircle().AtY(cPercentage * cBasePosY).AtZ(0.2f)
 			.WithColor(BM::Color(0u, cColor, 0u))
 			.WithRadius(cBoxSize / 2.f)
+			.WithTexture(cTexture)
 			.Build(m_Scene);
 
 		builder.ToSprite().AtY(cBoundSize - (cPercentage * cBasePosY)).WithRotation(-45.f).AtZ(0.3f)
@@ -369,9 +375,7 @@ void GameLayer::InitUIExample() noexcept
 		auto inputBuilder = builder.ToCopy();
 		m_InputText = inputBuilder.AtZ(11.f)
 			.WithWidgetColor(0.7f, 0.85f).WithPlaceholder("hello...")
-			.WithTextChild(inputBuilder.DefaultTextChildBuilder()
-				.WithFont(m_MainFontPtr)
-				.Build(m_Scene))
+			.WithTextChild(inputBuilder.DefaultTextChildBuilder().WithFont(m_MainFontPtr).Build(m_Scene))
 			.Build(m_Scene);
 
 		m_FocusText = inputBuilder.DefaultTextChildBuilder().WithParent(m_InputText)
@@ -383,7 +387,7 @@ void GameLayer::InitUIExample() noexcept
 		pinBuilder.WithOrigin(BM::Vec2f(0.5f))
 			.WithColor(BM::ColorDef::Magenta).WithOutline({ .Thickness = 0.f })
 			.WithWidgetColor(0.75f, 1.f).WithPlaceholder("PIN...").WithPolicy(isdigit)
-			.WithTextChild(pinBuilder.DefaultTextChildBuilder(BM::Vec2f(0.1f, 0.5f)).WithOrigin(BM::Vec2f(0.f, 0.5f))
+			.WithTextChild(pinBuilder.DefaultTextChildBuilder(BM::Vec2f(0.05f, 0.5f)).WithOrigin(BM::Vec2f(0.f, 0.5f))
 				.WithColor(BM::ColorDef::Black).WithFont(m_MainFontPtr)
 				.Build(m_Scene))
 			.Build(m_Scene);

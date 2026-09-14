@@ -45,8 +45,6 @@ private:
 
 	BM::Scene m_Scene;
 
-	BM::Entity m_Background;
-
 	BM::Entity m_StatText;
 	uint32_t m_FPSCounter;
 	BM::Timer m_FPSTimer;

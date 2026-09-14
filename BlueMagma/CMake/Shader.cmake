@@ -24,6 +24,8 @@ endfunction()
 # Shaders
 
 bm_generate_shader(RectFrag "Rect.frag")
+bm_generate_shader(RectTexturedFrag "RectTextured.frag")
 bm_generate_shader(CircleFrag "Circle.frag")
+bm_generate_shader(CircleTexturedFrag "CircleTextured.frag")
 
 target_include_directories(BlueMagma PRIVATE "${BM_GENERATED_DIR}/..")
