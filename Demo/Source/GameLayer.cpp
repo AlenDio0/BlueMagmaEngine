@@ -271,7 +271,7 @@ void GameLayer::InitExample() noexcept
 		const uint8_t cColor = (uint8_t)(cPercentage * 255.f);
 		const float cOutlineThickness = i % 3 && i % 4 ? 0.f : 2.f;
 
-		const BM::Texture* cTexture = i % 4 && i % 5 ? texture : nullptr;
+		const BM::Texture* cTexture = i % 4 ? nullptr : texture;
 
 		BM::RenderBuilder builder;
 		builder.AtX(cPosX).WithOutline({ .Color = BM::ColorDef::Black, .Thickness = cOutlineThickness });

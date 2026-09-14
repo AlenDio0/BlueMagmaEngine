@@ -24,27 +24,22 @@ namespace BM
 {
 	struct RenderCommand
 	{
-		enum class ShaderType : uint8_t
+		enum class ShaderType
 		{
-			None,
+			None = 0,
 			Rect,
 			RectTextured,
 			Circle,
 			CircleTextured,
 		};
 
-		struct SpriteData
-		{
-			const Texture* TexturePtr = nullptr;
-			RectFloat TextureCoords{ Vec2f(0.f), Vec2f(1.f) };
-		};
 		struct TextData
 		{
 			const sf::Text* TextPtr = nullptr;
 			sf::Transform Matrix{};
 		};
 
-		using ShapeVariant = std::variant<Component::RectShape, Component::CircleShape, SpriteData, TextData>;
+		using ShapeVariant = std::variant<Component::RectShape, Component::CircleShape, TextData>;
 
 		//======================================================================================
 
@@ -83,5 +78,7 @@ namespace BM
 
 		static sf::RenderStates GetRenderStates(const Component::Transform& transform, Vec2f size, Vec2f offset = Vec2f(0.f)) noexcept;
 		static sf::Shader* GetRenderShader(const RenderCommand& command) noexcept;
+	private:
+		mutable std::vector<RenderCommand> m_RenderCommands;
 	};
 }

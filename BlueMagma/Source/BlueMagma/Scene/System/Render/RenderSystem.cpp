@@ -77,10 +77,7 @@ namespace BM
 
 	//======================================================================================
 
-	static inline void BuildRect(const Transform& transform, const RectShape& rect, Vec2f size, RenderCommand& outCommand) noexcept {
-		outCommand.Shape = RectShape{ .Size = size, .Corner = rect.Corner };
-		outCommand.Shader = !outCommand.Material.TexturePtr ? RenderCommand::ShaderType::Rect : RenderCommand::ShaderType::RectTextured;
-
+	static inline void BuildQuadCommand(const Transform& transform, Vec2f size, RenderCommand& outCommand) noexcept {
 		const RectFloat coords = outCommand.Material.TexturePtr
 			? outCommand.Material.TextureCoords
 			: RectFloat(Vec2f(0.f), Vec2f(1.f));
@@ -88,15 +85,20 @@ namespace BM
 		outCommand.Quad = BuildQuad(transform, outCommand.Material.Color, size, coords);
 	}
 
+	static inline void BuildRect(const Transform& transform, const RectShape& rect, Vec2f size, RenderCommand& outCommand) noexcept {
+		outCommand.Shape = RectShape{ .Size = size, .Corner = rect.Corner };
+		outCommand.Shader = !outCommand.Material.TexturePtr ? RenderCommand::ShaderType::Rect :
+			RenderCommand::ShaderType::RectTextured;
+
+		BuildQuadCommand(transform, size, outCommand);
+	}
+
 	static inline void BuildCircle(const Transform& transform, const CircleShape& circle, Vec2f size, RenderCommand& outCommand) noexcept {
 		outCommand.Shape = CircleShape{ .Radius = circle.Radius };
-		outCommand.Shader = !outCommand.Material.TexturePtr ? RenderCommand::ShaderType::Circle : RenderCommand::ShaderType::CircleTextured;
+		outCommand.Shader = !outCommand.Material.TexturePtr ? RenderCommand::ShaderType::Circle :
+			RenderCommand::ShaderType::CircleTextured;
 
-		const RectFloat coords = outCommand.Material.TexturePtr
-			? outCommand.Material.TextureCoords
-			: RectFloat(Vec2f(0.f), Vec2f(1.f));
-
-		outCommand.Quad = BuildQuad(transform, outCommand.Material.Color, size, coords);
+		BuildQuadCommand(transform, size, outCommand);
 	}
 
 	static inline void BuildSprite(const Transform& transform, const SpriteShape& sprite, Vec2f size, RenderCommand& outCommand) noexcept {
@@ -108,8 +110,6 @@ namespace BM
 
 		outCommand.Material.TexturePtr = sprite.TexturePtr;
 		outCommand.Material.TextureCoords = cCoords;
-
-		outCommand.Shape = RenderCommand::SpriteData{ .TexturePtr = texture, .TextureCoords = cCoords };
 
 		outCommand.Quad = BuildQuad(transform, outCommand.Material.Color, size, cCoords);
 	}
@@ -197,16 +197,15 @@ namespace BM
 
 		const RectFloat cCameraBounds = renderer->GetCamera().GetBounds();
 
-		static std::vector<RenderCommand> sRenderCommands;
-		sRenderCommands.clear();
-		sRenderCommands.reserve(scene.View<Transform>().size());
+		m_RenderCommands.clear();
+		m_RenderCommands.reserve(scene.View<Transform>().size());
 
-		CollectRender<RectShape>(scene, cCameraBounds, sRenderCommands);
-		CollectRender<CircleShape>(scene, cCameraBounds, sRenderCommands);
-		CollectRender<SpriteShape>(scene, cCameraBounds, sRenderCommands);
-		CollectRender<TextRender>(scene, cCameraBounds, sRenderCommands);
+		CollectRender<RectShape>(scene, cCameraBounds, m_RenderCommands);
+		CollectRender<CircleShape>(scene, cCameraBounds, m_RenderCommands);
+		CollectRender<SpriteShape>(scene, cCameraBounds, m_RenderCommands);
+		CollectRender<TextRender>(scene, cCameraBounds, m_RenderCommands);
 
-		std::ranges::stable_sort(sRenderCommands, [](const auto& left, const auto& right) {
+		std::ranges::stable_sort(m_RenderCommands, [](const auto& left, const auto& right) {
 			if (left.Z != right.Z)
 				return left.Z < right.Z;
 
@@ -234,7 +233,7 @@ namespace BM
 				}, left.Shape);
 			});
 
-		DrawRenderCommands(*renderer, sRenderCommands);
+		DrawRenderCommands(*renderer, m_RenderCommands);
 	}
 
 	void RenderSystem::DrawRenderCommands(Renderer& renderer, const std::vector<RenderCommand>& commands) noexcept
@@ -308,8 +307,6 @@ namespace BM
 				return leftShape.Size == rightShape.Size && leftShape.Corner == rightShape.Corner;
 			else if constexpr (std::is_same_v<TLeft, CircleShape>)
 				return leftShape.Radius == rightShape.Radius;
-			else if constexpr (std::is_same_v<TLeft, RenderCommand::SpriteData>)
-				return leftShape.TexturePtr == rightShape.TexturePtr;
 
 			return false;
 			}, left.Shape);

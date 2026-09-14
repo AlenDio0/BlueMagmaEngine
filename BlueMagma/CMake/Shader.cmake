@@ -1,13 +1,13 @@
-set(BM_SHADER_DIR    "${CMAKE_CURRENT_SOURCE_DIR}/Shader")
+set(BM_SHADER_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Shader")
 set(BM_GENERATED_DIR "${CMAKE_CURRENT_BINARY_DIR}/Generated/Shader")
-file(MAKE_DIRECTORY  "${BM_GENERATED_DIR}")
+file(MAKE_DIRECTORY "${BM_GENERATED_DIR}")
 
 function(bm_generate_shader VAR_NAME SHADER_FILE)
-    set(INPUT  "${BM_SHADER_DIR}/${SHADER_FILE}")
+    set(INPUT "${BM_SHADER_DIR}/${SHADER_FILE}")
     set(OUTPUT "${BM_GENERATED_DIR}/${VAR_NAME}.hpp")
 
     add_custom_command(
-        OUTPUT  "${OUTPUT}"
+        OUTPUT "${OUTPUT}"
         COMMAND ${CMAKE_COMMAND}
             -DINPUT_FILE=${INPUT}
             -DOUTPUT_FILE=${OUTPUT}

@@ -18,7 +18,7 @@ void main() {
 	if (uOutline > 0.0)
 	{
 		float outlineFactor = smoothstep(-uOutline - pixelWidth, -uOutline, distance);
-		finalColor = mix(gl_Color, uOutlineColor, outlineFactor);
+		finalColor = mix(finalColor, uOutlineColor, outlineFactor);
 	}
 
 	gl_FragColor = vec4(finalColor.rgb, finalColor.a * alpha);
