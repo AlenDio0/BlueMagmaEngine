@@ -49,7 +49,7 @@ namespace BM
 		void Stop(const std::string& key) noexcept;
 		void Pause(const std::string& key) noexcept;
 
-		sf::Sound* Get(const std::string& key) noexcept;
+		[[nodiscard]] sf::Sound* Get(const std::string& key) noexcept;
 	private:
 		void SetContext(sf::Sound& sound, const SoundContext& context) const noexcept;
 	private:

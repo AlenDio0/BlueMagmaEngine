@@ -14,7 +14,7 @@ namespace BM
 	class AssetManager
 	{
 	public:
-		bool LoadYaml(const std::string& yamlPath) noexcept;
+		[[nodiscard]] bool LoadYaml(const std::string& yamlPath) noexcept;
 
 		//======================================================================================
 
@@ -42,8 +42,9 @@ namespace BM
 
 		//======================================================================================
 
+
 		template<std::derived_from<AssetHandle> TAsset>
-		inline std::weak_ptr<TAsset> Retrieve(const std::string& key) noexcept {
+		[[nodiscard]] inline std::weak_ptr<TAsset> Retrieve(const std::string& key) noexcept {
 			if (auto asset = std::dynamic_pointer_cast<TAsset>(GetAsset(key).lock()))
 				return asset;
 
@@ -51,7 +52,7 @@ namespace BM
 		}
 
 		template<std::derived_from<AssetHandle> TAsset>
-		inline const TAsset& Get(const std::string& key) noexcept {
+		[[nodiscard]] inline const TAsset& Get(const std::string& key) noexcept {
 			if (const TAsset* asset = dynamic_cast<const TAsset*>(GetAsset(key).lock().get()))
 				return *asset;
 
@@ -61,7 +62,7 @@ namespace BM
 			return TAsset::GetDefault();
 		}
 
-		std::weak_ptr<AssetHandle> GetAsset(const std::string& key) noexcept;
+		[[nodiscard]] std::weak_ptr<AssetHandle> GetAsset(const std::string& key) noexcept;
 	private:
 		std::unordered_map<std::string, std::shared_ptr<AssetHandle>> m_Assets;
 	};

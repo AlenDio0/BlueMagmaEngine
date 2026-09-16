@@ -24,12 +24,12 @@ namespace BM
 
 		void AttachApplication(Application* applicationPtr) noexcept;
 	protected:
-		Application& GetApp() const noexcept;
+		[[nodiscard]] Application& GetApp() const noexcept;
 
-		std::weak_ptr<Window> GetWindow() const noexcept;
-		std::weak_ptr<Renderer> GetRenderer() const noexcept;
-		LayerMachine& GetLayers() const noexcept;
-		AssetManager& GetAssets() const noexcept;
+		[[nodiscard]] std::weak_ptr<Window> GetWindow() const noexcept;
+		[[nodiscard]] std::weak_ptr<Renderer> GetRenderer() const noexcept;
+		[[nodiscard]] LayerMachine& GetLayers() const noexcept;
+		[[nodiscard]] AssetManager& GetAssets() const noexcept;
 
 		template<std::derived_from<AppLayer> TAppLayer, typename... TArgs>
 		inline void QueueTransitionTo(TArgs&&... args) noexcept {
@@ -42,7 +42,7 @@ namespace BM
 		void QueueRemoveLayer() noexcept;
 
 		template<std::derived_from<AssetHandle> TAsset>
-		inline const TAsset& GetAsset(const std::string& key) const noexcept {
+		[[nodiscard]] inline const TAsset& GetAsset(const std::string& key) const noexcept {
 			return GetAssets().Get<TAsset>(key);
 		}
 	private:

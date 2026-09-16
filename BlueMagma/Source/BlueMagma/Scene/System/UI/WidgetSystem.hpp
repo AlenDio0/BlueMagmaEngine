@@ -18,7 +18,7 @@ namespace BM::UI
 		virtual void OnEvent(Scene& scene, Event& event) noexcept override;
 		virtual void OnUpdate(Scene& scene, float deltaTime) noexcept override;
 
-		static bool Contains(Registry& registry, const Component::Transform& transform, const Component::Widget& widget, Vec2i point) noexcept;
+		[[nodiscard]] static bool Contains(Registry& registry, const Component::Transform& transform, const Component::Widget& widget, Vec2i point) noexcept;
 	private:
 		bool OnMouseMoved(const EventHandle::MouseMoved& mouseMoved) noexcept;
 		bool OnMousePressed(const EventHandle::MouseButtonPressed& mousePressed, Scene& scene) noexcept;

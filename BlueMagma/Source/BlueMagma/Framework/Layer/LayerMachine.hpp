@@ -18,7 +18,7 @@ namespace BM
 		void QueuePush(std::unique_ptr<Layer> layer) noexcept;
 
 		template<std::derived_from<Layer> TLayer>
-		inline TLayer* GetLayer() const noexcept {
+		[[nodiscard]] inline TLayer* GetLayer() const noexcept {
 			for (const auto& layer : m_Layers)
 			{
 				if (TLayer* tLayer = dynamic_cast<TLayer*>(layer.get()))
@@ -26,7 +26,7 @@ namespace BM
 			}
 			return nullptr;
 		}
-		const std::vector<std::unique_ptr<Layer>>& GetLayers() noexcept;
+		[[nodiscard]] const std::vector<std::unique_ptr<Layer>>& GetLayers() noexcept;
 
 		bool ProcessLayerChanges() noexcept;
 	private:

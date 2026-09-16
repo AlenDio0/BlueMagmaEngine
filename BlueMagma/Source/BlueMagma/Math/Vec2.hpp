@@ -37,129 +37,129 @@ namespace BM
 
 		//======================================================================================
 
-		constexpr Vec2<float> Center() const noexcept {
+		[[nodiscard]] constexpr Vec2<float> Center() const noexcept {
 			return Vec2<float>(*this) / 2.f;
 		}
-		constexpr Vec2 Normalized() const noexcept {
+		[[nodiscard]] constexpr Vec2 Normalized() const noexcept {
 			if (*this == Zero())
 				return Zero();
 
 			return *this / Length();
 		}
-		constexpr Vec2 Squared() const noexcept {
+		[[nodiscard]] constexpr Vec2 Squared() const noexcept {
 			return (*this) * (*this);
 		}
-		constexpr Vec2 Round() const noexcept {
+		[[nodiscard]] constexpr Vec2 Round() const noexcept {
 			return Vec2(std::round(X), std::round(Y));
 		}
-		constexpr Vec2 Absolute() const noexcept {
+		[[nodiscard]] constexpr Vec2 Absolute() const noexcept {
 			return Vec2(std::abs(X), std::abs(Y));
 		}
-		constexpr Vec2 Swap() const noexcept {
+		[[nodiscard]] constexpr Vec2 Swap() const noexcept {
 			return Vec2(Y, X);
 		}
-		constexpr Vec2 Rotate() const noexcept {
+		[[nodiscard]] constexpr Vec2 Rotate() const noexcept {
 			return Vec2(Y, -X);
 		}
 
-		constexpr TValue Sum() const noexcept {
+		[[nodiscard]] constexpr TValue Sum() const noexcept {
 			return X + Y;
 		}
-		constexpr TValue Area() const noexcept {
+		[[nodiscard]] constexpr TValue Area() const noexcept {
 			return X * Y;
 		}
 
-		constexpr TValue Dot(const Vec2& vec) const noexcept {
+		[[nodiscard]] constexpr TValue Dot(const Vec2& vec) const noexcept {
 			return Vec2(*this * vec).Sum();
 		}
 
-		constexpr TValue SquaredLength() const noexcept {
+		[[nodiscard]] constexpr TValue SquaredLength() const noexcept {
 			return Squared().Sum();
 		}
-		constexpr TValue Length() const noexcept {
+		[[nodiscard]] constexpr TValue Length() const noexcept {
 			return sqrt(SquaredLength());
 		}
 
-		constexpr TValue SquaredDistance(const Vec2& vec) const noexcept {
+		[[nodiscard]] constexpr TValue SquaredDistance(const Vec2& vec) const noexcept {
 			return Vec2(*this - vec).SquaredLength();
 		}
-		constexpr TValue Distance(const Vec2& vec) const noexcept {
+		[[nodiscard]] constexpr TValue Distance(const Vec2& vec) const noexcept {
 			return sqrt(SquaredDistance(vec));
 		}
 
 		//======================================================================================
 
-		constexpr bool operator==(const Vec2& vec) const noexcept {
+		[[nodiscard]] constexpr bool operator==(const Vec2& vec) const noexcept {
 			return X == vec.X && Y == vec.Y;
 		}
-		constexpr bool operator==(const TValue& value) const noexcept {
+		[[nodiscard]] constexpr bool operator==(const TValue& value) const noexcept {
 			return X == value && Y == value;
 		}
 
-		constexpr bool operator!=(const Vec2& vec) const noexcept {
+		[[nodiscard]] constexpr bool operator!=(const Vec2& vec) const noexcept {
 			return !(*this == vec);
 		}
-		constexpr bool operator!=(const TValue& value) const noexcept {
+		[[nodiscard]] constexpr bool operator!=(const TValue& value) const noexcept {
 			return !(*this == value);
 		}
 
 		//======================================================================================
 
-		constexpr bool operator>(const Vec2& vec) const noexcept {
+		[[nodiscard]] constexpr bool operator>(const Vec2& vec) const noexcept {
 			return X > vec.X && Y > vec.Y;
 		}
-		constexpr bool operator>(const TValue& value) const noexcept {
+		[[nodiscard]] constexpr bool operator>(const TValue& value) const noexcept {
 			return X > value && Y > value;
 		}
 
-		constexpr bool operator>=(const Vec2& vec) const noexcept {
+		[[nodiscard]] constexpr bool operator>=(const Vec2& vec) const noexcept {
 			return X >= vec.X && Y >= vec.Y;
 		}
-		constexpr bool operator>=(const TValue& value) const noexcept {
+		[[nodiscard]] constexpr bool operator>=(const TValue& value) const noexcept {
 			return X >= value && Y >= value;
 		}
 
 		//======================================================================================
 
-		constexpr bool operator<(const Vec2& vec) const noexcept {
+		[[nodiscard]] constexpr bool operator<(const Vec2& vec) const noexcept {
 			return X < vec.X && Y < vec.Y;
 		}
-		constexpr bool operator<(const TValue& value) const noexcept {
+		[[nodiscard]] constexpr bool operator<(const TValue& value) const noexcept {
 			return X < value && Y < value;
 		}
 
-		constexpr bool operator<=(const Vec2& vec) const noexcept {
+		[[nodiscard]] constexpr bool operator<=(const Vec2& vec) const noexcept {
 			return X <= vec.X && Y <= vec.Y;
 		}
-		constexpr bool operator<=(const TValue& value) const noexcept {
+		[[nodiscard]] constexpr bool operator<=(const TValue& value) const noexcept {
 			return X <= value && Y <= value;
 		}
 
 		//======================================================================================
 
-		constexpr Vec2 operator+(const Vec2& vec) const noexcept {
+		[[nodiscard]] constexpr Vec2 operator+(const Vec2& vec) const noexcept {
 			return Vec2(X + vec.X, Y + vec.Y);
 		}
-		constexpr Vec2 operator-(const Vec2& vec) const noexcept {
+		[[nodiscard]] constexpr Vec2 operator-(const Vec2& vec) const noexcept {
 			return Vec2(X - vec.X, Y - vec.Y);
 		}
-		constexpr Vec2 operator*(const Vec2& vec) const noexcept {
+		[[nodiscard]] constexpr Vec2 operator*(const Vec2& vec) const noexcept {
 			return Vec2(X * vec.X, Y * vec.Y);
 		}
-		constexpr Vec2 operator/(const Vec2& vec) const noexcept {
+		[[nodiscard]] constexpr Vec2 operator/(const Vec2& vec) const noexcept {
 			return Vec2(X / vec.X, Y / vec.Y);
 		}
 
-		constexpr Vec2 operator+(const TValue& value) const noexcept {
+		[[nodiscard]] constexpr Vec2 operator+(const TValue& value) const noexcept {
 			return Vec2(X + value, Y + value);
 		}
-		constexpr Vec2 operator-(const TValue& value) const noexcept {
+		[[nodiscard]] constexpr Vec2 operator-(const TValue& value) const noexcept {
 			return Vec2(X - value, Y - value);
 		}
-		constexpr Vec2 operator*(const TValue& value) const noexcept {
+		[[nodiscard]] constexpr Vec2 operator*(const TValue& value) const noexcept {
 			return Vec2(X * value, Y * value);
 		}
-		constexpr Vec2 operator/(const TValue& value) const noexcept {
+		[[nodiscard]] constexpr Vec2 operator/(const TValue& value) const noexcept {
 			return Vec2(X / value, Y / value);
 		}
 
@@ -201,20 +201,20 @@ namespace BM
 
 		//======================================================================================
 
-		static constexpr Vec2 Zero() noexcept {
+		[[nodiscard]] static constexpr Vec2 Zero() noexcept {
 			return Vec2(0);
 		};
 
-		static constexpr Vec2 Up() noexcept {
+		[[nodiscard]] static constexpr Vec2 Up() noexcept {
 			return Vec2(0, -1);
 		};
-		static constexpr Vec2 Down() noexcept {
+		[[nodiscard]] static constexpr Vec2 Down() noexcept {
 			return Vec2(0, 1);
 		};
-		static constexpr Vec2 Left() noexcept {
+		[[nodiscard]] static constexpr Vec2 Left() noexcept {
 			return Vec2(-1, 0);
 		};
-		static constexpr Vec2 Right() noexcept {
+		[[nodiscard]] static constexpr Vec2 Right() noexcept {
 			return Vec2(1, 0);
 		};
 	};

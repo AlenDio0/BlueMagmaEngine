@@ -44,7 +44,7 @@ namespace BM
 		void SetMaxLagTime(float lag) noexcept;
 		void SetTimeScale(float timeScale) noexcept;
 
-		const ApplicationContext& GetContext() const noexcept;
+		[[nodiscard]] const ApplicationContext& GetContext() const noexcept;
 
 		//======================================================================================
 
@@ -55,8 +55,8 @@ namespace BM
 
 		void CreateOrReplaceWindow(WindowContext windowContext = {}) noexcept;
 
-		std::weak_ptr<Window> GetWindow() noexcept;
-		std::weak_ptr<Renderer> GetRenderer() noexcept;
+		[[nodiscard]] std::weak_ptr<Window> GetWindow() noexcept;
+		[[nodiscard]] std::weak_ptr<Renderer> GetRenderer() noexcept;
 
 		//======================================================================================
 

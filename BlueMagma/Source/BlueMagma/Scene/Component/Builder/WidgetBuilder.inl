@@ -48,8 +48,7 @@ namespace BM
 	template<typename TBuilder>
 	inline Entity WidgetBuilderBase<TBuilder>::BuildWidget(Scene& scene) noexcept
 	{
-		Entity entity = BuildBase(scene);
-		ApplyRender(entity);
+		Entity entity = BuildRender(scene);
 
 		switch (m_Widget.Shape)
 		{

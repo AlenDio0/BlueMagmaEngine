@@ -45,8 +45,8 @@ namespace BM
 		WindowMode(Vec2u size, uint32_t bitsPerPixel = 32u) noexcept;
 		WindowMode(const sf::VideoMode& videoMode) noexcept;
 
-		static WindowMode GetDesktopMode() noexcept;
-		static const std::vector<WindowMode>& GetFullscreenModes() noexcept;
+		[[nodiscard]] static WindowMode GetDesktopMode() noexcept;
+		[[nodiscard]] static const std::vector<WindowMode>& GetFullscreenModes() noexcept;
 	};
 
 	//======================================================================================
@@ -70,6 +70,5 @@ namespace BM
 
 		using EventCallbackFn = std::function<void(Event&)>;
 		EventCallbackFn EventCallback = nullptr;
-
 	};
 }

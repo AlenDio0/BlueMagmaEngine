@@ -31,16 +31,16 @@ namespace BM
 		void SetViewport(RectFloat viewport) noexcept;
 		void SetViewport(RectFloat viewport, Vec2u windowSize) noexcept;
 
-		Vec2f GetSize() const noexcept;
-		Vec2f GetCenter() const noexcept;
-		float GetZoomFactor() const noexcept;
-		RectFloat GetViewport() const noexcept;
+		[[nodiscard]] Vec2f GetSize() const noexcept;
+		[[nodiscard]] Vec2f GetCenter() const noexcept;
+		[[nodiscard]] float GetZoomFactor() const noexcept;
+		[[nodiscard]] RectFloat GetViewport() const noexcept;
 
-		bool Contains(Vec2f coords) const noexcept;
-		bool Contains(Vec2i point, Vec2u windowSize) const noexcept;
+		[[nodiscard]] bool Contains(Vec2f coords) const noexcept;
+		[[nodiscard]] bool Contains(Vec2i point, Vec2u windowSize) const noexcept;
 
-		RectFloat GetBounds() const noexcept;
-		sf::View GetView() const noexcept;
+		[[nodiscard]] RectFloat GetBounds() const noexcept;
+		[[nodiscard]] sf::View GetView() const noexcept;
 	private:
 		Vec2f m_Size;
 		Vec2f m_Center;

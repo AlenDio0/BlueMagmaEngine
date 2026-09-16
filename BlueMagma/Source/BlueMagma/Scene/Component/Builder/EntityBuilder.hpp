@@ -30,13 +30,13 @@ namespace BM
 
 		TBuilder& WithHidden(bool hidden) noexcept;
 
-		TBuilder ToCopy() const noexcept;
+		[[nodiscard]] TBuilder ToCopy() const noexcept;
 
 		virtual Entity Build(Scene& scene) noexcept = 0;
 	protected:
-		Entity BuildBase(Scene& scene) noexcept;
+		[[nodiscard]] Entity BuildBase(Scene& scene) noexcept;
 
-		TBuilder& Self() noexcept;
+		[[nodiscard]] TBuilder& Self() noexcept;
 
 		template<typename UBuilder>
 		inline void CopyEntityState(const EntityBuilderBase<UBuilder>& other) noexcept {

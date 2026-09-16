@@ -37,7 +37,7 @@ namespace BM
 		inline explicit Texture(const sf::Image& image)
 			: sf::Texture(image) {}
 
-		inline static const Texture& GetDefault() noexcept {
+		[[nodiscard]] inline static const Texture& GetDefault() noexcept {
 			static Texture* sTexture = new Texture{ sf::Image{ Vec2u(2), s_TextureBytes } };
 			return *sTexture;
 		}
@@ -62,7 +62,7 @@ namespace BM
 		inline explicit Font(const void* data, size_t bytesSize)
 			: sf::Font(data, bytesSize) {}
 
-		inline static const Font& GetDefault() noexcept {
+		[[nodiscard]] inline static const Font& GetDefault() noexcept {
 			static Font* sFont = new Font(CreateDefault());
 			return *sFont;
 		}
@@ -84,7 +84,7 @@ namespace BM
 		inline explicit SoundBuffer(const std::filesystem::path& path)
 			: sf::SoundBuffer(path) {}
 
-		inline static const SoundBuffer& GetDefault() noexcept {
+		[[nodiscard]] inline static const SoundBuffer& GetDefault() noexcept {
 			static SoundBuffer* sSoundBuffer = new SoundBuffer{};
 			return *sSoundBuffer;
 		}

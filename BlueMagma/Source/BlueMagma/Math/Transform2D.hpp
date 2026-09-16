@@ -13,7 +13,7 @@ namespace BM
 		Vec2f Origin{ 0.f };
 		float Rotation = 0.f;
 
-		static constexpr sf::Transform ToMatrix(const Transform2D& transform, RectFloat box) noexcept {
+		[[nodiscard]] static constexpr sf::Transform ToMatrix(const Transform2D& transform, RectFloat box) noexcept {
 			sf::Transform matrix;
 			return matrix
 				.translate(transform.Position)

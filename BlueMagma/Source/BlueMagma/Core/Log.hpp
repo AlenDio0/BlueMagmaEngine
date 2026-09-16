@@ -59,7 +59,7 @@ namespace BM
 	namespace LogUtils
 	{
 		template<typename... TArgs>
-		constexpr std::string UnpackFnArgs(std::string_view argNames, TArgs&&... args) noexcept {
+		[[nodiscard]] constexpr std::string UnpackFnArgs(std::string_view argNames, TArgs&&... args) noexcept {
 			if constexpr (sizeof...(TArgs) == 0)
 				return "";
 

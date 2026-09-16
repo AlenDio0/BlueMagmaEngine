@@ -58,9 +58,9 @@ namespace BM
 		std::array<sf::Vertex, 6> Quad{};
 
 		template<typename TShape>
-		inline bool IsShape() const noexcept { return std::holds_alternative<TShape>(Shape); }
+		[[nodiscard]] inline bool IsShape() const noexcept { return std::holds_alternative<TShape>(Shape); }
 		template<typename TShape>
-		inline const TShape& GetShape() const noexcept { return std::get<TShape>(Shape); }
+		[[nodiscard]] inline const TShape& GetShape() const noexcept { return std::get<TShape>(Shape); }
 	};
 
 	//======================================================================================
@@ -73,11 +73,11 @@ namespace BM
 		static void DrawRenderCommands(Renderer& renderer, const std::vector<RenderCommand>& commands) noexcept;
 		static void FlushBatch(Renderer& renderer, std::vector<sf::Vertex>& batch, const RenderCommand*& keyPtr) noexcept;
 
-		static bool IsInCameraBounds(RectFloat cameraBounds, const Component::Transform& transform, Vec2f size) noexcept;
-		static bool HasSameUniform(const RenderCommand& left, const RenderCommand& right) noexcept;
+		[[nodiscard]] static bool IsInCameraBounds(RectFloat cameraBounds, const Component::Transform& transform, Vec2f size) noexcept;
+		[[nodiscard]] static bool HasSameUniform(const RenderCommand& left, const RenderCommand& right) noexcept;
 
-		static sf::RenderStates GetRenderStates(const Component::Transform& transform, Vec2f size, Vec2f offset = Vec2f(0.f)) noexcept;
-		static sf::Shader* GetRenderShader(const RenderCommand& command) noexcept;
+		[[nodiscard]] static sf::RenderStates GetRenderStates(const Component::Transform& transform, Vec2f size, Vec2f offset = Vec2f(0.f)) noexcept;
+		[[nodiscard]] static sf::Shader* GetRenderShader(const RenderCommand& command) noexcept;
 	private:
 		mutable std::vector<RenderCommand> m_RenderCommands;
 	};

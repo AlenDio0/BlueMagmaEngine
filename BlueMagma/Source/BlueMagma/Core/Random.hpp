@@ -11,10 +11,10 @@ namespace BM
 
 		void SetSeed(uint64_t seed) noexcept;
 
-		uint64_t Generate(uint64_t min, uint64_t max) noexcept;
-		double GenerateDouble(double min, double max) noexcept;
+		[[nodiscard]] uint64_t Generate(uint64_t min, uint64_t max) noexcept;
+		[[nodiscard]] double GenerateDouble(double min, double max) noexcept;
 	public:
-		static Random& Get() noexcept;
+		[[nodiscard]] static Random& Get() noexcept;
 	private:
 		std::mt19937_64 m_Engine;
 	};

@@ -39,35 +39,35 @@ namespace BM
 
 		//======================================================================================
 
-		constexpr bool operator==(const Color& color) const noexcept {
+		[[nodiscard]] constexpr bool operator==(const Color& color) const noexcept {
 			return RGBA == color.RGBA;
 		}
 
 		//======================================================================================
 
-		friend constexpr Color operator+(const Color& left, const Color& right) noexcept {
-			return Color(IntToChannel(left.Red + right.Red), IntToChannel(left.Green + right.Green),
-				IntToChannel(left.Blue + right.Blue), IntToChannel(left.Alpha + right.Alpha));
+		[[nodiscard]] constexpr Color operator+(const Color& right) noexcept {
+			return Color(IntToChannel(Red + right.Red), IntToChannel(Green + right.Green),
+				IntToChannel(Blue + right.Blue), IntToChannel(Alpha + right.Alpha));
 		}
 
-		constexpr Color operator*(float value) const noexcept {
+		[[nodiscard]] constexpr Color operator*(float value) const noexcept {
 			return Color(FloatToChannel(value * Red), FloatToChannel(value * Green), FloatToChannel(value * Blue), FloatToChannel(value * Alpha));
 		}
 
 		//======================================================================================
 
-		constexpr Color WithAlpha(uint8_t alpha) const noexcept {
+		[[nodiscard]] constexpr Color WithAlpha(uint8_t alpha) const noexcept {
 			return Color(Red, Green, Blue, alpha);
 		}
-		constexpr Color WithAlpha(float alpha) const noexcept {
+		[[nodiscard]] constexpr Color WithAlpha(float alpha) const noexcept {
 			return WithAlpha(FloatToChannel(alpha * 255u));
 		}
 
 	private:
-		static constexpr uint8_t IntToChannel(int value) noexcept {
+		[[nodiscard]] static constexpr uint8_t IntToChannel(int value) noexcept {
 			return static_cast<uint8_t>(std::clamp(value, 0, 255));
 		}
-		static constexpr uint8_t FloatToChannel(float value) noexcept {
+		[[nodiscard]] static constexpr uint8_t FloatToChannel(float value) noexcept {
 			return static_cast<uint8_t>(value + 0.5f);
 		}
 	};

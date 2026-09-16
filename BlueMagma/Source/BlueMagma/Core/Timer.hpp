@@ -11,14 +11,14 @@ namespace BM
 
 		Timer Restart() noexcept;
 
-		float AsSeconds() const noexcept;
-		float AsMilli() const noexcept;
-		int64_t AsMicro() const noexcept;
-		int64_t AsNano() const noexcept;
+		[[nodiscard]] float AsSeconds() const noexcept;
+		[[nodiscard]] float AsMilli() const noexcept;
+		[[nodiscard]] int64_t AsMicro() const noexcept;
+		[[nodiscard]] int64_t AsNano() const noexcept;
 
-		std::chrono::nanoseconds Elapsed() const noexcept;
+		[[nodiscard]] std::chrono::nanoseconds Elapsed() const noexcept;
 
-		static std::chrono::steady_clock::time_point Now() noexcept;
+		[[nodiscard]] static std::chrono::steady_clock::time_point Now() noexcept;
 	private:
 		std::chrono::steady_clock::time_point m_StartPoint;
 	};

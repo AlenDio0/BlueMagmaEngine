@@ -19,36 +19,36 @@ namespace BM
 		Entity(Scene* scene, EntityHandle handle) noexcept;
 		inline ~Entity() noexcept = default;
 
-		Scene* GetScene() noexcept;
-		const Scene* GetScene() const noexcept;
+		[[nodiscard]] Scene* GetScene() noexcept;
+		[[nodiscard]] const Scene* GetScene() const noexcept;
 
-		EntityHandle GetHandle() const noexcept;
-		bool IsValid() const noexcept;
+		[[nodiscard]] EntityHandle GetHandle() const noexcept;
+		[[nodiscard]] bool IsValid() const noexcept;
 
-		operator EntityHandle() const noexcept;
-		operator bool() const noexcept;
+		[[nodiscard]] operator EntityHandle() const noexcept;
+		[[nodiscard]] operator bool() const noexcept;
 
-		Entity CreateChild(const Component::Transform::LocalSpace& transform = {}) noexcept;
+		[[nodiscard]] Entity CreateChild(const Component::Transform::LocalSpace& transform = {}) noexcept;
 		void AssignParent(EntityHandle handle) noexcept;
 
-		std::vector<Entity> GetChildren() noexcept;
-		std::optional<Entity> GetParent() noexcept;
+		[[nodiscard]] std::vector<Entity> GetChildren() noexcept;
+		[[nodiscard]] std::optional<Entity> GetParent() noexcept;
 
 		//======================================================================================
 
 		template<class... TComp>
-		inline bool HasAll() const noexcept {
+		[[nodiscard]] inline bool HasAll() const noexcept {
 			return m_ScenePtr->HasAllComponent<TComp...>(m_Handle);
 		}
 		template<class... TComp>
-		inline bool HasAny() const noexcept {
+		[[nodiscard]] inline bool HasAny() const noexcept {
 			return m_ScenePtr->HasAnyComponent<TComp...>(m_Handle);
 		}
 
 		//======================================================================================
 
 		template<class TComp>
-		inline decltype(auto) Get() const noexcept {
+		[[nodiscard]] inline decltype(auto) Get() const noexcept {
 			return m_ScenePtr->GetComponent<TComp>(m_Handle);
 		}
 		template<class TComp, typename... TArgs>
@@ -76,7 +76,7 @@ namespace BM
 		//======================================================================================
 
 		template<class TComp>
-		inline decltype(auto) TryGet() const noexcept {
+		[[nodiscard]] inline decltype(auto) TryGet() const noexcept {
 			return m_ScenePtr->TryGetComponent<TComp>(m_Handle);
 		}
 		template<class TComp, typename... TArgs>

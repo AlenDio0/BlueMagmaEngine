@@ -31,8 +31,6 @@ static inline void RunApplication(BM::Vec2u windowSize) {
 	if (!application.Assets.LoadYaml("Config/LoadAsset.yml"))
 		BM_ERROR("Couldn't load Asset Yaml");
 
-	application.GetRenderer();
-
 	if (auto font = application.Assets.Retrieve<BM::Font>("Minecraft").lock())
 	{
 		BM::Font newFont(*font);

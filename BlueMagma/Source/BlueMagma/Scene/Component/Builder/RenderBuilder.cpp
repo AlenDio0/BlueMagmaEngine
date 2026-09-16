@@ -38,10 +38,7 @@ namespace BM
 
 	Entity RenderBuilder::Build(Scene& scene) noexcept
 	{
-		Entity entity = BuildBase(scene);
-		ApplyRender(entity);
-
-		return entity;
+		return BuildRender(scene);
 	}
 
 	//======================================================================================
@@ -69,8 +66,7 @@ namespace BM
 
 	Entity RectBuilder::Build(Scene& scene) noexcept
 	{
-		Entity entity = BuildBase(scene);
-		ApplyRender(entity);
+		Entity entity = BuildRender(scene);
 		entity.Add<Component::RectShape>(m_RectShape);
 
 		return entity;
@@ -95,8 +91,7 @@ namespace BM
 
 	Entity CircleBuilder::Build(Scene& scene) noexcept
 	{
-		Entity entity = BuildBase(scene);
-		ApplyRender(entity);
+		Entity entity = BuildRender(scene);
 		entity.Add<Component::CircleShape>(m_Radius);
 
 		return entity;
@@ -126,8 +121,7 @@ namespace BM
 
 	Entity SpriteBuilder::Build(Scene& scene) noexcept
 	{
-		Entity entity = BuildBase(scene);
-		ApplyRender(entity);
+		Entity entity = BuildRender(scene);
 		entity.Add<Component::SpriteShape>(m_SpriteShape);
 
 		return entity;
@@ -141,7 +135,7 @@ namespace BM
 		return Self();
 	}
 
-	TextBuilder& TextBuilder::WithText(std::string text) noexcept
+	TextBuilder& TextBuilder::WithText(std::string_view text) noexcept
 	{
 		m_TextRender.Text = text;
 		return Self();
@@ -155,8 +149,7 @@ namespace BM
 
 	Entity TextBuilder::Build(Scene& scene) noexcept
 	{
-		Entity entity = BuildBase(scene);
-		ApplyRender(entity);
+		Entity entity = BuildRender(scene);
 		entity.Add<Component::TextRender>(m_TextRender);
 
 		return entity;

@@ -37,17 +37,17 @@ namespace BM
 		}
 	}
 
-	static inline sf::Text& GetCachedText(const TextRender& textRender) noexcept {
+	[[nodiscard]] static inline sf::Text& GetCachedText(const TextRender& textRender) noexcept {
 		UpdateTextCache(textRender);
 		return textRender.CachedText;
 	}
 
-	static inline RectFloat GetCachedTextBounds(const TextRender& textRender) noexcept {
+	[[nodiscard]] static inline RectFloat GetCachedTextBounds(const TextRender& textRender) noexcept {
 		UpdateTextCache(textRender);
 		return textRender.CachedBounds;
 	}
 
-	static inline std::array<sf::Vertex, 6> BuildQuad(const Transform& transform, Color color, Vec2f size, RectFloat coords) noexcept {
+	[[nodiscard]] static inline std::array<sf::Vertex, 6> BuildQuad(const Transform& transform, Color color, Vec2f size, RectFloat coords) noexcept {
 		const auto cMatrix = RenderSystem::GetRenderStates(transform, size).transform;
 		const Vec2f cMin = coords.Min(), cMax = coords.Max();
 		return { {
@@ -128,7 +128,7 @@ namespace BM
 	}
 
 	template<typename TRenderComp>
-	static inline RenderCommand BuildRenderCommand(Entity entity, const Transform& transform, const TRenderComp& render, Vec2f size) noexcept {
+	[[nodiscard]] static inline RenderCommand BuildRenderCommand(Entity entity, const Transform& transform, const TRenderComp& render, Vec2f size) noexcept {
 		RenderCommand command{ .Z = transform.Global.Z };
 		PopulateRenderCommand(entity, command);
 
@@ -147,7 +147,7 @@ namespace BM
 	//======================================================================================
 
 	template<typename TRenderComp>
-	static inline Vec2f GetRenderSize(const TRenderComp& render) noexcept {
+	[[nodiscard]] static inline Vec2f GetRenderSize(const TRenderComp& render) noexcept {
 		if constexpr (std::is_same_v<TRenderComp, RectShape>)
 			return render.Size;
 		else if constexpr (std::is_same_v<TRenderComp, CircleShape>)

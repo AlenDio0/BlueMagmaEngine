@@ -47,17 +47,17 @@ namespace BM
 		void SetPosition(Vec2i point) const noexcept;
 		void SetMousePosition(Vec2i point) const noexcept;
 
-		bool IsOpen() const noexcept;
-		bool HasFocus() const noexcept;
+		[[nodiscard]] bool IsOpen() const noexcept;
+		[[nodiscard]] bool HasFocus() const noexcept;
 
-		Vec2u GetSize() const noexcept;
-		Vec2i GetPosition() const noexcept;
-		Vec2i GetMousePosition() const noexcept;
+		[[nodiscard]] Vec2u GetSize() const noexcept;
+		[[nodiscard]] Vec2i GetPosition() const noexcept;
+		[[nodiscard]] Vec2i GetMousePosition() const noexcept;
 
-		std::weak_ptr<Renderer> GetRenderer() noexcept;
-		std::weak_ptr<WindowHandle> GetHandle() const noexcept;
+		[[nodiscard]] std::weak_ptr<Renderer> GetRenderer() noexcept;
+		[[nodiscard]] std::weak_ptr<WindowHandle> GetHandle() const noexcept;
 	private:
-		std::shared_ptr<WindowHandle> GetHandleRef() const noexcept;
+		[[nodiscard]] std::shared_ptr<WindowHandle> GetHandleRef() const noexcept;
 	private:
 		std::shared_ptr<Renderer> m_Renderer;
 		std::shared_ptr<WindowHandle> m_Handle;

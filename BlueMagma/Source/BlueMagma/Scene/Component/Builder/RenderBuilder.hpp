@@ -26,14 +26,14 @@ namespace BM
 		template<typename UBuilder>
 		void CopyRenderState(const RenderBuilderBase<UBuilder>& other) noexcept;
 
-		virtual Entity Build(Scene& scene) noexcept = 0;
+		virtual Entity Build(Scene& scene) noexcept override = 0;
 	protected:
 		template<typename UBuilder> friend class RenderBuilderBase;
 
 		using EntityBuilderBase<TBuilder>::Self;
 		using EntityBuilderBase<TBuilder>::BuildBase;
 	protected:
-		void ApplyRender(Entity entity);
+		[[nodiscard]] Entity BuildRender(Scene& scene);
 
 	protected:
 		Color m_Color = ColorDef::White;
@@ -46,10 +46,10 @@ namespace BM
 	class RenderBuilder : public RenderBuilderBase<RenderBuilder>
 	{
 	public:
-		RectBuilder ToRect() noexcept;
-		CircleBuilder ToCircle() noexcept;
-		SpriteBuilder ToSprite() noexcept;
-		TextBuilder ToText() noexcept;
+		[[nodiscard]] RectBuilder ToRect() noexcept;
+		[[nodiscard]] CircleBuilder ToCircle() noexcept;
+		[[nodiscard]] SpriteBuilder ToSprite() noexcept;
+		[[nodiscard]] TextBuilder ToText() noexcept;
 
 		virtual Entity Build(Scene& scene) noexcept override;
 	};
@@ -62,7 +62,7 @@ namespace BM
 		RectBuilder& WithSize(Vec2f size) noexcept;
 		RectBuilder& WithCorner(float corner) noexcept;
 
-		WidgetBuilder ToWidget() noexcept;
+		[[nodiscard]] WidgetBuilder ToWidget() noexcept;
 
 		virtual Entity Build(Scene& scene) noexcept override;
 	private:
@@ -78,7 +78,7 @@ namespace BM
 	public:
 		CircleBuilder& WithRadius(float radius) noexcept;
 
-		WidgetBuilder ToWidget() noexcept;
+		[[nodiscard]] WidgetBuilder ToWidget() noexcept;
 
 		virtual Entity Build(Scene& scene) noexcept override;
 	private:
@@ -110,7 +110,7 @@ namespace BM
 	{
 	public:
 		TextBuilder& WithFont(const Font* font) noexcept;
-		TextBuilder& WithText(std::string text) noexcept;
+		TextBuilder& WithText(std::string_view text) noexcept;
 		TextBuilder& WithCharSize(uint32_t charSize) noexcept;
 
 		virtual Entity Build(Scene& scene) noexcept override;

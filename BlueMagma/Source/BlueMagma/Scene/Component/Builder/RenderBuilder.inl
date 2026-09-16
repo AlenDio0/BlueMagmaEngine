@@ -34,13 +34,18 @@ namespace BM
 	}
 
 	template<typename TBuilder>
-	inline void RenderBuilderBase<TBuilder>::ApplyRender(Entity entity)
+	inline Entity RenderBuilderBase<TBuilder>::BuildRender(Scene& scene)
 	{
+		Entity entity = BuildBase(scene);
+
 		entity.Add<Component::ColorMaterial>(m_Color);
 
 		if (m_Outline)
 			entity.Add<Component::Outline>(m_Outline.value());
+
 		if (m_TextureMaterial)
 			entity.Add<Component::TextureMaterial>(m_TextureMaterial.value());
+
+		return entity;
 	}
 }

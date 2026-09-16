@@ -29,18 +29,18 @@ namespace BM
 
 		void ResetCamera() noexcept;
 
-		Vec2f PixelToCoords(Vec2i point) const noexcept;
-		Vec2f PixelToCoords(Vec2i point, const Camera2D& camera) const noexcept;
-		Vec2i CoordsToPixel(Vec2f coords) const noexcept;
-		Vec2i CoordsToPixel(Vec2f coords, const Camera2D& camera) const noexcept;
+		[[nodiscard]] Vec2f PixelToCoords(Vec2i point) const noexcept;
+		[[nodiscard]] Vec2f PixelToCoords(Vec2i point, const Camera2D& camera) const noexcept;
+		[[nodiscard]] Vec2i CoordsToPixel(Vec2f coords) const noexcept;
+		[[nodiscard]] Vec2i CoordsToPixel(Vec2f coords, const Camera2D& camera) const noexcept;
 
-		Vec2u GetSize() const noexcept;
-		const Camera2D& GetCamera() const noexcept;
-		Camera2D GetDefaultCamera() const noexcept;
+		[[nodiscard]] Vec2u GetSize() const noexcept;
+		[[nodiscard]] const Camera2D& GetCamera() const noexcept;
+		[[nodiscard]] Camera2D GetDefaultCamera() const noexcept;
 
-		std::weak_ptr<WindowHandle> GetHandle() const noexcept;
+		[[nodiscard]] std::weak_ptr<WindowHandle> GetHandle() const noexcept;
 	private:
-		std::shared_ptr<WindowHandle> GetHandleRef() const noexcept;
+		[[nodiscard]] std::shared_ptr<WindowHandle> GetHandleRef() const noexcept;
 	private:
 		std::weak_ptr<WindowHandle> m_Handle;
 		Camera2D m_Camera;

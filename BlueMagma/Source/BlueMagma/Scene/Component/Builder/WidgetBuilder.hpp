@@ -28,15 +28,14 @@ namespace BM
 		template<typename UBuilder>
 		void CopyWidgetState(const WidgetBuilderBase<UBuilder>& other) noexcept;
 
-		virtual Entity Build(Scene& scene) noexcept = 0;
+		virtual Entity Build(Scene& scene) noexcept override = 0;
 	protected:
-		Entity BuildWidget(Scene& scene) noexcept;
+		[[nodiscard]] Entity BuildWidget(Scene& scene) noexcept;
 	protected:
 		template<typename UBuilder> friend class WidgetBuilderBase;
 
 		using EntityBuilderBase<TBuilder>::Self;
-		using EntityBuilderBase<TBuilder>::BuildBase;
-		using RenderBuilderBase<TBuilder>::ApplyRender;
+		using RenderBuilderBase<TBuilder>::BuildRender;
 		using RenderBuilderBase<TBuilder>::m_Color;
 	protected:
 		Component::Widget m_Widget{};
@@ -51,8 +50,8 @@ namespace BM
 	class WidgetBuilder : public WidgetBuilderBase<WidgetBuilder>
 	{
 	public:
-		ButtonBuilder ToButton() noexcept;
-		InputTextBuilder ToInputText() noexcept;
+		[[nodiscard]] ButtonBuilder ToButton() noexcept;
+		[[nodiscard]] InputTextBuilder ToInputText() noexcept;
 
 		virtual Entity Build(Scene& scene) noexcept override;
 	};
@@ -82,8 +81,8 @@ namespace BM
 		InputTextBuilder& WithTextChild(Entity entity) noexcept;
 		InputTextBuilder& WithCursorChild(Entity entity) noexcept;
 
-		TextBuilder DefaultTextChildBuilder(Vec2f normalized = { 0.5f, 0.5f }) const noexcept;
-		RectBuilder DefaultCursorChildBuilder() const noexcept;
+		[[nodiscard]] TextBuilder DefaultTextChildBuilder(Vec2f normalized = { 0.5f, 0.5f }) const noexcept;
+		[[nodiscard]] RectBuilder DefaultCursorChildBuilder() const noexcept;
 
 		virtual Entity Build(Scene& scene) noexcept override;
 	private:

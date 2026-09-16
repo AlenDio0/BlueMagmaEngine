@@ -49,7 +49,7 @@ namespace BM
 	public:
 		Scene() noexcept;
 
-		Registry& GetRegistry() noexcept;
+		[[nodiscard]] Registry& GetRegistry() noexcept;
 
 		//======================================================================================
 
@@ -93,14 +93,14 @@ namespace BM
 
 		//======================================================================================
 
-		Entity CreateEntity(const Component::Transform::LocalSpace& transform = {}) noexcept;
-		Entity CreateEntityWithParent(EntityHandle parentHandle, const Component::Transform::LocalSpace& transform = {}) noexcept;
+		[[nodiscard]] Entity CreateEntity(const Component::Transform::LocalSpace& transform = {}) noexcept;
+		[[nodiscard]] Entity CreateEntityWithParent(EntityHandle parentHandle, const Component::Transform::LocalSpace& transform = {}) noexcept;
 
 		void AssignEntityParent(EntityHandle handle, EntityHandle parentHandle) noexcept;
 
-		Entity GetEntity(EntityHandle handle) noexcept;
-		std::optional<Entity> GetEntityParent(EntityHandle handle) noexcept;
-		std::vector<Entity> GetEntityChildren(EntityHandle handle) noexcept;
+		[[nodiscard]] Entity GetEntity(EntityHandle handle) noexcept;
+		[[nodiscard]] std::optional<Entity> GetEntityParent(EntityHandle handle) noexcept;
+		[[nodiscard]] std::vector<Entity> GetEntityChildren(EntityHandle handle) noexcept;
 
 		//======================================================================================
 
@@ -109,12 +109,12 @@ namespace BM
 		void Clear() noexcept;
 		void Destroy(EntityHandle handle) noexcept;
 
-		bool IsValid(EntityHandle handle) const noexcept;
+		[[nodiscard]] bool IsValid(EntityHandle handle) const noexcept;
 
 		//======================================================================================
 
 		void AttachRenderer(std::weak_ptr<Renderer> renderer) noexcept;
-		std::weak_ptr<Renderer> GetRenderer() noexcept;
+		[[nodiscard]] std::weak_ptr<Renderer> GetRenderer() noexcept;
 
 		//======================================================================================
 
@@ -134,15 +134,15 @@ namespace BM
 		//======================================================================================
 
 		template<class... TComp>
-		inline decltype(auto) View() noexcept {
+		[[nodiscard]] inline decltype(auto) View() noexcept {
 			return m_Registry.view<TComp...>();
 		}
 		template<class... TComp>
-		inline decltype(auto) View() const noexcept {
+		[[nodiscard]] inline decltype(auto) View() const noexcept {
 			return m_Registry.view<TComp...>();
 		}
 		template<class... TComp, class Func>
-		inline bool ViewAnyOf(Func&& func) const noexcept {
+		[[nodiscard]] inline bool ViewAnyOf(Func&& func) const noexcept {
 			auto view = View<TComp...>();
 			bool satisfied = false;
 			view.each([&](auto entity, const auto&... comps) {
@@ -155,7 +155,7 @@ namespace BM
 			return satisfied;
 		}
 		template<class... TComp, class Func>
-		inline bool ViewAllOf(Func&& func) const noexcept {
+		[[nodiscard]] inline bool ViewAllOf(Func&& func) const noexcept {
 			auto view = View<TComp...>();
 			bool allSatisfied = true;
 			view.each([&](auto entity, auto&... comps) {
@@ -169,7 +169,7 @@ namespace BM
 		}
 
 		template<typename TView>
-		static inline decltype(auto) ViewToVector(TView view) noexcept {
+		[[nodiscard]] static inline decltype(auto) ViewToVector(TView view) noexcept {
 			std::vector<EntityHandle> entities;
 			entities.reserve(view.size_hint());
 			view.each([&](auto entity, const auto&...) { entities.push_back(entity); });
@@ -179,15 +179,15 @@ namespace BM
 		//======================================================================================
 
 		template<class TComp>
-		inline bool HasCtxComponent() const noexcept {
+		[[nodiscard]] inline bool HasCtxComponent() const noexcept {
 			return m_Registry.ctx().find<TComp>();
 		}
 		template<class TComp>
-		inline decltype(auto) TryGetCtxComponent() noexcept {
+		[[nodiscard]] inline decltype(auto) TryGetCtxComponent() noexcept {
 			return m_Registry.ctx().find<TComp>();
 		}
 		template<class TComp>
-		inline decltype(auto) GetCtxComponent() noexcept {
+		[[nodiscard]] inline decltype(auto) GetCtxComponent() noexcept {
 			BM_CORE_ASSERT(HasCtxComponent<TComp>(), "Context doesn't have TComp");
 			return m_Registry.ctx().get<TComp>();
 		}
@@ -204,18 +204,18 @@ namespace BM
 		//======================================================================================
 
 		template<class... TComp>
-		inline bool HasAllComponent(EntityHandle handle) const noexcept {
+		[[nodiscard]] inline bool HasAllComponent(EntityHandle handle) const noexcept {
 			return m_Registry.all_of<TComp...>(handle);
 		}
 		template<class... TComp>
-		inline bool HasAnyComponent(EntityHandle handle) const noexcept {
+		[[nodiscard]] inline bool HasAnyComponent(EntityHandle handle) const noexcept {
 			return m_Registry.any_of<TComp...>(handle);
 		}
 
 		//======================================================================================
 
 		template<class TComp>
-		inline decltype(auto) GetComponent(EntityHandle handle) const noexcept {
+		[[nodiscard]] inline decltype(auto) GetComponent(EntityHandle handle) const noexcept {
 			BM_CORE_ASSERT(HasAllComponent<TComp>(handle), "Entity doesn't have TComp");
 			return m_Registry.get<TComp>(handle);
 		}
@@ -243,7 +243,7 @@ namespace BM
 		//======================================================================================
 
 		template<class TComp>
-		inline decltype(auto) TryGetComponent(EntityHandle handle) const noexcept {
+		[[nodiscard]] inline decltype(auto) TryGetComponent(EntityHandle handle) const noexcept {
 			return m_Registry.try_get<TComp>(handle);
 		}
 		template<class TComp, typename... TArgs>

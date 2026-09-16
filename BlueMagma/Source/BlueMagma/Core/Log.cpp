@@ -22,12 +22,12 @@ namespace BM
 		std::shared_ptr<spdlog::logger> AppLogger;
 	} s_Log;
 
-	static inline spdlog::level::level_enum ConvertLevel(Log::Level level) noexcept {
+	[[nodiscard]] static inline spdlog::level::level_enum ConvertLevel(Log::Level level) noexcept {
 		return static_cast<spdlog::level::level_enum>(level);
 	}
 
 	template<typename TSink, typename... TArgs>
-	static inline spdlog::sink_ptr CreateSink(Log::Level level, const std::string& pattern, TArgs&&... args) noexcept {
+	[[nodiscard]] static inline spdlog::sink_ptr CreateSink(Log::Level level, const std::string& pattern, TArgs&&... args) noexcept {
 		if (level == Log::Off)
 			return nullptr;
 
@@ -39,7 +39,7 @@ namespace BM
 	}
 
 	template<typename TSink, typename... TArgs>
-	static inline void AddSink(Log::Level core, Log::Level app, const std::string& pattern, TArgs&&... args) noexcept {
+	[[nodiscard]] static inline void AddSink(Log::Level core, Log::Level app, const std::string& pattern, TArgs&&... args) noexcept {
 		s_Log.Sinks.emplace_back(
 			CreateSink<TSink>(core, pattern, std::forward<TArgs>(args)...),
 			CreateSink<TSink>(app, pattern, std::forward<TArgs>(args)...)

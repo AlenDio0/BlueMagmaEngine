@@ -57,24 +57,24 @@ namespace BM
 
 		//======================================================================================
 
-		constexpr TValue Area() const noexcept {
+		[[nodiscard]] constexpr TValue Area() const noexcept {
 			return Size.Area();
 		}
-		constexpr Vec2<float> Center() const noexcept {
+		[[nodiscard]] constexpr Vec2<float> Center() const noexcept {
 			return static_cast<Vec2<float>>(Position) + Size.Center();
 		}
-		constexpr Vec2<TValue> Min() const noexcept {
+		[[nodiscard]] constexpr Vec2<TValue> Min() const noexcept {
 			return Position + Vec2<TValue>(Min(Size.X, 0), Min(Size.Y, 0));
 		}
-		constexpr Vec2<TValue> Max() const noexcept {
+		[[nodiscard]] constexpr Vec2<TValue> Max() const noexcept {
 			return Position + Vec2<TValue>(Max(Size.X, 0), Max(Size.Y, 0));
 		}
 
-		constexpr bool Contains(const Vec2<TValue>& vec) const noexcept {
+		[[nodiscard]] constexpr bool Contains(const Vec2<TValue>& vec) const noexcept {
 			const Vec2<TValue> min = Min(), max = Max();
 			return (vec >= min) && (vec <= max);
 		}
-		constexpr bool Intersects(const Rect<TValue>& rect) const noexcept {
+		[[nodiscard]] constexpr bool Intersects(const Rect<TValue>& rect) const noexcept {
 			const Vec2<TValue> min1 = Min(), min2 = rect.Min(), max1 = Max(), max2 = rect.Max();
 			const TValue left = Max(min1.X, min2.X), right = Min(max1.X, max2.X);
 			const TValue top = Max(min1.Y, min2.Y), bottom = Min(max1.Y, max2.Y);
@@ -83,82 +83,82 @@ namespace BM
 
 		//======================================================================================
 
-		constexpr bool operator==(const Rect& rect) const noexcept {
+		[[nodiscard]] constexpr bool operator==(const Rect& rect) const noexcept {
 			return Position == rect.Position && Size == rect.Size;
 		}
-		constexpr bool operator==(const Vec2<TValue>& vec) const noexcept {
+		[[nodiscard]] constexpr bool operator==(const Vec2<TValue>& vec) const noexcept {
 			return Position == vec && Size == vec;
 		}
-		constexpr bool operator==(const TValue& value) const noexcept {
+		[[nodiscard]] constexpr bool operator==(const TValue& value) const noexcept {
 			return Position == value && Size == value;
 		}
 
-		constexpr bool operator!=(const Rect& rect) const noexcept {
+		[[nodiscard]] constexpr bool operator!=(const Rect& rect) const noexcept {
 			return !(*this == rect);
 		}
-		constexpr bool operator!=(const Vec2<TValue>& vec) const noexcept {
+		[[nodiscard]] constexpr bool operator!=(const Vec2<TValue>& vec) const noexcept {
 			return !(*this == vec);
 		}
-		constexpr bool operator!=(const TValue& value) const noexcept {
+		[[nodiscard]] constexpr bool operator!=(const TValue& value) const noexcept {
 			return !(*this == value);
 		}
 
 		//======================================================================================
 
-		constexpr Rect operator+(const Rect& rect) const noexcept {
+		[[nodiscard]] constexpr Rect operator+(const Rect& rect) const noexcept {
 			return Rect(Position + rect.Position, Size + rect.Size);
 		}
-		constexpr Rect operator-(const Rect& rect) const noexcept {
+		[[nodiscard]] constexpr Rect operator-(const Rect& rect) const noexcept {
 			return Rect(Position - rect.Position, Size - rect.Size);
 		}
-		constexpr Rect operator*(const Rect& rect) const noexcept {
+		[[nodiscard]] constexpr Rect operator*(const Rect& rect) const noexcept {
 			return Rect(Position * rect.Position, Size * rect.Size);
 		}
-		constexpr Rect operator/(const Rect& rect) const noexcept {
+		[[nodiscard]] constexpr Rect operator/(const Rect& rect) const noexcept {
 			return Rect(Position / rect.Position, Size / rect.Size);
 		}
 
 		template<typename UValue = TValue>
-		constexpr Rect operator+(const Vec2<UValue>& vec) const noexcept {
+		[[nodiscard]] constexpr Rect operator+(const Vec2<UValue>& vec) const noexcept {
 			return Rect(Position + vec, Size + vec);
 		}
 		template<typename UValue = TValue>
-		constexpr Rect operator-(const Vec2<UValue>& vec) const noexcept {
+		[[nodiscard]] constexpr Rect operator-(const Vec2<UValue>& vec) const noexcept {
 			return Rect(Position - vec, Size - vec);
 		}
 		template<typename UValue = TValue>
-		constexpr Rect operator*(const Vec2<UValue>& vec) const noexcept {
+		[[nodiscard]] constexpr Rect operator*(const Vec2<UValue>& vec) const noexcept {
 			return Rect(Position * vec, Size * vec);
 		}
 		template<typename UValue = TValue>
-		constexpr Rect operator/(const Vec2<UValue>& vec) const noexcept {
+		[[nodiscard]] constexpr Rect operator/(const Vec2<UValue>& vec) const noexcept {
 			return Rect(Position / vec, Size / vec);
 		}
 
-		constexpr Rect operator+(const TValue& value) const noexcept {
+		[[nodiscard]] constexpr Rect operator+(const TValue& value) const noexcept {
 			return Rect(Position + value, Size + value);
 		}
-		constexpr Rect operator-(const TValue& value) const noexcept {
+		[[nodiscard]] constexpr Rect operator-(const TValue& value) const noexcept {
 			return Rect(Position - value, Size - value);
 		}
-		constexpr Rect operator*(const TValue& value) const noexcept {
+		[[nodiscard]] constexpr Rect operator*(const TValue& value) const noexcept {
 			return Rect(Position * value, Size * value);
 		}
-		constexpr Rect operator/(const TValue& value) const noexcept {
+		[[nodiscard]] constexpr Rect operator/(const TValue& value) const noexcept {
 			return Rect(Position / value, Size / value);
 		}
 
 		//======================================================================================
 
-		static constexpr Rect<TValue> Zero() noexcept {
+		[[nodiscard]] static constexpr Rect<TValue> Zero() noexcept {
 			return Rect<TValue>(0);
 		}
 
 	private:
-		constexpr static inline TValue Min(const TValue& a, const TValue& b) noexcept {
+		[[nodiscard]] constexpr static inline TValue Min(const TValue& a, const TValue& b) noexcept {
 			return a < b ? a : b;
 		}
-		constexpr static inline TValue Max(const TValue& a, const TValue& b) noexcept {
+		[[nodiscard]] constexpr static inline TValue Max(const TValue& a, const TValue& b) noexcept {
 			return a < b ? b : a;
 		}
 	};
