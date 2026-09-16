@@ -10,6 +10,8 @@
 #include "Scene/Scene.hpp"
 #include "Scene/Entity.hpp"
 
+#include "Core/Timer.hpp"
+
 namespace BM
 {
 	static inline sf::Shader s_RectShader{ std::string_view(Shader::s_RectFrag), sf::Shader::Type::Fragment };
@@ -23,17 +25,35 @@ namespace BM
 
 	static inline void UpdateTextCache(const TextRender& textRender) noexcept {
 		auto& [fontPtr, text, size, lastFontPtr, lastText, lastSize, cachedText, cachedBounds] = textRender;
-		if (fontPtr != lastFontPtr || text != lastText || size != lastSize)
+
+		const bool cFontUpdated = fontPtr != lastFontPtr;
+		const bool cSizeUpdated = size != lastSize;
+		const bool cTextUpdated = text != lastText;
+
+		if (cFontUpdated)
 		{
 			lastFontPtr = fontPtr;
-			lastText = text;
-			lastSize = size;
-
 			cachedText.setFont(fontPtr ? *fontPtr : Font::GetDefault());
-			cachedText.setString(text);
+		}
+		if (cSizeUpdated)
+		{
+			lastSize = size;
 			cachedText.setCharacterSize(size);
+		}
+		if (cTextUpdated)
+			lastText = text;
+
+		if (cFontUpdated || cSizeUpdated || cTextUpdated)
+		{
+			cachedText.setString("|${");
+			const RectFloat cFixedBounds = cachedText.getGlobalBounds();
+
+			if (cTextUpdated)
+				cachedText.setString(text);
 
 			cachedBounds = cachedText.getGlobalBounds();
+			cachedBounds.Y = cFixedBounds.Y;
+			cachedBounds.Height = cFixedBounds.Height;
 		}
 	}
 
