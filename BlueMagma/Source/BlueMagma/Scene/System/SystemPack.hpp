@@ -8,7 +8,7 @@ namespace BM
 	{
 	public:
 		inline SystemPack() noexcept
-			: m_Systems(std::make_shared<TSystems>()...) {
+			: m_Systems{ std::make_shared<TSystems>()... } {
 		}
 
 		inline virtual void OnAttach(Scene& scene) noexcept {
