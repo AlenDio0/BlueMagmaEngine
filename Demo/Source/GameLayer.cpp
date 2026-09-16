@@ -25,7 +25,7 @@ GameLayer::GameLayer(bool initExample, bool initUIExample) noexcept
 	m_ActiveCameraPtr(&m_MainCamera), m_FPSCounter(0u), m_ButtonSpeedFactor(1.f)
 {
 	m_Scene.AddSystem<BM::TransformSystem>(100);
-	m_Scene.AddSystem<BM::UISystem>(200);
+	m_Scene.AddSystem<BM::UISystemPack>(200);
 	m_Scene.AddSystem<BM::RenderSystem>();
 }
 

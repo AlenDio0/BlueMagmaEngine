@@ -76,6 +76,7 @@ set(SOURCES
     Source/BlueMagma/Scene/Component/Builder/WidgetBuilder.cpp
     # Scene/System
     Source/BlueMagma/Scene/System/ISystem.hpp
+    Source/BlueMagma/Scene/System/SystemPack.hpp
     # Scene/System/Core
     Source/BlueMagma/Scene/System/Core/TransformSystem.hpp
     Source/BlueMagma/Scene/System/Core/TransformSystem.cpp
@@ -92,7 +93,6 @@ set(SOURCES
     Source/BlueMagma/Scene/System/UI/InputTextSystem.hpp
     Source/BlueMagma/Scene/System/UI/InputTextSystem.cpp
     Source/BlueMagma/Scene/System/UI/UISystem.hpp
-    Source/BlueMagma/Scene/System/UI/UISystem.cpp
 )
 
 # Library

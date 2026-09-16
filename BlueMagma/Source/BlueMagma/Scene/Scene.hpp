@@ -53,7 +53,7 @@ namespace BM
 
 		//======================================================================================
 
-		template<class TSystem>
+		template<std::derived_from<ISystem> TSystem>
 		inline void AddSystem(uint32_t priority = 0) noexcept {
 			BM_CORE_DEBUG_FN_ARGS(priority);
 			BM_CORE_INFO_FN("System is being added");
@@ -75,7 +75,7 @@ namespace BM
 				return a.Priority < b.Priority;
 				});
 		}
-		template<class TSystem>
+		template<std::derived_from<ISystem> TSystem>
 		inline void RemoveSystem() noexcept {
 			BM_CORE_INFO_FN("System is being removed");
 			std::type_index cTypeId(typeid(TSystem));
