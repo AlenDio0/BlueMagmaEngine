@@ -43,12 +43,16 @@ namespace BM
 
 		if (cFontUpdated || cSizeUpdated || cTextUpdated)
 		{
-			const std::string_view cFixedText = "|${";
+			std::string finalFixedText;
+			{
+				const std::string_view cFixedText = "|${";
+				const size_t cEndlineCount = std::ranges::count(text, '\n');
 
-			const size_t cEndlineCount = std::ranges::count(text, '\n');
-			const auto cEndlineRange = std::views::repeat('\n', cEndlineCount);
+				finalFixedText.reserve(cFixedText.size() + cEndlineCount);
+				finalFixedText.append(cFixedText).append(cEndlineCount, '\n');
+			}
 
-			cachedText.setString(std::string(cFixedText).append_range(cEndlineRange));
+			cachedText.setString(finalFixedText);
 			const RectFloat cFixedBounds = cachedText.getGlobalBounds();
 
 			if (cTextUpdated)
@@ -404,6 +408,9 @@ namespace BM
 			shader.setUniform("uOutlineColor", sf::Glsl::Vec4(command.Outline.Color));
 			return &shader;
 		}
+
+		default:
+			break;
 		}
 		return nullptr;
 	}
