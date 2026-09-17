@@ -10,8 +10,6 @@
 #include "Scene/Scene.hpp"
 #include "Scene/Entity.hpp"
 
-#include "Core/Timer.hpp"
-
 namespace BM
 {
 	static inline sf::Shader s_RectShader{ std::string_view(Shader::s_RectFrag), sf::Shader::Type::Fragment };
@@ -45,7 +43,12 @@ namespace BM
 
 		if (cFontUpdated || cSizeUpdated || cTextUpdated)
 		{
-			cachedText.setString("|${");
+			const std::string_view cFixedText = "|${";
+
+			const size_t cEndlineCount = std::ranges::count(text, '\n');
+			const auto cEndlineRange = std::views::repeat('\n', cEndlineCount);
+
+			cachedText.setString(std::string(cFixedText).append_range(cEndlineRange));
 			const RectFloat cFixedBounds = cachedText.getGlobalBounds();
 
 			if (cTextUpdated)
