@@ -15,6 +15,9 @@ namespace BM::UI
 		virtual void OnEvent(Scene& scene, Event& event) noexcept override;
 		virtual void OnUpdate(Scene& scene, float deltaTime) noexcept override;
 
+		[[nodiscard]] static size_t FindLastPunctIndex(const std::string& text, size_t cursorIndex) noexcept;
+		[[nodiscard]] static size_t FindNextPunctIndex(const std::string& text, size_t cursorIndex) noexcept;
+
 		[[nodiscard]] static float CursorIndexCoords(const Component::InputText& input) noexcept;
 		[[nodiscard]] static size_t CoordsToCursorIndex(const Component::InputText& input, float coordsX) noexcept;
 	private:

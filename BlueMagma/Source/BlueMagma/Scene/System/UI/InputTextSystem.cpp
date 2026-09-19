@@ -46,6 +46,40 @@ namespace BM::UI
 		}
 	}
 
+	size_t InputTextSystem::FindLastPunctIndex(const std::string& text, size_t cursorIndex) noexcept
+	{
+		const size_t cBeginIndex = 0ull;
+		const size_t cEndIndex = cursorIndex;
+
+		if (cursorIndex == cBeginIndex || cBeginIndex >= cEndIndex)
+			return cBeginIndex;
+
+		auto subText = std::ranges::find_last_if(text.begin() + cBeginIndex, text.begin() + cEndIndex,
+			[](char c) { return std::ispunct(c) || std::isblank(c); });
+
+		if (subText.empty())
+			return cBeginIndex;
+
+		return std::distance(text.begin(), subText.begin());
+	}
+
+	size_t InputTextSystem::FindNextPunctIndex(const std::string& text, size_t cursorIndex) noexcept
+	{
+		const size_t cBeginIndex = cursorIndex + 1ull;
+		const size_t cEndIndex = text.size();
+
+		if (cursorIndex >= cEndIndex || cBeginIndex >= cEndIndex)
+			return cEndIndex;
+
+		auto punctIt = std::ranges::find_if(text.begin() + cBeginIndex, text.begin() + cEndIndex,
+			[](char c) { return std::ispunct(c) || std::isblank(c); });
+
+		if (punctIt == text.begin() + cEndIndex)
+			return cEndIndex;
+
+		return std::distance(text.begin(), punctIt);
+	}
+
 	float InputTextSystem::CursorIndexCoords(const Component::InputText& input) noexcept
 	{
 		Entity text = input.TextChild;
@@ -217,7 +251,7 @@ namespace BM::UI
 
 			Entity inputText = scene.GetEntity(entity);
 
-			const size_t& cursorIndex = input.CursorIndex;
+			const size_t cCursorIndex = input.CursorIndex;
 			const size_t cTextSize = input.Text.size();
 
 			const bool cIsControlPressed = keyPressed.control;
@@ -231,40 +265,44 @@ namespace BM::UI
 			case Key::Enter:
 				inputText.Patch<Widget>([](auto& widget) { widget.Focus = false; });
 				break;
+
 			case Key::Backspace:
-				if (cursorIndex == 0)
+				if (cCursorIndex == 0)
 					break;
 
 				inputText.Patch<InputText>([&](InputText& input) {
 					if (!cIsControlPressed)
 					{
-						input.Text.erase(cursorIndex - 1, 1);
+						input.Text.erase(cCursorIndex - 1, 1);
 						input.CursorIndex--;
 					}
 					else
 					{
-						input.Text.erase(0, cursorIndex);
-						input.CursorIndex = 0;
+						size_t cDeleteFromIndex = FindLastPunctIndex(input.Text, cCursorIndex);
+
+						input.CursorIndex = cDeleteFromIndex;
+						input.Text.erase(cDeleteFromIndex, cCursorIndex);
 					}
 					});
 				break;
 			case Key::Delete:
-				if (cursorIndex < cTextSize)
-					inputText.Patch<InputText>([&](auto& input) { input.Text.erase(cursorIndex, 1ull); });
+				if (cCursorIndex < cTextSize)
+					inputText.Patch<InputText>([&](auto& input) { input.Text.erase(cCursorIndex, FindNextPunctIndex(input.Text, cCursorIndex)); });
 				break;
+
 			case Key::Left:
 				inputText.Patch<InputText>([&](auto& input) {
-					input.CursorIndex = cIsControlPressed ? 0 : std::max<size_t>(cursorIndex - 1ull, 0ull); });
+					input.CursorIndex = cIsControlPressed ? FindLastPunctIndex(input.Text, cCursorIndex) : cCursorIndex != 0ull ? cCursorIndex - 1ull : cCursorIndex; });
 				resetBlink = true;
 				break;
-			case Key::Home:
-				inputText.Patch<InputText>([&](auto& input) { input.CursorIndex = 0ull; });
+			case Key::Right:
+				inputText.Patch<InputText>([&](auto& input) {
+					input.CursorIndex = std::min(cIsControlPressed ? FindNextPunctIndex(input.Text, cCursorIndex) + 1ull : cCursorIndex + 1ull, cTextSize); });
 				resetBlink = true;
 				break;
 
-			case Key::Right:
-				inputText.Patch<InputText>([&](auto& input) {
-					input.CursorIndex = cIsControlPressed ? cTextSize : std::min<size_t>(cursorIndex + 1ull, cTextSize); });
+			case Key::Home:
+				inputText.Patch<InputText>([&](auto& input) { input.CursorIndex = 0ull; });
 				resetBlink = true;
 				break;
 			case Key::End:
@@ -304,7 +342,7 @@ namespace BM::UI
 			dispatched = true;
 
 			const char32_t cUnicodeInput = textEntered.unicode;
-			const size_t& cursorIndex = input.CursorIndex;
+			const size_t cCursorIndex = input.CursorIndex;
 
 			const bool cIsBackspaceKey = cUnicodeInput == SpecialKey::Backspace;
 			if (cIsBackspaceKey)
@@ -319,7 +357,7 @@ namespace BM::UI
 				continue;
 
 			scene.PatchComponent<InputText>(entity, [&](auto& input) {
-				input.Text.insert(cursorIndex, 1, static_cast<char>(cUnicodeInput));
+				input.Text.insert(cCursorIndex, 1, static_cast<char>(cUnicodeInput));
 				input.CursorIndex++;
 				});
 

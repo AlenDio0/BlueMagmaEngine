@@ -52,7 +52,7 @@ int main(int argc, char* argv[])
 	InitLog(BM::Log::Trace, BM::Log::Trace);
 	BM_FN_ARGS(argc, argv[0]);
 
-	constexpr uint32_t cWindowHeight = 720u;
+	constexpr uint32_t cWindowHeight = 1080u;
 	constexpr float cWindowSizeRatio = 16.f / 9.f;
 
 	constexpr BM::Vec2f cWindowSize{ (uint32_t)(cWindowHeight * cWindowSizeRatio), cWindowHeight };
