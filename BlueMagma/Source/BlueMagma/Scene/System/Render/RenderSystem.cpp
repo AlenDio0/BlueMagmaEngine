@@ -348,7 +348,7 @@ namespace BM
 		const auto cMatrix = Transform2D::ToMatrix({ position, scale, origin, rotation }, cEntityBounds);
 		const RectFloat cLocalCameraBounds = cMatrix.getInverse().transformRect(cameraBounds);
 
-		return cLocalCameraBounds.Intersects(cEntityBounds);
+		return cLocalCameraBounds.Intersects(cEntityBounds).has_value();
 	}
 
 	sf::RenderStates RenderSystem::GetRenderStates(const Transform& transform, Vec2f size, Vec2f offset) noexcept

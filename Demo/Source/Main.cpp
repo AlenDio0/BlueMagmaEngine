@@ -21,6 +21,8 @@ static inline void InitLog(BM::Log::Level flushOn, BM::Log::Level consoleLevel) 
 static inline void RunApplication(BM::Vec2u windowSize) {
 	BM_FN_ARGS(windowSize);
 
+	BM::ScopeTimer timer("Main Application");
+
 	const size_t cRadomSeed = BM_RANDOM(1, 10);
 	BM_RANDOM_SEED(cRadomSeed);
 	BM_INFO("Main Random seed is set to: '{}'", cRadomSeed);
@@ -41,8 +43,6 @@ static inline void RunApplication(BM::Vec2u windowSize) {
 	BM::WindowContext windowContext{ .InitialMode{ windowSize } };
 	application.CreateOrReplaceWindow(windowContext);
 
-	BM::ScopeTimer timer("Main Application");
-
 	application.QueuePushLayer<GameLayer>();
 	application.Run();
 }
@@ -52,7 +52,11 @@ int main(int argc, char* argv[])
 	InitLog(BM::Log::Trace, BM::Log::Trace);
 	BM_FN_ARGS(argc, argv[0]);
 
-	RunApplication({ 1920u, 1080u });
+	constexpr uint32_t cWindowHeight = 720u;
+	constexpr float cWindowSizeRatio = 16.f / 9.f;
+
+	constexpr BM::Vec2f cWindowSize{ (uint32_t)(cWindowHeight * cWindowSizeRatio), cWindowHeight };
+	RunApplication(cWindowSize);
 
 	return 0;
 }

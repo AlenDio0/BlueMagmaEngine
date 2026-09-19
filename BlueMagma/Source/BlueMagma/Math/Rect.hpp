@@ -74,11 +74,16 @@ namespace BM
 			const Vec2<TValue> min = Min(), max = Max();
 			return (vec >= min) && (vec <= max);
 		}
-		[[nodiscard]] constexpr bool Intersects(const Rect<TValue>& rect) const noexcept {
+
+		[[nodiscard]] constexpr std::optional<Rect<TValue>> Intersects(const Rect<TValue>& rect) const noexcept {
 			const Vec2<TValue> min1 = Min(), min2 = rect.Min(), max1 = Max(), max2 = rect.Max();
 			const TValue left = Max(min1.X, min2.X), right = Min(max1.X, max2.X);
 			const TValue top = Max(min1.Y, min2.Y), bottom = Min(max1.Y, max2.Y);
-			return left < right && top < bottom;
+
+			if (left < right && top < bottom)
+				return Rect<TValue>(left, top, right, bottom);
+
+			return std::nullopt;
 		}
 
 		//======================================================================================

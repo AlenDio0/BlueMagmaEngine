@@ -42,9 +42,9 @@ void GameLayer::OnAttachApplication() noexcept
 
 	m_Scene.AttachRenderer(renderer);
 
-	m_MainCamera = BM::Camera2D(renderer->GetDefaultCamera());
-	m_ButtonCamera = BM::Camera2D(renderer->GetDefaultCamera());
+	m_MainCamera = BM::Camera2D(renderer->GetSize());
 
+	m_ButtonCamera = BM::Camera2D(renderer->GetDefaultCamera());
 	m_ButtonCamera.SetViewport({ 0.75f, 0.5f, 0.25f, 0.5f }, renderer->GetSize());
 
 	m_MainFontPtr = &GetAsset<BM::Font>("Minecraft Nearest");
