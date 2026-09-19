@@ -128,17 +128,8 @@ namespace BM
 		BuildQuadCommand(transform, size, outCommand);
 	}
 
-	static inline void BuildSprite(const Transform& transform, const SpriteShape& sprite, Vec2f size, RenderCommand& outCommand) noexcept {
-		const auto& texture = sprite.TexturePtr;
-		if (!texture)
-			return;
-
-		const RectInt cCoords = sprite.TextureRect.value_or(RectInt({ 0, 0 }, texture->getSize()));
-
-		outCommand.Material.TexturePtr = sprite.TexturePtr;
-		outCommand.Material.TextureCoords = cCoords;
-
-		outCommand.Quad = BuildQuad(transform, outCommand.Material.Color, size, cCoords);
+	static inline void BuildSprite(const Transform& transform, const SpriteRender& sprite, Vec2f size, RenderCommand& outCommand) noexcept {
+		BuildQuadCommand(transform, size, outCommand);
 	}
 
 	static inline void BuildText(const Transform& transform, const TextRender& textRender, RenderCommand& outCommand) noexcept {
@@ -163,7 +154,7 @@ namespace BM
 			BuildRect(transform, render, size, command);
 		else if constexpr (std::is_same_v<TRenderComp, CircleShape>)
 			BuildCircle(transform, render, size, command);
-		else if constexpr (std::is_same_v<TRenderComp, SpriteShape>)
+		else if constexpr (std::is_same_v<TRenderComp, SpriteRender>)
 			BuildSprite(transform, render, size, command);
 		else if constexpr (std::is_same_v<TRenderComp, TextRender>)
 			BuildText(transform, render, command);
@@ -174,13 +165,18 @@ namespace BM
 	//======================================================================================
 
 	template<typename TRenderComp>
-	[[nodiscard]] static inline Vec2f GetRenderSize(const TRenderComp& render) noexcept {
+	[[nodiscard]] static inline Vec2f GetRenderSize(const TRenderComp& render, const TextureMaterial* textureMaterial) noexcept {
 		if constexpr (std::is_same_v<TRenderComp, RectShape>)
 			return render.Size;
 		else if constexpr (std::is_same_v<TRenderComp, CircleShape>)
 			return Vec2f(render.Radius * 2.f);
-		else if constexpr (std::is_same_v<TRenderComp, SpriteShape>)
-			return render.TextureRect.value_or(RectInt(Vec2i(0.f), render.TexturePtr->getSize())).Size;
+		else if constexpr (std::is_same_v<TRenderComp, SpriteRender>)
+		{
+			if (!textureMaterial || !textureMaterial->TexturePtr)
+				return Vec2f::Zero();
+
+			return textureMaterial->TextureRect.value_or(RectInt(Vec2i(0), textureMaterial->TexturePtr->getSize())).Size;
+		}
 		else if constexpr (std::is_same_v<TRenderComp, TextRender>)
 			return GetCachedTextBounds(render).Size;
 
@@ -197,7 +193,7 @@ namespace BM
 			if (auto hidden = scene.TryGetComponent<Hidden>(entity); hidden && !hidden->Visible)
 				continue;
 
-			const Vec2f cSize = GetRenderSize<TRenderComp>(render);
+			const Vec2f cSize = GetRenderSize<TRenderComp>(render, scene.TryGetComponent<TextureMaterial>(entity));
 			if (!RenderSystem::IsInCameraBounds(cameraBounds, transform, cSize))
 				continue;
 
@@ -229,7 +225,7 @@ namespace BM
 
 		CollectRender<RectShape>(scene, cCameraBounds, m_RenderCommands);
 		CollectRender<CircleShape>(scene, cCameraBounds, m_RenderCommands);
-		CollectRender<SpriteShape>(scene, cCameraBounds, m_RenderCommands);
+		CollectRender<SpriteRender>(scene, cCameraBounds, m_RenderCommands);
 		CollectRender<TextRender>(scene, cCameraBounds, m_RenderCommands);
 
 		std::ranges::stable_sort(m_RenderCommands, [](const auto& left, const auto& right) {

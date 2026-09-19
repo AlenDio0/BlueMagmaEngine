@@ -20,13 +20,17 @@ namespace BM::UI
 		for (auto [entity, widget, clickable] : view.each())
 		{
 			const auto& onClick = clickable.OnClick;
-			if (!widget.Focus || !onClick)
+			if (!widget.Focus)
 				continue;
 
-			const bool cDispatched = onClick(scene.GetEntity(entity), mousePressed);
+			bool dispatched = false;
+
+			if (onClick)
+				dispatched = onClick(scene.GetEntity(entity), mousePressed);
+
 			widget.Focus = false;
 
-			if (cDispatched)
+			if (dispatched)
 				return true;
 		}
 

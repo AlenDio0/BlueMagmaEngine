@@ -99,30 +99,10 @@ namespace BM
 
 	//======================================================================================
 
-	SpriteBuilder& SpriteBuilder::WithTexture(const Texture* texture) noexcept
-	{
-		m_SpriteShape.TexturePtr = texture;
-		return Self();
-	}
-
-	SpriteBuilder& SpriteBuilder::WithTextureRect(std::optional<RectInt> textureRect) noexcept
-	{
-		m_SpriteShape.TextureRect = textureRect;
-		return Self();
-	}
-
-	SpriteBuilder& SpriteBuilder::WithScaleAsSizeTexture(const Texture* texture, Vec2f size) noexcept
-	{
-		if (texture)
-			return WithScale(size / texture->getSize());
-
-		return Self();
-	}
-
 	Entity SpriteBuilder::Build(Scene& scene) noexcept
 	{
 		Entity entity = BuildRender(scene);
-		entity.Add<Component::SpriteShape>(m_SpriteShape);
+		entity.Add<Component::SpriteRender>();
 
 		return entity;
 	}

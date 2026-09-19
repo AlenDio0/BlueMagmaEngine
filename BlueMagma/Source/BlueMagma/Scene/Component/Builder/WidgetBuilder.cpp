@@ -1,6 +1,8 @@
 #include "bmpch.hpp"
 #include "WidgetBuilder.hpp"
 
+#include "Scene/System/UI/CheckboxSystem.hpp"
+
 namespace BM
 {
 	ButtonBuilder WidgetBuilder::ToButton() noexcept
@@ -107,8 +109,8 @@ namespace BM
 		}
 		else
 		{
-			m_InputText.TextChild = DefaultTextChildBuilder()
-				.WithParent(entity).Build(scene);
+			m_InputText.TextChild = DefaultTextChildBuilder().WithParent(entity)
+				.Build(scene);
 		}
 
 		if (m_InputText.CursorChild)
@@ -118,14 +120,102 @@ namespace BM
 		}
 		else
 		{
-			m_InputText.CursorChild = DefaultCursorChildBuilder()
-				.WithParent(entity).Build(scene);
+			m_InputText.CursorChild = DefaultCursorChildBuilder().WithParent(entity)
+				.Build(scene);
 		}
 
 		entity.Add<Component::InputText>(m_InputText);
 
 		m_InputText.TextChild = {};
 		m_InputText.CursorChild = {};
+
+		return entity;
+	}
+
+	//======================================================================================
+
+	CheckboxBuilder& CheckboxBuilder::WithActive(bool active) noexcept
+	{
+		m_Checkbox.Active = active;
+		return Self();
+	}
+
+	CheckboxBuilder& CheckboxBuilder::OnChanged(const Component::Checkbox::OnChangedFn& onChanged) noexcept
+	{
+		m_Checkbox.OnChanged = onChanged;
+		return Self();
+	}
+
+	CheckboxBuilder& CheckboxBuilder::WithActiveColor(Color color) noexcept
+	{
+		m_Checkbox.ActiveMaterial = Component::ColorMaterial{ color };
+		return Self();
+	}
+
+	CheckboxBuilder& CheckboxBuilder::WithInactiveColor(Color color) noexcept
+	{
+		m_Checkbox.InactiveMaterial = Component::ColorMaterial{ color };
+		return Self();
+	}
+
+	CheckboxBuilder& CheckboxBuilder::WithActiveTexture(const Texture* texture, std::optional<RectInt> textureRect) noexcept
+	{
+		m_Checkbox.ActiveMaterial = Component::TextureMaterial{ texture, textureRect };
+		return Self();
+	}
+
+	CheckboxBuilder& CheckboxBuilder::WithInactiveTexture(const Texture* texture, std::optional<RectInt> textureRect) noexcept
+	{
+		m_Checkbox.InactiveMaterial = Component::TextureMaterial{ texture, textureRect };
+		return Self();
+	}
+
+	CheckboxBuilder& CheckboxBuilder::WithCheckChild(Entity entity) noexcept
+	{
+		m_Checkbox.CheckChild = entity;
+		return Self();
+	}
+
+	RenderBuilder CheckboxBuilder::DefaultCheckChildBuilder(Vec2f normalized) const noexcept
+	{
+		RenderBuilder builder;
+		builder.AtNormalized(m_Widget.Size, m_Transform.State.Origin, normalized).WithOrigin(Vec2f(0.5f)).AtZ(0.1f);
+
+		if (m_Checkbox.Active)
+		{
+			if (auto material = UI::CheckboxSystem::TryGetColorMaterial(m_Checkbox.ActiveMaterial))
+				builder.WithColor(material->Color);
+			else if (auto material = UI::CheckboxSystem::TryGetTextureMaterial(m_Checkbox.ActiveMaterial))
+				builder.WithTextureMaterial(material.value()).WithScaleAsSizeTexture(m_Widget.Size);;
+		}
+		else
+		{
+			if (auto material = UI::CheckboxSystem::TryGetColorMaterial(m_Checkbox.InactiveMaterial))
+				builder.WithColor(material->Color);
+			else if (auto material = UI::CheckboxSystem::TryGetTextureMaterial(m_Checkbox.InactiveMaterial))
+				builder.WithTextureMaterial(material.value()).WithScaleAsSizeTexture(m_Widget.Size);;
+		}
+
+		return builder;
+	}
+
+	Entity CheckboxBuilder::Build(Scene& scene) noexcept
+	{
+		Entity entity = BuildWidget(scene);
+
+		if (m_Checkbox.CheckChild)
+		{
+			m_Checkbox.CheckChild.AssignParent(entity);
+		}
+		else
+		{
+			m_Checkbox.CheckChild = DefaultCheckChildBuilder().WithParent(entity)
+				.Build(scene);
+		}
+
+		entity.Add<Component::Checkbox>(m_Checkbox);
+
+		m_Checkbox.CheckChild = {};
 
 		return entity;
 	}

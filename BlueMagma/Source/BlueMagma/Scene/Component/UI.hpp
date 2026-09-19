@@ -1,4 +1,6 @@
 #pragma once
+#include "Render.hpp"
+
 #include "Math/Vec2.hpp"
 #include "Math/Color.hpp"
 #include "Event/Event.hpp"
@@ -54,7 +56,24 @@ namespace BM::Component
 
 		PolicyFn Policy{ isprint };
 
-		Entity TextChild{};
-		Entity CursorChild{};
+		Entity TextChild;
+		Entity CursorChild;
+	};
+
+	//======================================================================================
+
+	struct Checkbox
+	{
+		using MaterialVariant = std::variant<ColorMaterial, TextureMaterial>;
+		using OnChangedFn = std::function<bool(Entity entity, Entity checkEntity, EventHandle::MouseButtonPressed, bool active)>;
+
+		bool Active = false;
+
+		OnChangedFn OnChanged;
+
+		MaterialVariant ActiveMaterial;
+		MaterialVariant InactiveMaterial;
+
+		Entity CheckChild;
 	};
 }

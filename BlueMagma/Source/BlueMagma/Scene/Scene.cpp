@@ -119,11 +119,8 @@ namespace BM
 
 		if (std::optional<Entity> actualParent = GetEntityParent(handle))
 		{
-			if (actualParent != parentHandle)
-			{
-				BM_CORE_WARN_FN("Entity already has a parent assigned, nothings changes (entity: '{}', actualParent: '{}', parent: '{}')",
-					handle, actualParent.value(), parentHandle);
-			}
+			BM_CORE_WARN_FN("Entity already has a parent assigned, nothings changes (entity: '{}', actualParent: '{}', parent: '{}')",
+				handle, actualParent.value(), parentHandle);
 
 			return;
 		}

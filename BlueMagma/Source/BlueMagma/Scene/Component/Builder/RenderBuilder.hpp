@@ -21,12 +21,18 @@ namespace BM
 	public:
 		TBuilder& WithColor(Color color) noexcept;
 		TBuilder& WithOutline(Component::Outline outline) noexcept;
+		TBuilder& WithTextureMaterial(Component::TextureMaterial textureMaterial) noexcept;
 		TBuilder& WithTexture(const Texture* texture, std::optional<RectInt> rect = {}) noexcept;
+
+		TBuilder& WithScaleAsSizeTexture(Vec2u textureSize, Vec2f size) noexcept;
+		TBuilder& WithScaleAsSizeTexture(Vec2f size) noexcept;
 
 		template<typename UBuilder>
 		void CopyRenderState(const RenderBuilderBase<UBuilder>& other) noexcept;
 
 		virtual Entity Build(Scene& scene) noexcept override = 0;
+	public:
+		using EntityBuilderBase<TBuilder>::WithScale;
 	protected:
 		template<typename UBuilder> friend class RenderBuilderBase;
 
@@ -92,16 +98,9 @@ namespace BM
 	class SpriteBuilder : public RenderBuilderBase<SpriteBuilder>
 	{
 	public:
-		SpriteBuilder& WithTexture(const Texture* texture) noexcept;
-		SpriteBuilder& WithTextureRect(std::optional<RectInt> textureRect = {}) noexcept;
-
-		SpriteBuilder& WithScaleAsSizeTexture(const Texture* texture, Vec2f size) noexcept;
-
 		virtual Entity Build(Scene& scene) noexcept override;
 	private:
 		template<typename TBuilder> friend class RenderBuilderBase;
-	private:
-		Component::SpriteShape m_SpriteShape{};
 	};
 
 	//======================================================================================

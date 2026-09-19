@@ -290,7 +290,7 @@ void GameLayer::InitExample() noexcept
 
 		builder.ToSprite().AtY(cBoundSize - (cPercentage * cBasePosY)).WithRotation(-45.f).AtZ(0.3f)
 			.WithColor(BM::Color(cColor, cColor, cColor))
-			.WithTexture(texture).WithScaleAsSizeTexture(texture, BM::Vec2f(cBoxSize))
+			.WithTexture(texture).WithScaleAsSizeTexture(BM::Vec2f(cBoxSize))
 			.Build(m_Scene);
 
 		builder.ToText().AtY(cBoundSize - cBasePosY).AtZ(0.4F)
@@ -313,6 +313,8 @@ void GameLayer::InitUIExample() noexcept
 
 	const BM::Vec2f cWindowSize = window->GetSize();
 	constexpr BM::Vec2f cUISize(300.f, 50.f);
+
+#pragma region Button
 
 	{
 		auto onButtonClick = [&](BM::Entity entity, auto event)
@@ -339,6 +341,10 @@ void GameLayer::InitUIExample() noexcept
 			.Build(m_Scene);
 	}
 
+#pragma endregion
+
+#pragma region Ellipse Button
+
 	{
 		auto onEllipseButtonClick = [&](BM::Entity entity, auto event) {
 			static size_t sPressedCount = 0;
@@ -362,6 +368,10 @@ void GameLayer::InitUIExample() noexcept
 			.WithFont(m_MainFontPtr).WithText("PRESS ME\n(now!)")
 			.Build(m_Scene);
 	}
+
+#pragma endregion
+
+#pragma region Input Texts
 
 	{
 		constexpr float cSpaceAxisX = 25.f;
@@ -392,6 +402,45 @@ void GameLayer::InitUIExample() noexcept
 				.Build(m_Scene))
 			.Build(m_Scene);
 	}
+
+#pragma endregion
+
+#pragma region Checkbox
+
+	{
+		const BM::Texture* cCheckTexture = &GetAsset<BM::Texture>("Check");
+
+		auto onCheckboxChanged = [](BM::Entity entity, auto check, auto mousePressed, bool active) {
+			BM_INFO("Checkbox (entity: {}) was changed in {}", entity, active ? "good" : "bad");
+
+			return true;
+			};
+
+		constexpr BM::Vec2f cCheckboxSize = BM::Vec2f(50.f);
+
+		BM::CheckboxBuilder builder;
+		builder.WithOutline({ .Color = BM::ColorDef::Black, .Thickness = 3.f })
+			.WithRectShape({ .Size = cCheckboxSize, .Corner = 5.f }).OnChanged(onCheckboxChanged);
+
+		{
+			BM::CheckboxBuilder textureCheckBuilder = builder.ToCopy();
+			textureCheckBuilder.AtNormalized(cWindowSize, BM::Vec2f(0.f), BM::Vec2f(0.75f, 0.25f))
+				.WithActiveTexture(cCheckTexture, BM::RectInt(0, 0, 32, 32))
+				.WithInactiveTexture(cCheckTexture, BM::RectInt(32, 0, 32, 32))
+				.WithCheckChild(textureCheckBuilder.DefaultCheckChildBuilder().ToSprite().Build(m_Scene))
+				.Build(m_Scene);
+		}
+
+		{
+			BM::CheckboxBuilder colorCheckBuilder = builder.ToCopy();
+			colorCheckBuilder.AtNormalized(cWindowSize, BM::Vec2f(0.f), BM::Vec2f(0.8f, 0.25f))
+				.WithActiveColor(BM::ColorDef::Black).WithInactiveColor(BM::ColorDef::Clear)
+				.WithCheckChild(colorCheckBuilder.DefaultCheckChildBuilder().ToRect().WithSize(cCheckboxSize * 0.6f).WithCorner(5.f).Build(m_Scene))
+				.Build(m_Scene);
+		}
+	}
+
+#pragma endregion
 }
 
 bool GameLayer::OnKeyPressed(const BM::EventHandle::KeyPressed& keyPressed) noexcept
@@ -599,8 +648,10 @@ void GameLayer::UpdateMouseCursor() noexcept
 		[](auto entity, const auto& widget, const auto& clickable) { return widget.Hover; });
 	const bool cIsAnyInputTextHover = m_Scene.ViewAnyOf<BM::Component::Widget, BM::Component::InputText>(
 		[](auto entity, const auto& widget, const auto& inputText) { return widget.Hover; });
+	const bool cIsAnyCheckboxHover = m_Scene.ViewAnyOf<BM::Component::Widget, BM::Component::Checkbox>(
+		[](auto entity, const auto& widget, const auto& inputText) { return widget.Hover; });
 
-	windowHandle->setMouseCursor(sf::Cursor::createFromSystem(cIsAnyClickableHover || cIsAnyInputTextHover ?
+	windowHandle->setMouseCursor(sf::Cursor::createFromSystem(cIsAnyClickableHover || cIsAnyInputTextHover || cIsAnyCheckboxHover ?
 		sf::Cursor::Type::Hand : sf::Cursor::Type::Arrow).value());
 }
 

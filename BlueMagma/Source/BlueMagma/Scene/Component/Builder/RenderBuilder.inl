@@ -1,3 +1,4 @@
+#include "RenderBuilder.hpp"
 #pragma once
 
 namespace BM
@@ -17,9 +18,34 @@ namespace BM
 	}
 
 	template<typename TBuilder>
+	inline TBuilder& RenderBuilderBase<TBuilder>::WithTextureMaterial(Component::TextureMaterial textureMaterial) noexcept
+	{
+		m_TextureMaterial = textureMaterial;
+		return Self();
+	}
+
+	template<typename TBuilder>
 	inline TBuilder& RenderBuilderBase<TBuilder>::WithTexture(const Texture* texture, std::optional<RectInt> rect) noexcept
 	{
-		m_TextureMaterial = { texture, rect };
+		return WithTextureMaterial({ texture, rect });
+	}
+
+	template<typename TBuilder>
+	inline TBuilder& RenderBuilderBase<TBuilder>::WithScaleAsSizeTexture(Vec2u textureSize, Vec2f size) noexcept
+	{
+		return WithScale(size / textureSize);
+	}
+
+	template<typename TBuilder>
+	inline TBuilder& RenderBuilderBase<TBuilder>::WithScaleAsSizeTexture(Vec2f size) noexcept
+	{
+		if (m_TextureMaterial)
+		{
+			const Vec2i cTextureSize = m_TextureMaterial->TexturePtr ? Vec2i(m_TextureMaterial->TexturePtr->getSize()) : Vec2i(0);
+			const Vec2u cTextureRectSize = m_TextureMaterial->TextureRect.value_or(RectInt(Vec2i(0), cTextureSize)).Size;
+			return WithScaleAsSizeTexture(cTextureRectSize, size);
+		}
+
 		return Self();
 	}
 

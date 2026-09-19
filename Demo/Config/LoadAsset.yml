@@ -1,6 +1,8 @@
 Texture:
   - Key: Cat
     Path: Asset/cat.png
+  - Key: Check
+    Path: Asset/check.png
 Font:
   - Key: Minecraft
     Path: Asset/MinecraftRegular.otf

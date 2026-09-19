@@ -88,6 +88,29 @@ namespace BM
 	private:
 		Component::InputText m_InputText{};
 	};
+
+	//======================================================================================
+
+	class CheckboxBuilder : public WidgetBuilderBase<CheckboxBuilder>
+	{
+	public:
+		CheckboxBuilder& WithActive(bool active) noexcept;
+		CheckboxBuilder& OnChanged(const Component::Checkbox::OnChangedFn& onChanged) noexcept;
+
+		CheckboxBuilder& WithActiveColor(Color color) noexcept;
+		CheckboxBuilder& WithInactiveColor(Color color) noexcept;
+
+		CheckboxBuilder& WithActiveTexture(const Texture* texture, std::optional<RectInt> textureRect = {}) noexcept;
+		CheckboxBuilder& WithInactiveTexture(const Texture* texture, std::optional<RectInt> textureRect = {}) noexcept;
+
+		CheckboxBuilder& WithCheckChild(Entity entity) noexcept;
+
+		[[nodiscard]] RenderBuilder DefaultCheckChildBuilder(Vec2f normalized = { 0.5f, 0.5f }) const noexcept;
+
+		virtual Entity Build(Scene& scene) noexcept override;
+	private:
+		Component::Checkbox m_Checkbox{};
+	};
 }
 
 #include "WidgetBuilder.inl"

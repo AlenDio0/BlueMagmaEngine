@@ -38,10 +38,9 @@ namespace BM::Component
 	{
 		float Radius = 0.f;
 	};
-	struct SpriteShape
+	struct SpriteRender
 	{
-		const Texture* TexturePtr = nullptr;
-		std::optional<RectInt> TextureRect{};
+		const bool _; // Ugly, but needed for struct binding, will need a rework in future
 	};
 
 	//======================================================================================

@@ -92,6 +92,8 @@ set(SOURCES
     Source/BlueMagma/Scene/System/UI/ClickableSystem.cpp
     Source/BlueMagma/Scene/System/UI/InputTextSystem.hpp
     Source/BlueMagma/Scene/System/UI/InputTextSystem.cpp
+    Source/BlueMagma/Scene/System/UI/CheckboxSystem.hpp
+    Source/BlueMagma/Scene/System/UI/CheckboxSystem.cpp
     Source/BlueMagma/Scene/System/UI/UISystem.hpp
 )
 
