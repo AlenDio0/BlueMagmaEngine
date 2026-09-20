@@ -52,16 +52,16 @@ namespace BM::UI
 			{
 				check.TryPatch<ColorMaterial>([&](auto& material) {
 					if (active)
-						material = TryGetColorMaterial(checkbox.ActiveMaterial).value_or({});
+						material = TryGetColorMaterial(checkbox.ActiveMaterial).value_or(ColorMaterial{});
 					else if (!active)
-						material = TryGetColorMaterial(checkbox.InactiveMaterial).value_or({});
+						material = TryGetColorMaterial(checkbox.InactiveMaterial).value_or(ColorMaterial{});
 					});
 
 				check.TryPatch<TextureMaterial>([&](auto& material) {
 					if (active)
-						material = TryGetTextureMaterial(checkbox.ActiveMaterial).value_or({});
+						material = TryGetTextureMaterial(checkbox.ActiveMaterial).value_or(TextureMaterial{});
 					else if (!active)
-						material = TryGetTextureMaterial(checkbox.InactiveMaterial).value_or({});
+						material = TryGetTextureMaterial(checkbox.InactiveMaterial).value_or(TextureMaterial{});
 					});
 			}
 
