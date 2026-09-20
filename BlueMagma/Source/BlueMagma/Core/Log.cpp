@@ -39,7 +39,7 @@ namespace BM
 	}
 
 	template<typename TSink, typename... TArgs>
-	[[nodiscard]] static inline void AddSink(Log::Level core, Log::Level app, const std::string& pattern, TArgs&&... args) noexcept {
+	static inline void AddSink(Log::Level core, Log::Level app, const std::string& pattern, TArgs&&... args) noexcept {
 		s_Log.Sinks.emplace_back(
 			CreateSink<TSink>(core, pattern, std::forward<TArgs>(args)...),
 			CreateSink<TSink>(app, pattern, std::forward<TArgs>(args)...)

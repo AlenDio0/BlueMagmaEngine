@@ -297,7 +297,7 @@ namespace BM::UI
 				break;
 			case Key::Right:
 				inputText.Patch<InputText>([&](auto& input) {
-					input.CursorIndex = std::min(cIsControlPressed ? FindNextPunctIndex(input.Text, cCursorIndex) + 1ull : cCursorIndex + 1ull, cTextSize); });
+					input.CursorIndex = std::min<size_t>(cIsControlPressed ? FindNextPunctIndex(input.Text, cCursorIndex) + 1ull : cCursorIndex + 1ull, cTextSize); });
 				resetBlink = true;
 				break;
 
