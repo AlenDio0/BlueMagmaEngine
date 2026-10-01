@@ -6,8 +6,11 @@
 
 namespace BM
 {
-	struct Parent { EntityHandle Handle; };
-	struct Children { std::vector<EntityHandle> Handles; };
+	struct Hierarchy
+	{
+		EntityHandle Parent{ entt::null };
+		std::vector<EntityHandle> Children;
+	};
 
 	//======================================================================================
 
@@ -89,7 +92,7 @@ namespace BM
 		}
 	private:
 		Scene* m_ScenePtr = nullptr;
-		EntityHandle m_Handle{};
+		EntityHandle m_Handle{ entt::null };
 	};
 }
 

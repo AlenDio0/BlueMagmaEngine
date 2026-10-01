@@ -3,8 +3,6 @@
 
 #include "Scene/Scene.hpp"
 
-#include <entt/entity/fwd.hpp>
-
 #include <SFML/System/Angle.hpp>
 
 namespace BM
@@ -32,9 +30,14 @@ namespace BM
 	{
 		static constexpr Transform::GlobalSpace sRootGlobal{ .Position{0.f}, .Scale{1.f}, .Rotation = 0.f, .Z = 0.f };
 
-		auto view = scene.GetRegistry().view<Transform>(entt::exclude<Parent>);
-		for (auto entity : view)
+		auto view = scene.View<Transform>();
+		for (EntityHandle entity : view)
+		{
+			if (scene.HasAllComponent<Hierarchy>(entity) && scene.IsValid(scene.GetComponent<Hierarchy>(entity).Parent))
+				continue;
+
 			UpdateTransformAndChildren(scene.GetEntity(entity), sRootGlobal, true);
+		}
 
 		UpdateSortByZ(scene);
 	}

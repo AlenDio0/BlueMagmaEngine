@@ -5,37 +5,9 @@
 
 namespace BM
 {
-	static inline void RemoveChild(Registry& registry, EntityHandle child) noexcept {
-		BM_CORE_FN_ARGS(child);
-
-		EntityHandle parent = registry.get<Parent>(child).Handle;
-		if (registry.valid(parent) && registry.all_of<Children>(parent))
-		{
-			auto& childList = registry.get<Children>(parent).Handles;
-			std::erase(childList, child);
-		}
-	}
-
-	static inline void DestroyChildren(Registry& registry, EntityHandle entity) noexcept {
-		BM_CORE_FN_ARGS(entity);
-
-		if (registry.all_of<Children>(entity))
-		{
-			std::vector<EntityHandle> children = registry.get<Children>(entity).Handles;
-			for (auto child : children)
-			{
-				if (registry.valid(child))
-					registry.destroy(child);
-			}
-		}
-	}
-
-	//======================================================================================
-
 	Scene::Scene() noexcept
 	{
-		OnDestroy<Parent>().connect<RemoveChild>();
-		OnDestroy<Children>().connect<DestroyChildren>();
+		OnDestroy<Hierarchy>().connect<&Scene::RemoveEntityHierarchy>(this);
 	}
 
 	Registry& Scene::GetRegistry() noexcept
@@ -92,19 +64,19 @@ namespace BM
 
 	std::optional<Entity> Scene::GetEntityParent(EntityHandle handle) noexcept
 	{
-		if (!HasAllComponent<Parent>(handle))
-			return {};
+		if (!HasAllComponent<Hierarchy>(handle))
+			return std::nullopt;
 
-		return GetEntity(GetComponent<Parent>(handle).Handle);
+		return GetEntity(GetComponent<Hierarchy>(handle).Parent);
 	}
 
 	std::vector<Entity> Scene::GetEntityChildren(EntityHandle handle) noexcept
 	{
 		std::vector<Entity> children;
-		if (!HasAllComponent<Children>(handle))
+		if (!HasAllComponent<Hierarchy>(handle))
 			return children;
 
-		const auto& childrenHandles = GetComponent<Children>(handle).Handles;
+		const auto& childrenHandles = GetComponent<Hierarchy>(handle).Children;
 		children.reserve(childrenHandles.size());
 		for (EntityHandle childHandle : childrenHandles)
 			children.emplace_back(this, childHandle);
@@ -117,19 +89,66 @@ namespace BM
 		if (!IsValid(handle) || !IsValid(parentHandle))
 			return;
 
-		if (std::optional<Entity> actualParent = GetEntityParent(handle))
-		{
-			BM_CORE_WARN_FN("Entity already has a parent assigned, nothings changes (entity: '{}', actualParent: '{}', parent: '{}')",
-				handle, actualParent.value(), parentHandle);
+		if (GetEntityParent(handle))
+			RemoveEntityParent(handle);
 
-			return;
-		}
+		AddOrReplaceComponent<Hierarchy>(handle, Hierarchy{ .Parent = parentHandle });
 
-		AddComponent<Parent>(handle, parentHandle);
-		AddOrGetComponent<Children>(parentHandle);
-		PatchComponent<Children>(parentHandle, [&](auto& children) { children.Handles.push_back(handle); });
+		AddOrGetComponent<Hierarchy>(parentHandle);
+		PatchComponent<Hierarchy>(parentHandle, [&](auto& parentHierarchy) { parentHierarchy.Children.push_back(handle); });
 
 		BM_CORE_FN("Entity got assigned a parent (entity: '{}', parent: '{}')", handle, parentHandle);
+	}
+
+	void Scene::RemoveEntityChildren(EntityHandle handle) noexcept
+	{
+		BM_CORE_FN_ARGS(handle);
+
+		if (!HasAllComponent<Hierarchy>(handle))
+			return;
+
+		/*
+		*  We copy the std::vector because every time we call 'Destroy', it also calls 'RemoveEntityHierarchy'
+		*  which calls 'RemoveEntityParent' and removes the element during the foreach, which is probably UB.
+		*  TLDR: Don't make this std::vector a reference.
+		*/
+		const std::vector cChildren = GetComponent<Hierarchy>(handle).Children;
+		for (EntityHandle childHandle : cChildren)
+		{
+			if (IsValid(childHandle))
+				Destroy(childHandle);
+		}
+	}
+
+	void Scene::RemoveEntityParent(EntityHandle handle) noexcept
+	{
+		BM_CORE_FN_ARGS(handle);
+
+		if (!HasAllComponent<Hierarchy>(handle))
+			return;
+
+		EntityHandle parentHandle = GetComponent<Hierarchy>(handle).Parent;
+		if (IsValid(parentHandle))
+		{
+			PatchComponent<Hierarchy>(handle, [](Hierarchy& childHierarchy) {
+				childHierarchy.Parent = entt::null;
+				});
+
+			if (HasAllComponent<Hierarchy>(parentHandle))
+			{
+				PatchComponent<Hierarchy>(parentHandle, [handle](Hierarchy& parentHierarchy) {
+					std::erase(parentHierarchy.Children, handle);
+					});
+			}
+		}
+	}
+
+	void Scene::RemoveEntityHierarchy(EntityHandle handle) noexcept
+	{
+		BM_CORE_FN_ARGS(handle);
+
+		RemoveEntityChildren(handle);
+		RemoveEntityParent(handle);
 	}
 
 	void Scene::ClearEntities() noexcept

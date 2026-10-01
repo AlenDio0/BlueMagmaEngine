@@ -79,7 +79,7 @@ void GameLayer::OnAttach() noexcept
 		axisBuilder.At(cBackgroundSize.Center()).WithOrigin(BM::Vec2f(0.5f)).AtZ(5.f);
 
 		axisBuilder.WithSize(BM::Vec2f(cBackgroundSize.X, cAxisThickness)).Build(m_Scene);
-		axisBuilder.WithSize(BM::Vec2f(cAxisThickness, cBackgroundSize.X)).Build(m_Scene);
+		axisBuilder.WithSize(BM::Vec2f(cAxisThickness, cBackgroundSize.Y)).Build(m_Scene);
 	}
 
 	m_MouseRender = BM::CircleBuilder().At(cBackgroundSize.Center()).WithOrigin(BM::Vec2f(0.5f)).AtZ(10.f)
