@@ -2,7 +2,7 @@
 #include <BlueMagma/Framework/Layer/AppLayer.hpp>
 #include <BlueMagma/Math/Vec2.hpp>
 #include <BlueMagma/Graphics/Camera2D.hpp>
-#include <BlueMagma/Input/Keyboard.hpp>
+#include <BlueMagma/Input/InputManager.hpp>
 #include <BlueMagma/Scene/Scene.hpp>
 #include <BlueMagma/Scene/Entity.hpp>
 #include <BlueMagma/Scene/Component/Render.hpp>
@@ -42,9 +42,9 @@ namespace Paddle
 		virtual void OnUpdate(float deltaTime) noexcept override;
 		virtual void OnRender() noexcept override;
 	private:
+		void InitBinds() noexcept;
 		void InitEntities() noexcept;
 
-		bool OnKeyPressed(const BM::EventHandle::KeyPressed& keyPressed) noexcept;
 		bool OnResized(const BM::EventHandle::Resized& resized) noexcept;
 
 		BM::Entity CreatePaddle(const BM::Component::Transform::LocalSpace& transform, const BM::Component::TextRender& textRender, BM::Component::Transform::LocalSpace scoreTransform) noexcept;
@@ -87,6 +87,8 @@ namespace Paddle
 		BM::Camera2D m_MainCamera;
 
 		const BM::Font* m_MainFontPtr = nullptr;
+
+		BM::InputManager m_Input;
 
 		BM::Scene m_Scene;
 

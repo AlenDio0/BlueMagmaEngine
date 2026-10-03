@@ -52,6 +52,8 @@ set(SOURCES
     Source/BlueMagma/Input/Mouse.cpp
     Source/BlueMagma/Input/Keyboard.hpp
     Source/BlueMagma/Input/Keyboard.cpp
+    Source/BlueMagma/Input/InputManager.hpp
+    Source/BlueMagma/Input/InputManager.cpp
 
     # Asset
     Source/BlueMagma/Asset/DefaultFont.hpp

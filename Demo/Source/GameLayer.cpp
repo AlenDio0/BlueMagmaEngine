@@ -5,8 +5,6 @@
 #include <BlueMagma/Core/Log.hpp>
 #include <BlueMagma/Math/Color.hpp>
 #include <BlueMagma/Core/Random.hpp>
-#include <BlueMagma/Input/Mouse.hpp>
-#include <BlueMagma/Input/Keyboard.hpp>
 #include <BlueMagma/Scene/Entity.hpp>
 #include <BlueMagma/Scene/System/Core/TransformSystem.hpp>
 #include <BlueMagma/Scene/System/Render/RenderSystem.hpp>
@@ -55,7 +53,106 @@ void GameLayer::OnAttach() noexcept
 {
 	BM_FN();
 
-	namespace Comp = BM::Component;
+#pragma region Mouse Binds
+
+	m_Input.AddButton(BM::Mouse::Button::Right, BM_INPUT_FN([&] { CreateCircle(event.Position); }), false, true);
+
+#pragma endregion
+
+#pragma region Key Binds
+
+	m_Input.AddKey(BM::Keyboard::Key::Tab, BM_INPUT_DISPATCH_FN([&] {
+		GetApp().SetTimeScale(GetApp().GetContext().TimeScale > 1.f ? 1.f : 100.f);
+		}));
+
+	m_Input.AddKey(BM::Keyboard::Key::M, BM_INPUT_DISPATCH_FN([&] {
+		static bool sSizeSwitch = true;
+
+		m_InputText.Patch<BM::Component::Widget>([](auto& widget) {
+			widget.Size *= sSizeSwitch ? 2.f : 0.5f;
+			});
+		sSizeSwitch = !sSizeSwitch;
+		}));
+
+#pragma region Layers
+
+	m_Input.AddKey(BM::Keyboard::Key::G, BM_INPUT_DISPATCH_FN([&] { QueueTransitionTo<GameLayer>(); }));
+	m_Input.AddKey(BM::Keyboard::Key::H, BM_INPUT_DISPATCH_FN([&] { QueueRemoveLayer(); }));
+	m_Input.AddKey(BM::Keyboard::Key::T, BM_INPUT_DISPATCH_FN([&] { QueueTransitionTo<DemoLayer>(); }));
+	m_Input.AddKey(BM::Keyboard::Key::Y, BM_INPUT_DISPATCH_FN([&] { GetApp().QueuePushLayer<DemoLayer>(); }));
+	m_Input.AddKey(BM::Keyboard::Key::P, BM_INPUT_DISPATCH_FN([&] { QueueTransitionTo<Paddle::PaddleLayer>(); }));
+
+#pragma endregion
+
+#pragma region Examples
+
+	m_Input.AddKey(BM::Keyboard::Key::Z, BM_INPUT_DISPATCH_FN([&] {
+		if (!m_InitExample)
+		{
+			m_InitExample = true;
+			InitExample();
+		}
+		else
+		{
+			QueueTransitionTo<GameLayer>(!m_InitExample, m_InitUIExample);
+		}
+		}));
+	m_Input.AddKey(BM::Keyboard::Key::X, BM_INPUT_DISPATCH_FN([&] {
+		if (!m_InitUIExample)
+		{
+			m_InitUIExample = true;
+			InitUIExample();
+		}
+		else
+		{
+			QueueTransitionTo<GameLayer>(m_InitExample, !m_InitUIExample);
+		}
+		}));
+
+#pragma endregion
+
+#pragma region Window & Camera
+
+	m_Input.AddKey(BM::Keyboard::Key::C, BM_INPUT_DISPATCH_FN([&] {
+		auto window = GetWindow().lock();
+		if (!window)
+			return;
+
+		static bool sState = false;
+
+		std::string title = sState ? BM::WindowContext().Title : "Cat Window";
+		std::filesystem::path path = sState ? BM::WindowContext().IconPath : std::filesystem::path("Asset") / "Cat.png";
+
+		sState = !sState;
+
+
+		window->SetTitle(title);
+		window->SetIconFromPath(path);
+		}));
+
+	m_Input.AddKey(BM::Keyboard::Key::B, BM_INPUT_DISPATCH_FN([&] {
+		if (auto window = GetWindow().lock())
+			m_MainCamera = BM::Camera2D(window->GetSize());
+		}));
+	m_Input.AddKey(BM::Keyboard::Key::N, BM_INPUT_DISPATCH_FN([&] {
+		if (auto renderer = GetRenderer().lock())
+			m_MainCamera = renderer->GetDefaultCamera();
+		}));
+
+#pragma endregion
+
+#pragma region Sound Manager
+
+	m_Input.AddKey(BM::Keyboard::Key::J, BM_INPUT_DISPATCH_FN([&] { m_SoundManager.Play("sound"); }));
+	m_Input.AddKey(BM::Keyboard::Key::K, BM_INPUT_DISPATCH_FN([&] { m_SoundManager.Play("sound", true); }));
+	m_Input.AddKey(BM::Keyboard::Key::O, BM_INPUT_DISPATCH_FN([&] { m_SoundManager.PlayThread("sound"); }));
+	m_Input.AddKey(BM::Keyboard::Key::L, BM_INPUT_DISPATCH_FN([&] { m_SoundManager.Stop("sound"); }));
+	m_Input.AddKey(BM::Keyboard::Key::Up, BM_INPUT_DISPATCH_FN([&] { m_SoundManager.Get("sound")->setVolume(150.f); }));
+	m_Input.AddKey(BM::Keyboard::Key::Down, BM_INPUT_DISPATCH_FN([&] { m_SoundManager.Get("sound")->setVolume(50.f); }));
+
+#pragma endregion
+
+#pragma endregion
 
 	auto window = GetWindow().lock();
 	if (!window)
@@ -92,8 +189,8 @@ void GameLayer::OnAttach() noexcept
 	if (m_InitUIExample)
 		InitUIExample();
 
-	m_Scene.OnDestroy<Comp::Widget>().connect<&GameLayer::UpdateMouseCursor>(this);
-	m_Scene.OnUpdate<Comp::Widget>().connect<&GameLayer::UpdateMouseCursor>(this);
+	m_Scene.OnDestroy<BM::Component::Widget>().connect<&GameLayer::UpdateMouseCursor>(this);
+	m_Scene.OnUpdate<BM::Component::Widget>().connect<&GameLayer::UpdateMouseCursor>(this);
 }
 
 void GameLayer::OnDetach() noexcept
@@ -111,6 +208,8 @@ void GameLayer::OnEvent(BM::Event& event) noexcept
 	if (auto renderer = GetRenderer().lock())
 		renderer->SetCamera(*m_ActiveCameraPtr);
 
+	m_Input.OnEvent(event);
+
 	m_Scene.OnEvent(event);
 
 	BM::EventDispatcher dispatcher(event);
@@ -118,9 +217,7 @@ void GameLayer::OnEvent(BM::Event& event) noexcept
 	dispatcher.Dispatch<BM::EventHandle::Resized>(BM_EVENT_FN(m_MainCamera.OnViewportResizeEvent));
 	dispatcher.Dispatch<BM::EventHandle::Resized>(BM_EVENT_FN(m_ButtonCamera.OnViewportResizeEvent));
 
-	dispatcher.Dispatch<BM::EventHandle::KeyPressed>(BM_EVENT_FN(OnKeyPressed));
 	dispatcher.Dispatch<BM::EventHandle::MouseMoved>(BM_EVENT_FN(OnMouseMoved));
-	dispatcher.Dispatch<BM::EventHandle::MouseButtonPressed>(BM_EVENT_FN(OnMousePressed));
 	dispatcher.Dispatch<BM::EventHandle::MouseWheelScrolled>(BM_EVENT_FN(OnMouseScrolled));
 }
 
@@ -490,118 +587,32 @@ void GameLayer::InitUIExample() noexcept
 #pragma endregion
 }
 
-bool GameLayer::OnKeyPressed(const BM::EventHandle::KeyPressed& keyPressed) noexcept
+void GameLayer::CreateCircle(BM::Vec2i position) noexcept
 {
-	auto window = GetWindow().lock();
-	if (!window)
-		return false;
+	auto renderer = GetRenderer().lock();
+	if (!renderer)
+		return;
 
-	switch (keyPressed.code)
-	{
-		using Key = BM::Keyboard::Key;
+	const BM::Vec2f cCoords = renderer->PixelToCoords(position);
+	const static float cRadius = static_cast<float>(BM_RANDOM(50, 100));
+	const BM::Color cRandomColor = BM::Color((uint32_t)BM_RANDOM(0, 0xFFFFFF) << 8u).WithAlpha(1.f);
 
-	case Key::Tab:
-		GetApp().SetTimeScale(GetApp().GetContext().TimeScale > 1.f ? 1.f : 100.f);
-		break;
+	auto onCirclePressed = [&](auto entity, auto event) {
+		if (event.button != BM::Mouse::Button::Left)
+			return false;
 
-	case Key::G:
-		QueueTransitionTo<GameLayer>();
-		break;
-	case Key::H:
-		QueueRemoveLayer();
-		break;
+		m_Scene.Destroy(entity);
+		return true;
+		};
 
-	case Key::T:
-		QueueTransitionTo<DemoLayer>();
-		break;
-	case Key::Y:
-		GetApp().QueuePushLayer<DemoLayer>();
-		break;
+	BM::Entity circle = BM::ButtonBuilder().At(cCoords).WithOrigin(BM::Vec2f(0.5f)).AtZ(50.f)
+		.WithColor(BM::ColorDef::Clear).WithOutline({ .Color = cRandomColor, .Thickness = 10.f })
+		.WithCircleShape(cRadius).OnClick(onCirclePressed)
+		.Build(m_Scene);
 
-	case Key::P:
-		QueueTransitionTo<Paddle::PaddleLayer>();
-		break;
-
-	case Key::Z:
-		if (!m_InitExample)
-		{
-			m_InitExample = true;
-			InitExample();
-		}
-		else
-		{
-			QueueTransitionTo<GameLayer>(!m_InitExample, m_InitUIExample);
-		}
-		break;
-	case Key::X:
-		if (!m_InitUIExample)
-		{
-			m_InitUIExample = true;
-			InitUIExample();
-		}
-		else
-		{
-			QueueTransitionTo<GameLayer>(m_InitExample, !m_InitUIExample);
-		}
-		break;
-
-	case Key::C:
-	{
-		static bool sState = false;
-
-		std::string title = sState ? BM::WindowContext().Title : "Cat Window";
-		std::filesystem::path path = sState ? BM::WindowContext().IconPath : std::filesystem::path("Asset") / "Cat.png";
-
-		sState = !sState;
-
-		window->SetTitle(title);
-		window->SetIconFromPath(path);
-	}
-	break;
-
-	case Key::B:
-		m_MainCamera = BM::Camera2D(window->GetSize());
-		break;
-	case Key::N:
-		if (auto renderer = GetRenderer().lock())
-			m_MainCamera = renderer->GetDefaultCamera();
-		break;
-
-	case Key::M:
-	{
-		static bool sSizeSwitch = true;
-
-		m_InputText.Patch<BM::Component::Widget>([](auto& widget) {
-			widget.Size *= sSizeSwitch ? 2.f : 0.5f;
-			});
-		sSizeSwitch = !sSizeSwitch;
-	}
-	break;
-
-	case Key::J:
-		m_SoundManager.Play("sound");
-		break;
-	case Key::K:
-		m_SoundManager.Play("sound", true);
-		break;
-	case Key::O:
-		m_SoundManager.PlayThread("sound");
-		break;
-	case Key::L:
-		m_SoundManager.Stop("sound");
-		break;
-	case Key::Up:
-		m_SoundManager.Get("sound")->setVolume(150.f);
-		break;
-	case Key::Down:
-		m_SoundManager.Get("sound")->setVolume(50.f);
-		break;
-
-	default:
-		return false;
-	}
-
-	return true;
+	BM::CircleBuilder().WithParent(circle).WithOrigin(BM::Vec2f(0.5f))
+		.WithColor(BM::ColorDef::Red).WithRadius(5.f)
+		.Build(m_Scene);
 }
 
 bool GameLayer::OnMouseMoved(const BM::EventHandle::MouseMoved& mouseMoved) noexcept
@@ -619,40 +630,6 @@ bool GameLayer::OnMouseMoved(const BM::EventHandle::MouseMoved& mouseMoved) noex
 		renderer->SetCamera(*m_ActiveCameraPtr);
 
 	UpdateMouseRender(mouseMoved.position);
-
-	return false;
-}
-
-bool GameLayer::OnMousePressed(const BM::EventHandle::MouseButtonPressed& mousePressed) noexcept
-{
-	if (mousePressed.button != BM::Mouse::Button::Right)
-		return false;
-
-	auto renderer = GetRenderer().lock();
-	if (!renderer)
-		return false;
-
-	const BM::Vec2f cMouseCoords = renderer->PixelToCoords(mousePressed.position);
-	const static float cRadius = static_cast<float>(BM_RANDOM(50, 100));
-
-	auto onCirclePressed = [&](auto entity, auto event) {
-		if (event.button != BM::Mouse::Button::Left)
-			return false;
-
-		m_Scene.Destroy(entity);
-		return true;
-		};
-
-	const BM::Color cRandomColor = BM::Color((uint32_t)BM_RANDOM(0, 0xFFFFFF) << 8u).WithAlpha(1.f);
-
-	BM::Entity circle = BM::ButtonBuilder().At(cMouseCoords).WithOrigin(BM::Vec2f(0.5f)).AtZ(50.f)
-		.WithColor(BM::ColorDef::Clear).WithOutline({ .Color = cRandomColor, .Thickness = 10.f })
-		.WithCircleShape(cRadius).OnClick(onCirclePressed)
-		.Build(m_Scene);
-
-	BM::CircleBuilder().WithParent(circle).WithOrigin(BM::Vec2f(0.5f))
-		.WithColor(BM::ColorDef::Red).WithRadius(5.f)
-		.Build(m_Scene);
 
 	return false;
 }

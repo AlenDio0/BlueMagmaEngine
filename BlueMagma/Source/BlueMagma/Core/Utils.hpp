@@ -4,6 +4,9 @@
 #include <string_view>
 #include <format>
 #include <ranges>
+#include <functional>
+#include <type_traits>
+#include <utility>
 
 namespace BM::Utils
 {

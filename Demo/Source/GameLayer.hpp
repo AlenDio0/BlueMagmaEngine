@@ -3,6 +3,7 @@
 #include <BlueMagma/Core/Timer.hpp>
 #include <BlueMagma/Asset/SoundManager.hpp>
 #include <BlueMagma/Graphics/Camera2D.hpp>
+#include <BlueMagma/Input/InputManager.hpp>
 #include <BlueMagma/Scene/Scene.hpp>
 #include <BlueMagma/Scene/Entity.hpp>
 #include <string>
@@ -24,30 +25,32 @@ public:
 private:
 	void InitExample() noexcept;
 	void InitUIExample() noexcept;
-
-	bool OnKeyPressed(const BM::EventHandle::KeyPressed& keyPressed) noexcept;
+private:
+	void CreateCircle(BM::Vec2i position) noexcept;
+private:
 	bool OnMouseMoved(const BM::EventHandle::MouseMoved& mouseMoved) noexcept;
-	bool OnMousePressed(const BM::EventHandle::MouseButtonPressed& mousePressed) noexcept;
 	bool OnMouseScrolled(const BM::EventHandle::MouseWheelScrolled& mouseScrolled) noexcept;
 
 	void UpdateMouseCursor() noexcept;
 	void UpdateMouseRender(BM::Vec2i point) noexcept;
 	std::string FormatStatText(float deltaTime) const noexcept;
 private:
-	bool m_InitExample;
-	bool m_InitUIExample;
-
 	BM::Camera2D* m_ActiveCameraPtr;
 	BM::Camera2D m_MainCamera;
 	BM::Camera2D m_ButtonCamera;
 
 	const BM::Font* m_MainFontPtr = nullptr;
 
+	BM::InputManager m_Input;
+
 	BM::Scene m_Scene;
 
 	BM::Entity m_StatText;
-	uint32_t m_FPSCounter;
 	BM::Timer m_FPSTimer;
+	uint32_t m_FPSCounter;
+
+	bool m_InitExample;
+	bool m_InitUIExample;
 
 	BM::Entity m_Button;
 	BM::Entity m_InputText;

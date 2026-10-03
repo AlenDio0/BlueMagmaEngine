@@ -32,6 +32,7 @@ namespace Paddle
 		SetDesktopMode(m_DesktopMode);
 		UpdateWindowTitle();
 
+		InitBinds();
 		InitEntities();
 
 		ResetPaddle();
@@ -40,11 +41,12 @@ namespace Paddle
 
 	void PaddleLayer::OnEvent(BM::Event& event) noexcept
 	{
+		m_Input.OnEvent(event);
+
 		m_Scene.OnEvent(event);
 
 		BM::EventDispatcher dispatcher(event);
 
-		dispatcher.Dispatch<BM::EventHandle::KeyPressed>(BM_EVENT_FN(OnKeyPressed));
 		dispatcher.Dispatch<BM::EventHandle::Resized>(BM_EVENT_FN(OnResized));
 	}
 
@@ -115,6 +117,34 @@ namespace Paddle
 		m_Scene.OnRender();
 	}
 
+	void PaddleLayer::InitBinds() noexcept
+	{
+		using Key = BM::Keyboard::Key;
+
+		m_Input.AddKey(Key::Add, BM_INPUT_FN([&] { GetApp().SetTimeScale(GetApp().GetContext().TimeScale + 1.f); }));
+		m_Input.AddKey(Key::Subtract, BM_INPUT_FN([&] { GetApp().SetTimeScale(std::max(0.f, GetApp().GetContext().TimeScale - 1.f)); }));
+
+		m_Input.AddKey(Key::P, BM_INPUT_FN([&] { QueueTransitionTo<GameLayer>(); }));
+		m_Input.AddKey(Key::N, BM_INPUT_FN([&] { QueueTransitionTo<PaddleLayer>(); }));
+
+		m_Input.AddKey(Key::L, BM_INPUT_FN([&] {
+			ToggleBot(m_LeftPaddle);
+			StartNewGame();
+			}));
+		m_Input.AddKey(Key::R, BM_INPUT_FN([&] {
+			ToggleBot(m_RightPaddle);
+			StartNewGame();
+			}));
+
+		m_Input.AddKey(Key::Enter, BM_INPUT_FN([&] { StartNewGame(); }));
+		m_Input.AddAnyKey({ Key::W,Key::S, Key::Up, Key::Down }, BM_INPUT_FN([&] { StartBall(); }));
+
+		m_Input.AddKey(Key::F, BM_INPUT_FN([&] {
+			m_DesktopMode = !m_DesktopMode;
+			SetDesktopMode(m_DesktopMode);
+			}));
+	}
+
 	void PaddleLayer::InitEntities() noexcept
 	{
 		if (auto window = GetWindow().lock())
@@ -153,56 +183,6 @@ namespace Paddle
 
 		m_TimerText = m_Scene.CreateEntityWithParent(m_Background, { .State{.Position{ cBackgroundCenter.X + cSpaceX, cPaddingY }} });
 		m_TimerText.Add<BM::Component::TextRender>(cTextRender);
-	}
-
-	bool PaddleLayer::OnKeyPressed(const BM::EventHandle::KeyPressed& keyPressed) noexcept
-	{
-		switch (keyPressed.code)
-		{
-			using Key = BM::Keyboard::Key;
-
-		case Key::Add:
-			GetApp().SetTimeScale(GetApp().GetContext().TimeScale + 1.f);
-			break;
-		case Key::Subtract:
-			GetApp().SetTimeScale(std::max(0.f, GetApp().GetContext().TimeScale - 1.f));
-			break;
-
-		case Key::P:
-			QueueTransitionTo<GameLayer>();
-			break;
-		case Key::N:
-			QueueTransitionTo<PaddleLayer>();
-			break;
-
-		case Key::L:
-			ToggleBot(m_LeftPaddle);
-			StartNewGame();
-			break;
-		case Key::R:
-			ToggleBot(m_RightPaddle);
-			StartNewGame();
-			break;
-		case Key::Enter:
-			StartNewGame();
-			break;
-		case Key::W:
-		case Key::S:
-		case Key::Up:
-		case Key::Down:
-			StartBall();
-			break;
-
-		case Key::F:
-			m_DesktopMode = !m_DesktopMode;
-			SetDesktopMode(m_DesktopMode);
-			break;
-
-		default:
-			break;
-		}
-
-		return false;
 	}
 
 	bool PaddleLayer::OnResized(const BM::EventHandle::Resized& resized) noexcept
