@@ -1,6 +1,8 @@
 #include "bmpch.hpp"
 #include "Window.hpp"
 
+#include "Input/Mouse.hpp"
+
 #include <SFML/Window/Mouse.hpp>
 #include <SFML/Window/VideoMode.hpp>
 
@@ -131,12 +133,6 @@ namespace BM
 		GetHandleRef()->requestFocus();
 	}
 
-	void Window::SetMousePosition(Vec2i point) const noexcept
-	{
-		BM_CORE_FN_ARGS(point);
-		sf::Mouse::setPosition(point, *GetHandleRef());
-	}
-
 	void Window::SetSize(Vec2u size) const noexcept
 	{
 		BM_CORE_FN_ARGS(size);
@@ -196,6 +192,12 @@ namespace BM
 		GetHandleRef()->setPosition(point);
 	}
 
+	void Window::SetMousePosition(Vec2i point) const noexcept
+	{
+		BM_CORE_FN_ARGS(point);
+		Mouse::SetPosition(point, *this);
+	}
+
 	bool Window::IsOpen() const noexcept
 	{
 		return m_Handle && GetHandleRef()->isOpen();
@@ -208,7 +210,7 @@ namespace BM
 
 	Vec2i Window::GetMousePosition() const noexcept
 	{
-		return sf::Mouse::getPosition(*m_Handle);
+		return Mouse::GetPosition(*this);
 	}
 
 	Vec2u Window::GetSize() const noexcept

@@ -47,6 +47,10 @@ set(SOURCES
     Source/BlueMagma/Framework/Layer/LayerMachine.hpp
     Source/BlueMagma/Framework/Layer/LayerMachine.cpp
 
+    # Input
+    Source/BlueMagma/Input/Mouse.hpp
+    Source/BlueMagma/Input/Mouse.cpp
+
     # Asset
     Source/BlueMagma/Asset/DefaultFont.hpp
     Source/BlueMagma/Asset/Asset.hpp

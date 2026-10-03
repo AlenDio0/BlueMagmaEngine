@@ -5,13 +5,14 @@
 #include <BlueMagma/Core/Log.hpp>
 #include <BlueMagma/Math/Color.hpp>
 #include <BlueMagma/Core/Random.hpp>
-#include <Scene/Entity.hpp>
-#include <Scene/System/Core/TransformSystem.hpp>
-#include <Scene/System/Render/RenderSystem.hpp>
-#include <Scene/System/UI/UISystem.hpp>
-#include <Scene/Component/Builder/EntityBuilder.hpp>
-#include <Scene/Component/Builder/RenderBuilder.hpp>
-#include <Scene/Component/Builder/WidgetBuilder.hpp>
+#include <BlueMagma/Input/Mouse.hpp>
+#include <BlueMagma/Scene/Entity.hpp>
+#include <BlueMagma/Scene/System/Core/TransformSystem.hpp>
+#include <BlueMagma/Scene/System/Render/RenderSystem.hpp>
+#include <BlueMagma/Scene/System/UI/UISystem.hpp>
+#include <BlueMagma/Scene/Component/Builder/EntityBuilder.hpp>
+#include <BlueMagma/Scene/Component/Builder/RenderBuilder.hpp>
+#include <BlueMagma/Scene/Component/Builder/WidgetBuilder.hpp>
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/Cursor.hpp>
 #include <format>
@@ -323,7 +324,7 @@ void GameLayer::InitUIExample() noexcept
 
 				switch (event.button)
 				{
-					using MButton = sf::Mouse::Button;
+					using MButton = BM::Mouse::Button;
 
 				case MButton::Left:
 				{
@@ -621,7 +622,7 @@ bool GameLayer::OnMouseMoved(const BM::EventHandle::MouseMoved& mouseMoved) noex
 
 bool GameLayer::OnMousePressed(const BM::EventHandle::MouseButtonPressed& mousePressed) noexcept
 {
-	if (mousePressed.button != sf::Mouse::Button::Right)
+	if (mousePressed.button != BM::Mouse::Button::Right)
 		return false;
 
 	auto renderer = GetRenderer().lock();
@@ -632,7 +633,7 @@ bool GameLayer::OnMousePressed(const BM::EventHandle::MouseButtonPressed& mouseP
 	const static float cRadius = static_cast<float>(BM_RANDOM(50, 100));
 
 	auto onCirclePressed = [&](auto entity, auto event) {
-		if (event.button != sf::Mouse::Button::Left)
+		if (event.button != BM::Mouse::Button::Left)
 			return false;
 
 		m_Scene.Destroy(entity);
