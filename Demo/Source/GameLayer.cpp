@@ -353,6 +353,10 @@ void GameLayer::InitUIExample() noexcept
 
 						m_Scene.RemoveEntityParent(child);
 					}
+					else
+					{
+						m_Scene.Destroy(entity);
+					}
 					return true;
 				case MButton::Middle:
 					m_Scene.DestroyEntityChildren(entity);

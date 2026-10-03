@@ -108,7 +108,6 @@ add_library(BlueMagma STATIC)
 target_sources(BlueMagma PRIVATE ${SOURCES})
 
 # Shader Generator
-
 include(CMake/Shader.cmake)
 
 # IDE Structure
@@ -128,7 +127,7 @@ target_link_libraries(BlueMagma PUBLIC EnTT)
 
 # Include
 target_include_directories(BlueMagma PUBLIC "Source")
-target_include_directories(BlueMagma PUBLIC "Source/BlueMagma")
+target_include_directories(BlueMagma PRIVATE "Source/BlueMagma")
 
 # Pre-Compiled Headers
 target_precompile_headers(BlueMagma PRIVATE "Source/bmpch.hpp")
