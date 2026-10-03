@@ -1,10 +1,10 @@
 #pragma once
 #include "RenderBuilder.hpp"
 
-#include "Math/Vec2.hpp"
-#include "Scene/Scene.hpp"
-#include "Scene/Entity.hpp"
-#include "Scene/Component/UI.hpp"
+#include "BlueMagma/Math/Vec2.hpp"
+#include "BlueMagma/Scene/Scene.hpp"
+#include "BlueMagma/Scene/Entity.hpp"
+#include "BlueMagma/Scene/Component/UI.hpp"
 
 #include <optional>
 

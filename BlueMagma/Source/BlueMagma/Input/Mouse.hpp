@@ -1,5 +1,6 @@
 #pragma once
-#include "Graphics/Window.hpp"
+#include "BlueMagma/Math/Vec2.hpp"
+#include "BlueMagma/Graphics/Window.hpp"
 
 #include <SFML/Window/Mouse.hpp>
 

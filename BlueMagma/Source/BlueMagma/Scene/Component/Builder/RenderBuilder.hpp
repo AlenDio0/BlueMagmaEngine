@@ -1,6 +1,7 @@
 #pragma once
 #include "EntityBuilder.hpp"
-#include "Scene/Component/Render.hpp"
+
+#include "BlueMagma/Scene/Component/Render.hpp"
 
 namespace BM
 {

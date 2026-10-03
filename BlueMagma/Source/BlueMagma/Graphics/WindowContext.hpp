@@ -1,6 +1,6 @@
 #pragma once
-#include "Math/Vec2.hpp"
-#include "Event/EventDispatcher.hpp"
+#include "BlueMagma/Math/Vec2.hpp"
+#include "BlueMagma/Event/EventDispatcher.hpp"
 
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Window/WindowEnums.hpp>

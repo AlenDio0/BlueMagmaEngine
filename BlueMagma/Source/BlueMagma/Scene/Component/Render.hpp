@@ -1,8 +1,8 @@
 #pragma once
-#include "Math/Vec2.hpp"
-#include "Math/Rect.hpp"
-#include "Math/Color.hpp"
-#include "Asset/Asset.hpp"
+#include "BlueMagma/Math/Vec2.hpp"
+#include "BlueMagma/Math/Rect.hpp"
+#include "BlueMagma/Math/Color.hpp"
+#include "BlueMagma/Asset/Asset.hpp"
 
 #include <SFML/Graphics/Text.hpp>
 

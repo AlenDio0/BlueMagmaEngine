@@ -2,8 +2,8 @@
 #include "Camera2D.hpp"
 #include "WindowHandle.hpp"
 
-#include "Math/Color.hpp"
-#include "Math/Vec2.hpp"
+#include "BlueMagma/Math/Color.hpp"
+#include "BlueMagma/Math/Vec2.hpp"
 
 #include <SFML/Graphics/RenderStates.hpp>
 #include <SFML/Graphics/Drawable.hpp>

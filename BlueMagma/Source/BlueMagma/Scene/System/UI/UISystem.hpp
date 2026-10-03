@@ -1,5 +1,5 @@
 #pragma once
-#include "Scene/System/SystemPack.hpp"
+#include "BlueMagma/Scene/System/SystemPack.hpp"
 
 #include "WidgetSystem.hpp"
 #include "WidgetColorSystem.hpp"

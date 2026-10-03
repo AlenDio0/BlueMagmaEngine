@@ -1,7 +1,7 @@
 #pragma once
-#include "Math/Vec2.hpp"
-#include "Math/Rect.hpp"
-#include "Event/Event.hpp"
+#include "BlueMagma/Math/Vec2.hpp"
+#include "BlueMagma/Math/Rect.hpp"
+#include "BlueMagma/Event/Event.hpp"
 
 #include <SFML/Graphics/View.hpp>
 

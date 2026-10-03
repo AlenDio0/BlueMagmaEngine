@@ -1,6 +1,7 @@
 #pragma once
 #include "DefaultFont.hpp"
-#include "Math/Vec2.hpp"
+
+#include "BlueMagma/Math/Vec2.hpp"
 
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/Graphics/Image.hpp>

@@ -2,9 +2,10 @@
 #include "EntityHandle.hpp"
 #include "Component/Core.hpp"
 #include "System/ISystem.hpp"
-#include "Core/Assert.hpp"
-#include "Event/Event.hpp"
-#include "Graphics/Renderer.hpp"
+
+#include "BlueMagma/Core/Assert.hpp"
+#include "BlueMagma/Event/Event.hpp"
+#include "BlueMagma/Graphics/Renderer.hpp"
 
 #include <entt/entt.hpp>
 #include <entt/entity/fwd.hpp>

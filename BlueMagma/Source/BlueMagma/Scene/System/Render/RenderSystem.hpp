@@ -1,12 +1,13 @@
 #pragma once
-#include "Scene/System/ISystem.hpp"
-#include "Math/Vec2.hpp"
-#include "Math/Rect.hpp"
-#include "Math/Color.hpp"
-#include "Graphics/Renderer.hpp"
-#include "Asset/Asset.hpp"
-#include "Scene/Component/Core.hpp"
-#include "Scene/Component/Render.hpp"
+#include "BlueMagma/Scene/System/ISystem.hpp"
+
+#include "BlueMagma/Math/Vec2.hpp"
+#include "BlueMagma/Math/Rect.hpp"
+#include "BlueMagma/Math/Color.hpp"
+#include "BlueMagma/Graphics/Renderer.hpp"
+#include "BlueMagma/Asset/Asset.hpp"
+#include "BlueMagma/Scene/Component/Core.hpp"
+#include "BlueMagma/Scene/Component/Render.hpp"
 
 #include <SFML/Graphics/RenderStates.hpp>
 #include <SFML/Graphics/Shader.hpp>

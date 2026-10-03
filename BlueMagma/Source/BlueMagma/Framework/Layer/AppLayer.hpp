@@ -2,7 +2,7 @@
 #include "Layer.hpp"
 #include "LayerMachine.hpp"
 
-#include "Framework/Application.hpp"
+#include "BlueMagma/Framework/Application.hpp"
 
 #include <concepts>
 #include <memory>

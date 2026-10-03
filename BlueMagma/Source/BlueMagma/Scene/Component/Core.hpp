@@ -1,6 +1,6 @@
 #pragma once
-#include "Math/Vec2.hpp"
-#include "Math/Transform2D.hpp"
+#include "BlueMagma/Math/Vec2.hpp"
+#include "BlueMagma/Math/Transform2D.hpp"
 
 namespace BM::Component
 {

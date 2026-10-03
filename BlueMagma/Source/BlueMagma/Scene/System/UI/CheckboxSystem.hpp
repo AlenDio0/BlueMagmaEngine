@@ -1,7 +1,7 @@
 #pragma once
-#include "Scene/System/ISystem.hpp"
+#include "BlueMagma/Scene/System/ISystem.hpp"
 
-#include "Scene/Component/UI.hpp"
+#include "BlueMagma/Scene/Component/UI.hpp"
 
 #include <optional>
 

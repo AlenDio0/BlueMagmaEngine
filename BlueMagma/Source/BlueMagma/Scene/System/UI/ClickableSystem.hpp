@@ -1,5 +1,5 @@
 #pragma once
-#include "Scene/System/ISystem.hpp"
+#include "BlueMagma/Scene/System/ISystem.hpp"
 
 namespace BM::UI
 {

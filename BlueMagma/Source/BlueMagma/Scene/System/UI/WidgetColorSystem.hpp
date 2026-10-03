@@ -1,8 +1,8 @@
 #pragma once
-#include "Scene/System/ISystem.hpp"
+#include "BlueMagma/Scene/System/ISystem.hpp"
 
-#include "Scene/EntityHandle.hpp"
-#include "Scene/Scene.hpp"
+#include "BlueMagma/Scene/EntityHandle.hpp"
+#include "BlueMagma/Scene/Scene.hpp"
 
 namespace BM::UI
 {

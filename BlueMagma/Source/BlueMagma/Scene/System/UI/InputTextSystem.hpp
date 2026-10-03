@@ -1,9 +1,9 @@
 #pragma once
-#include "Scene/System/ISystem.hpp"
+#include "BlueMagma/Scene/System/ISystem.hpp"
 
-#include "Core/Timer.hpp"
-#include "Scene/Scene.hpp"
-#include "Scene/Component/UI.hpp"
+#include "BlueMagma/Core/Timer.hpp"
+#include "BlueMagma/Scene/Scene.hpp"
+#include "BlueMagma/Scene/Component/UI.hpp"
 
 namespace BM::UI
 {

@@ -1,5 +1,5 @@
 #pragma once
-#include "Event/Event.hpp"
+#include "BlueMagma/Event/Event.hpp"
 
 #include <functional>
 

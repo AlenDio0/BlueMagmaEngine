@@ -1,9 +1,9 @@
 #pragma once
-#include "Math/Vec2.hpp"
-#include "Scene/Scene.hpp"
-#include "Scene/Entity.hpp"
-#include "Scene/Component/Core.hpp"
-#include "Scene/Component/Render.hpp"
+#include "BlueMagma/Math/Vec2.hpp"
+#include "BlueMagma/Scene/Scene.hpp"
+#include "BlueMagma/Scene/Entity.hpp"
+#include "BlueMagma/Scene/Component/Core.hpp"
+#include "BlueMagma/Scene/Component/Render.hpp"
 
 namespace BM
 {

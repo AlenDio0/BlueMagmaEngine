@@ -1,10 +1,10 @@
 #pragma once
-#include "Scene/System/ISystem.hpp"
+#include "BlueMagma/Scene/System/ISystem.hpp"
 
-#include "Math/Vec2.hpp"
-#include "Scene/EntityHandle.hpp"
-#include "Scene/Component/Core.hpp"
-#include "Scene/Component/UI.hpp"
+#include "BlueMagma/Math/Vec2.hpp"
+#include "BlueMagma/Scene/EntityHandle.hpp"
+#include "BlueMagma/Scene/Component/Core.hpp"
+#include "BlueMagma/Scene/Component/UI.hpp"
 
 #include <functional>
 

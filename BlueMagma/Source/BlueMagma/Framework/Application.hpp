@@ -1,9 +1,9 @@
 #pragma once
 #include "Layer/LayerMachine.hpp"
 
-#include "Event/Event.hpp"
-#include "Graphics/Window.hpp"
-#include "Asset/AssetManager.hpp"
+#include "BlueMagma/Event/Event.hpp"
+#include "BlueMagma/Graphics/Window.hpp"
+#include "BlueMagma/Asset/AssetManager.hpp"
 
 #include <concepts>
 #include <memory>

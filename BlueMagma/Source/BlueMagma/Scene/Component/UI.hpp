@@ -1,10 +1,10 @@
 #pragma once
 #include "Render.hpp"
 
-#include "Math/Vec2.hpp"
-#include "Math/Color.hpp"
-#include "Event/Event.hpp"
-#include "Scene/Entity.hpp"
+#include "BlueMagma/Math/Vec2.hpp"
+#include "BlueMagma/Math/Color.hpp"
+#include "BlueMagma/Event/Event.hpp"
+#include "BlueMagma/Scene/Entity.hpp"
 
 #include <functional>
 #include <string>

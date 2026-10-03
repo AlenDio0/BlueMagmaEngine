@@ -3,7 +3,7 @@
 #include "WindowContext.hpp"
 #include "Renderer.hpp"
 
-#include "Math/Vec2.hpp"
+#include "BlueMagma/Math/Vec2.hpp"
 
 #include <SFML/Graphics/Image.hpp>
 
