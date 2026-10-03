@@ -6,6 +6,7 @@
 #include <BlueMagma/Math/Color.hpp>
 #include <BlueMagma/Core/Random.hpp>
 #include <BlueMagma/Input/Mouse.hpp>
+#include <BlueMagma/Input/Keyboard.hpp>
 #include <BlueMagma/Scene/Entity.hpp>
 #include <BlueMagma/Scene/System/Core/TransformSystem.hpp>
 #include <BlueMagma/Scene/System/Render/RenderSystem.hpp>
@@ -13,7 +14,6 @@
 #include <BlueMagma/Scene/Component/Builder/EntityBuilder.hpp>
 #include <BlueMagma/Scene/Component/Builder/RenderBuilder.hpp>
 #include <BlueMagma/Scene/Component/Builder/WidgetBuilder.hpp>
-#include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/Cursor.hpp>
 #include <format>
 #include <cmath>
@@ -166,22 +166,21 @@ void GameLayer::OnUpdate(float deltaTime) noexcept
 		[&](auto entity, const auto& widget, const auto& input) { return widget.Focus; });
 	if (window->HasFocus() && !cAnyInputTextFocus)
 	{
-		namespace Keyboard = sf::Keyboard;
-		using Key = Keyboard::Key;
+		using Key = BM::Keyboard::Key;
 
 		BM::Vec2f direction{ 0.f };
-		if (Keyboard::isKeyPressed(Key::W))
+		if (BM::Keyboard::IsPressed(Key::W))
 			direction += BM::Vec2f::Up();
-		if (Keyboard::isKeyPressed(Key::S))
+		if (BM::Keyboard::IsPressed(Key::S))
 			direction += BM::Vec2f::Down();
-		if (Keyboard::isKeyPressed(Key::A))
+		if (BM::Keyboard::IsPressed(Key::A))
 			direction += BM::Vec2f::Left();
-		if (Keyboard::isKeyPressed(Key::D))
+		if (BM::Keyboard::IsPressed(Key::D))
 			direction += BM::Vec2f::Right();
 
 		if (direction != BM::Vec2f::Zero())
 		{
-			const bool cLShiftKey = Keyboard::isKeyPressed(Key::LShift);
+			const bool cLShiftKey = BM::Keyboard::IsPressed(Key::LShift);
 
 			constexpr float cSpeed = 500.f;
 			const float cCameraSpeed = (cSpeed / m_MainCamera.GetZoomFactor()) * (cLShiftKey ? 5.f : 1.f) * deltaTime;
@@ -495,7 +494,7 @@ bool GameLayer::OnKeyPressed(const BM::EventHandle::KeyPressed& keyPressed) noex
 
 	switch (keyPressed.code)
 	{
-		using Key = sf::Keyboard::Key;
+		using Key = BM::Keyboard::Key;
 
 	case Key::Tab:
 		GetApp().SetTimeScale(GetApp().GetContext().TimeScale > 1.f ? 1.f : 100.f);

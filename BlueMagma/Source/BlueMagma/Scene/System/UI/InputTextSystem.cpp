@@ -2,10 +2,10 @@
 #include "InputTextSystem.hpp"
 
 #include "Event/EventDispatcher.hpp"
+#include "Input/Keyboard.hpp"
 #include "Scene/Component/Core.hpp"
 #include "Scene/Component/Render.hpp"
 
-#include <SFML/Window/Keyboard.hpp>
 #include <SFML/System/String.hpp>
 
 namespace BM::UI
@@ -259,7 +259,7 @@ namespace BM::UI
 			bool resetBlink = false;
 			switch (keyPressed.code)
 			{
-				using Key = sf::Keyboard::Key;
+				using Key = BM::Keyboard::Key;
 
 			case Key::Escape:
 			case Key::Enter:

@@ -90,7 +90,7 @@ namespace Paddle
 
 		if (m_BallVelocity.X != 0.f)
 		{
-			using Key = sf::Keyboard::Key;
+			using Key = BM::Keyboard::Key;
 			if (!IsBot(m_LeftPaddle))
 				UpdatePlayerPaddle(m_LeftPaddle, Key::W, Key::S, deltaTime);
 			else
@@ -159,7 +159,7 @@ namespace Paddle
 	{
 		switch (keyPressed.code)
 		{
-			using Key = sf::Keyboard::Key;
+			using Key = BM::Keyboard::Key;
 
 		case Key::Add:
 			GetApp().SetTimeScale(GetApp().GetContext().TimeScale + 1.f);
@@ -267,7 +267,7 @@ namespace Paddle
 			});
 	}
 
-	void PaddleLayer::UpdatePlayerPaddle(BM::Entity paddle, sf::Keyboard::Key upKey, sf::Keyboard::Key downKey, float deltaTime) noexcept
+	void PaddleLayer::UpdatePlayerPaddle(BM::Entity paddle, BM::Keyboard::Key upKey, BM::Keyboard::Key downKey, float deltaTime) noexcept
 	{
 		if (auto window = GetWindow().lock())
 		{
@@ -275,11 +275,10 @@ namespace Paddle
 				return;
 		}
 
-		namespace Keyboard = sf::Keyboard;
 		float directionY = 0.f;
-		if (Keyboard::isKeyPressed(upKey))
+		if (BM::Keyboard::IsPressed(upKey))
 			directionY -= 1.f;
-		if (Keyboard::isKeyPressed(downKey))
+		if (BM::Keyboard::IsPressed(downKey))
 			directionY += 1.f;
 
 		UpdatePaddle(paddle, directionY, deltaTime);

@@ -50,6 +50,8 @@ set(SOURCES
     # Input
     Source/BlueMagma/Input/Mouse.hpp
     Source/BlueMagma/Input/Mouse.cpp
+    Source/BlueMagma/Input/Keyboard.hpp
+    Source/BlueMagma/Input/Keyboard.cpp
 
     # Asset
     Source/BlueMagma/Asset/DefaultFont.hpp

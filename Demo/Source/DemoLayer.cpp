@@ -2,6 +2,7 @@
 #include "GameLayer.hpp"
 #include <BlueMagma/Event/EventDispatcher.hpp>
 #include <BlueMagma/Framework/Application.hpp>
+#include <BlueMagma/Input/Keyboard.hpp>
 
 DemoLayer::DemoLayer() noexcept
 	: m_Sprite(BM::Texture::GetDefault())
@@ -43,7 +44,7 @@ bool DemoLayer::OnKeyPressed(const BM::EventHandle::KeyPressed& keyPressed) noex
 {
 	switch (keyPressed.code)
 	{
-		using Key = sf::Keyboard::Key;
+		using Key = BM::Keyboard::Key;
 
 	case Key::Z:
 		QueueTransitionTo<GameLayer>();

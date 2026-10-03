@@ -2,10 +2,10 @@
 #include <BlueMagma/Framework/Layer/AppLayer.hpp>
 #include <BlueMagma/Math/Vec2.hpp>
 #include <BlueMagma/Graphics/Camera2D.hpp>
+#include <BlueMagma/Input/Keyboard.hpp>
 #include <BlueMagma/Scene/Scene.hpp>
 #include <BlueMagma/Scene/Entity.hpp>
 #include <BlueMagma/Scene/Component/Render.hpp>
-#include <SFML/Window/Keyboard.hpp>
 
 namespace Paddle
 {
@@ -51,7 +51,7 @@ namespace Paddle
 
 		void TickBotPaddle(BM::Entity paddle, float timeStep) noexcept;
 
-		void UpdatePlayerPaddle(BM::Entity paddle, sf::Keyboard::Key upKey, sf::Keyboard::Key downKey, float deltaTime) noexcept;
+		void UpdatePlayerPaddle(BM::Entity paddle, BM::Keyboard::Key upKey, BM::Keyboard::Key downKey, float deltaTime) noexcept;
 		void UpdateBotPaddle(BM::Entity paddle, float deltaTime) noexcept;
 		void UpdatePaddle(BM::Entity paddle, float directionY, float deltaTime) noexcept;
 		void UpdateBall(float deltaTime) noexcept;
