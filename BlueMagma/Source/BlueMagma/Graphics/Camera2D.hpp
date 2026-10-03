@@ -25,8 +25,8 @@ namespace BM
 
 		void SetZoomFactor(float zoomFactor) noexcept;
 		void Zoom(float multiplier) noexcept;
-		void ZoomIn(float amount, float min) noexcept;
-		void ZoomOut(float amount, float max) noexcept;
+		void ZoomIn(float amount, float max) noexcept;
+		void ZoomOut(float amount, float min) noexcept;
 
 		void SetViewport(RectFloat viewport) noexcept;
 		void SetViewport(RectFloat viewport, Vec2u windowSize) noexcept;

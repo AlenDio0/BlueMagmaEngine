@@ -317,12 +317,55 @@ void GameLayer::InitUIExample() noexcept
 #pragma region Button
 
 	{
-		auto onButtonClick = [&](BM::Entity entity, auto event)
+		auto onButtonClick = [&](BM::Entity entity, BM::EventHandle::MouseButtonPressed event)
 			{
-				BM_INFO("Button has been pressed, destroyed");
-				m_Scene.Destroy(entity);
+				BM_INFO("Button (entity: {}) has been pressed", entity);
+
+				switch (event.button)
+				{
+					using MButton = sf::Mouse::Button;
+
+				case MButton::Left:
+				{
+					std::vector children = entity.GetChildren();
+					for (BM::Entity child : children)
+					{
+						child.TryPatch<BM::Component::Transform>([](BM::Component::Transform& transform) {
+							const auto& [position, scale, rotation, z] = transform.Global;
+							transform.Local.State = { .Position = position, .Scale = scale, .Origin = transform.Local.State.Origin, .Rotation = rotation };
+							transform.Local.Z = z;
+							});
+					}
+
+					m_Scene.RemoveEntityChildren(entity);
+					//m_Scene.Destroy(entity);
+				}
+				break;
+				case MButton::Right:
+					if (std::vector children = entity.GetChildren(); !children.empty())
+					{
+						BM::Entity child = children.front();
+						child.TryPatch<BM::Component::Transform>([](BM::Component::Transform& transform) {
+							const auto& [position, scale, rotation, z] = transform.Global;
+							transform.Local.State = { .Position = position, .Scale = scale, .Origin = transform.Local.State.Origin, .Rotation = rotation };
+							transform.Local.Z = z;
+							});
+
+						m_Scene.RemoveEntityParent(child);
+					}
+					return true;
+				case MButton::Middle:
+					m_Scene.DestroyEntityChildren(entity);
+					break;
+
+				default:
+					m_Scene.Destroy(entity);
+					break;
+				}
+
 				return false;
 			};
+
 		m_Button = BM::ButtonBuilder().At(cWindowSize.Center()).WithOrigin(BM::Vec2f(0.5f)).AtZ(10.f)
 			.WithColor(BM::ColorDef::Blue).WithOutline({ .Color = BM::ColorDef::Red, .Thickness = 2.f })
 			.WithRectShape({ .Size = cUISize, .Corner = 10.f })
@@ -349,7 +392,7 @@ void GameLayer::InitUIExample() noexcept
 		auto onEllipseButtonClick = [&](BM::Entity entity, auto event) {
 			static size_t sPressedCount = 0;
 			sPressedCount++;
-			BM_INFO("Test Button pressed {} times", sPressedCount);
+			BM_INFO("Test Button (entity: {}) pressed {} times", entity, sPressedCount);
 
 			entity.Patch<Comp::Transform>([&](auto& transform) { transform.Local.State.Rotation += 10.f; });
 
@@ -616,16 +659,22 @@ bool GameLayer::OnMouseScrolled(const BM::EventHandle::MouseWheelScrolled& mouse
 	if (!renderer)
 		return false;
 
+	constexpr float cMaxZoom = 20.f;
+	constexpr float cMinZoom = 0.5f;
+	constexpr float cZoomMultiplier = 1.1f;
+
 	const BM::Vec2i cMousePosition = mouseScrolled.position;
-	const BM::Vec2f cMouseBeforeZoom = renderer->PixelToCoords(cMousePosition);
+	const BM::Vec2f cMouseBeforeZoom = renderer->PixelToCoords(cMousePosition, m_MainCamera);
 
-	const float cZoomAmount = m_MainCamera.GetZoomFactor() / 10.f;
+	float newZoomFactor = m_MainCamera.GetZoomFactor();
 	if (mouseScrolled.delta > 0.f)
-		m_MainCamera.ZoomIn(cZoomAmount, 20.f);
+		newZoomFactor *= cZoomMultiplier;
 	else if (mouseScrolled.delta < 0.f)
-		m_MainCamera.ZoomOut(cZoomAmount, 0.5f);
-	const BM::Vec2f cMouseAfterZoom = renderer->PixelToCoords(cMousePosition, m_MainCamera);
+		newZoomFactor /= cZoomMultiplier;
 
+	m_MainCamera.SetZoomFactor(std::clamp(newZoomFactor, cMinZoom, cMaxZoom));
+
+	const BM::Vec2f cMouseAfterZoom = renderer->PixelToCoords(cMousePosition, m_MainCamera);
 	m_MainCamera.Move(cMouseBeforeZoom - cMouseAfterZoom);
 
 	UpdateMouseRender(cMousePosition);

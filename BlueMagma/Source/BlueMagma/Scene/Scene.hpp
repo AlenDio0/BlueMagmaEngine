@@ -102,9 +102,13 @@ namespace BM
 		[[nodiscard]] std::optional<Entity> GetEntityParent(EntityHandle handle) noexcept;
 		[[nodiscard]] std::vector<Entity> GetEntityChildren(EntityHandle handle) noexcept;
 
+		void DestroyEntityChildren(EntityHandle handle) noexcept;
 		void RemoveEntityChildren(EntityHandle handle) noexcept;
+
+		void DestroyEntityParent(EntityHandle handle) noexcept;
 		void RemoveEntityParent(EntityHandle handle) noexcept;
-		void RemoveEntityHierarchy(EntityHandle handle) noexcept;
+
+		void DestroyEntityHierarchy(EntityHandle handle) noexcept;
 
 		//======================================================================================
 

@@ -11,6 +11,9 @@ namespace BM
 
 	static inline void SetNeedUpdate(Registry& registry, EntityHandle entity) noexcept
 	{
+		if (!registry.all_of<Transform>(entity))
+			return;
+
 		auto& transform = registry.get<Transform>(entity);
 		transform.CachedUpdated = false;
 	}
@@ -19,6 +22,12 @@ namespace BM
 
 	void TransformSystem::OnAttach(Scene& scene) noexcept
 	{
+		scene.OnConstruct<Hierarchy>().connect<&TransformSystem::SetNeedUpdateZ>(this);
+		scene.OnDestroy<Hierarchy>().connect<&TransformSystem::SetNeedUpdateZ>(this);
+		scene.OnUpdate<Hierarchy>().connect<&TransformSystem::SetNeedUpdateZ>(this);
+
+		scene.OnUpdate<Hierarchy>().connect<SetNeedUpdate>();
+
 		scene.OnConstruct<Transform>().connect<&TransformSystem::SetNeedUpdateZ>(this);
 		scene.OnDestroy<Transform>().connect<&TransformSystem::SetNeedUpdateZ>(this);
 		scene.OnUpdate<Transform>().connect<&TransformSystem::SetNeedUpdateZ>(this);
@@ -33,7 +42,7 @@ namespace BM
 		auto view = scene.View<Transform>();
 		for (EntityHandle entity : view)
 		{
-			if (scene.HasAllComponent<Hierarchy>(entity) && scene.IsValid(scene.GetComponent<Hierarchy>(entity).Parent))
+			if (scene.GetEntityParent(entity))
 				continue;
 
 			UpdateTransformAndChildren(scene.GetEntity(entity), sRootGlobal, true);
